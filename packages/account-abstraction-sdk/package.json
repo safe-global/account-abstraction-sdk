@@ -1,0 +1,37 @@
+{
+  "name": "@safe-global/account-abstraction-sdk",
+  "version": "0.1.0",
+  "description": "Safe Account Abstraction SDK",
+  "main": "dist/src/index.js",
+  "typings": "dist/src/index.d.ts",
+  "scripts": {
+    "format:check": "prettier --check \"*/**/*.{js,json,md,ts}\"",
+    "format": "prettier --write */**/*.{js,json,md,ts}",
+    "unbuild": "rimraf dist",
+    "build": "rm -rf dist && yarn tsc",
+    "test": "echo \"Error: no test specified\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/safe-global/account-abstraction-sdk.git"
+  },
+  "keywords": [
+    "Safe",
+    "Ethereum",
+    "Account Abstraction",
+    "SDK"
+  ],
+  "author": "Safe (https://safe.global)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/safe-global/account-abstraction-sdk/issues"
+  },
+  "files": [
+    "dist"
+  ],
+  "homepage": "https://github.com/safe-global/account-abstraction-sdk#readme",
+  "devDependencies": {
+    "prettier": "^2.8.3",
+    "typescript": "^4.9.4"
+  }
+}

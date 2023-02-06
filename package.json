@@ -17,6 +17,10 @@
   "author": "Safe (https://safe.global)",
   "license": "MIT",
   "devDependencies": {
-    "lerna": "^6.4.1"
+    "lerna": "^6.4.1",
+    "typescript": "^4.9.5",
+    "@types/jest": "^29.4.0",
+    "@types/node": "^18.11.19",
+    "prettier": "^2.8.3"
   }
 }

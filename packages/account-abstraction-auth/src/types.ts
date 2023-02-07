@@ -30,6 +30,6 @@ export enum SafeAuthProviderType {
 export interface SafeAuthConfig {
   chainId: string
   txServiceUrl: string
-  infuraKey: string
+  rpcTarget: string
   web3AuthClientId: string
 }

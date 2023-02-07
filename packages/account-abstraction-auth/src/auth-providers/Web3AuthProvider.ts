@@ -1,8 +1,6 @@
-import { WALLET_ADAPTERS } from '@web3auth/base'
+import { CHAIN_NAMESPACES, WALLET_ADAPTERS } from '@web3auth/base'
 import { Web3Auth } from '@web3auth/modal'
 import { OpenloginAdapter } from '@web3auth/openlogin-adapter'
-
-import { getChainConfig } from './utils'
 
 import type { SafeAuthClient } from '../types'
 
@@ -11,12 +9,12 @@ export default class Web3AuthProvider implements SafeAuthClient {
   private clientId: string
   private chain: string
   private web3authInstance?: Web3Auth
-  private infuraKey: string
+  private rpcTarget: string
 
-  constructor(clientId: string, chain: string, infuraKey: string) {
+  constructor(clientId: string, chain: string, rpcTarget: string) {
     this.clientId = clientId
     this.chain = chain
-    this.infuraKey = infuraKey
+    this.rpcTarget = rpcTarget
   }
 
   async initialize() {
@@ -24,7 +22,11 @@ export default class Web3AuthProvider implements SafeAuthClient {
       const web3auth = new Web3Auth({
         clientId: this.clientId,
         web3AuthNetwork: 'testnet', // mainnet, aqua, celeste, cyan or testnet
-        chainConfig: getChainConfig(this.infuraKey)[this.chain],
+        chainConfig: {
+          chainNamespace: CHAIN_NAMESPACES.EIP155,
+          chainId: '0x1',
+          rpcTarget: this.rpcTarget
+        },
         uiConfig: {
           theme: 'dark',
           loginMethodsOrder: ['facebook', 'google'],

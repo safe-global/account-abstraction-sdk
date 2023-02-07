@@ -9,26 +9,23 @@ import { SafeAuthClient, SafeAuthConfig, SafeAuthProviderType, SafeAuthSignInDat
 export default class SafeAuth extends EventEmitter {
   safeAuthData?: SafeAuthSignInData
   private authClient?: SafeAuthClient
-  private txServiceUrl: string
-  private infuraKey: string
-  private web3AuthClientId: string
+  private config: SafeAuthConfig
 
-  constructor(
-    providerType: SafeAuthProviderType,
-    { chainId, txServiceUrl, infuraKey, web3AuthClientId }: SafeAuthConfig
-  ) {
+  constructor(providerType: SafeAuthProviderType, config: SafeAuthConfig) {
     super()
 
-    this.txServiceUrl = txServiceUrl
-    this.infuraKey = infuraKey
-    this.web3AuthClientId = web3AuthClientId
-    this.initializeAuthProvider(providerType, chainId)
+    this.config = config
+    this.initializeAuthProvider(providerType)
   }
 
-  private async initializeAuthProvider(type: SafeAuthProviderType, chainId: string) {
+  private async initializeAuthProvider(type: SafeAuthProviderType) {
     switch (type) {
       case SafeAuthProviderType.Web3Auth:
-        this.authClient = new Web3AuthProvider(this.web3AuthClientId || '', chainId, this.infuraKey)
+        this.authClient = new Web3AuthProvider(
+          this.config.web3AuthClientId || '',
+          this.config.chainId,
+          this.config.rpcTarget
+        )
 
         return await this.authClient.initialize()
       default:
@@ -85,7 +82,7 @@ export default class SafeAuth extends EventEmitter {
     })
 
     return new SafeServiceClient({
-      txServiceUrl: this.txServiceUrl,
+      txServiceUrl: this.config.txServiceUrl,
       ethAdapter: adapter
     })
   }

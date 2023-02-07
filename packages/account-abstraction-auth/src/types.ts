@@ -8,7 +8,7 @@ type UserInfo = {
   email?: string
 }
 
-export interface SafeAuthSignInResponse {
+export interface SafeAuthSignInData {
   chainId: string
   eoa: EOA
   safes: string[]

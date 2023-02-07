@@ -4,14 +4,10 @@ import { ethers } from 'ethers'
 import EventEmitter from 'events'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
 import SafeServiceClient from '@safe-global/safe-service-client'
-import {
-  SafeAuthClient,
-  SafeAuthConfig,
-  SafeAuthProviderType,
-  SafeAuthSignInResponse
-} from './types'
+import { SafeAuthClient, SafeAuthConfig, SafeAuthProviderType, SafeAuthSignInData } from './types'
 
 export default class SafeAuth extends EventEmitter {
+  safeAuthData?: SafeAuthSignInData
   private authClient?: SafeAuthClient
   private txServiceUrl: string
   private infuraKey: string
@@ -40,7 +36,7 @@ export default class SafeAuth extends EventEmitter {
     }
   }
 
-  async signIn(): Promise<SafeAuthSignInResponse> {
+  async signIn(): Promise<SafeAuthSignInData> {
     await this.authClient?.signIn()
 
     const userInfo = await this.authClient?.getUserInfo()
@@ -54,17 +50,20 @@ export default class SafeAuth extends EventEmitter {
 
     this.emit('signIn')
 
-    return {
+    this.safeAuthData = {
       chainId,
       eoa: { address, balance },
       safes,
       userInfo: userInfo || {}
     }
+
+    return this.safeAuthData
   }
 
   async signOut(): Promise<void> {
     await this.authClient?.signOut()
 
+    this.safeAuthData = undefined
     this.emit('signOut')
   }
 

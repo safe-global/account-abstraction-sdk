@@ -1,7 +1,7 @@
-import SafeAuth from './SafeAuth';
-import { SafeAuthProviderType } from './types';
-import type { SafeAuthClient, SafeAuthSignInResponse } from './types';
+import SafeAuth from './SafeAuth'
+import { SafeAuthProviderType } from './types'
+import type { SafeAuthClient, SafeAuthSignInData } from './types'
 
-export type { SafeAuthClient, SafeAuthSignInResponse };
+export type { SafeAuthClient, SafeAuthSignInData }
 
-export { SafeAuth, SafeAuthProviderType };
+export { SafeAuth, SafeAuthProviderType }

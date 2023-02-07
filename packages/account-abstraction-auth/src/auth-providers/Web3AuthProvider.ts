@@ -10,7 +10,6 @@ export default class Web3AuthProvider implements SafeAuthClient {
   provider: any
   private clientId: string
   private chain: string
-
   private web3authInstance?: Web3Auth
   private infuraKey: string
 

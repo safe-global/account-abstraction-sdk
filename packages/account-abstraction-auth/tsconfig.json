@@ -3,6 +3,9 @@
   "compilerOptions": {
     "composite": true,
     "outDir": "dist",
+    "module": "esnext",
+    "target": "es2015",
+    "lib": ["es2015", "dom"],
     "baseUrl": "src"
   },
   "include": ["src"]

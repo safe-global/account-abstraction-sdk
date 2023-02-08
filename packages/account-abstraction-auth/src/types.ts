@@ -40,3 +40,8 @@ export interface SafeAuthConfig {
   txServiceUrl: string
   authProviderConfig: Web3AuthProviderConfig
 }
+
+export const SafeAuthEvents = {
+  SIGN_IN: 'SIGN_IN',
+  SIGN_OUT: 'SIGN_OUT'
+}

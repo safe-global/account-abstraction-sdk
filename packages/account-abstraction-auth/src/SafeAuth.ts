@@ -1,10 +1,17 @@
-import Web3AuthProvider from './auth-providers/Web3AuthProvider'
-import RPC from './EthereumRPC'
 import { ethers } from 'ethers'
 import EventEmitter from 'events'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
 import SafeServiceClient from '@safe-global/safe-service-client'
-import { SafeAuthClient, SafeAuthConfig, SafeAuthProviderType, SafeAuthSignInData } from './types'
+
+import Web3AuthProvider from './auth-providers/Web3AuthProvider'
+import RPC from './EthereumRPC'
+import {
+  SafeAuthClient,
+  SafeAuthConfig,
+  SafeAuthProviderType,
+  SafeAuthSignInData,
+  SafeAuthEvents
+} from './types'
 
 export default class SafeAuth extends EventEmitter {
   safeAuthData?: SafeAuthSignInData
@@ -41,7 +48,7 @@ export default class SafeAuth extends EventEmitter {
 
     const { safes } = await this.getSafeCoreClient().getSafesByOwner(address)
 
-    this.emit('signIn')
+    this.emit(SafeAuthEvents.SIGN_IN)
 
     this.safeAuthData = {
       chainId,
@@ -57,15 +64,15 @@ export default class SafeAuth extends EventEmitter {
     await this.authClient?.signOut()
 
     this.safeAuthData = undefined
-    this.emit('signOut')
+    this.emit(SafeAuthEvents.SIGN_OUT)
   }
 
   getProvider() {
     return this.authClient?.provider
   }
 
-  subscribe(eventName: string | symbol, listener: (...args: any[]) => void) {
-    this.on(eventName, listener)
+  subscribe(eventName: typeof SafeAuthEvents, listener: (...args: any[]) => void) {
+    this.on(eventName.toString(), listener)
   }
 
   private getSafeCoreClient() {

@@ -27,9 +27,16 @@ export enum SafeAuthProviderType {
   Web3Auth
 }
 
+export interface Web3AuthProviderConfig {
+  rpcTarget: string
+  web3AuthClientId: string
+  web3AuthNetwork: 'mainnet' | 'aqua' | 'celeste' | 'cyan' | 'testnet'
+  theme: 'light' | 'dark' | 'auto'
+  appLogo?: string
+}
+
 export interface SafeAuthConfig {
   chainId: string
   txServiceUrl: string
-  rpcTarget: string
-  web3AuthClientId: string
+  authProviderConfig: Web3AuthProviderConfig
 }

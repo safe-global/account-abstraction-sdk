@@ -2,76 +2,51 @@ import { CHAIN_NAMESPACES, WALLET_ADAPTERS } from '@web3auth/base'
 import { Web3Auth } from '@web3auth/modal'
 import { OpenloginAdapter } from '@web3auth/openlogin-adapter'
 
-import type { SafeAuthClient } from '../types'
+import type { SafeAuthClient, Web3AuthProviderConfig } from '../types'
 
 export default class Web3AuthProvider implements SafeAuthClient {
   provider: any
-  private clientId: string
   private chainId: string
   private web3authInstance?: Web3Auth
-  private rpcTarget: string
+  private config: Web3AuthProviderConfig
 
-  constructor(clientId: string, chainId: string, rpcTarget: string) {
-    this.clientId = clientId
+  constructor(chainId: string, config: Web3AuthProviderConfig) {
+    this.config = config
     this.chainId = chainId
-    this.rpcTarget = rpcTarget
   }
 
   async initialize() {
     try {
       const web3auth = new Web3Auth({
-        clientId: this.clientId,
-        web3AuthNetwork: 'testnet', // mainnet, aqua, celeste, cyan or testnet
+        clientId: this.config.web3AuthClientId,
+        web3AuthNetwork: this.config.web3AuthNetwork,
         chainConfig: {
           chainNamespace: CHAIN_NAMESPACES.EIP155,
           chainId: this.chainId,
-          rpcTarget: this.rpcTarget
+          rpcTarget: this.config.rpcTarget
         },
         uiConfig: {
-          theme: 'dark',
-          loginMethodsOrder: ['facebook', 'google'],
-          appLogo: 'https://web3auth.io/images/w3a-L-Favicon-1.svg' // Your App Logo Here
+          theme: this.config.theme,
+          loginMethodsOrder: ['facebook', 'google']
         }
       })
 
       const openloginAdapter = new OpenloginAdapter({
         loginSettings: {
-          mfaLevel: 'optional' // Pass on the mfa level of your choice: default, optional, mandatory, none
+          mfaLevel: 'none'
         },
         adapterSettings: {
           uxMode: 'popup',
           whiteLabel: {
             name: 'Safe',
-            logoLight: 'https://web3auth.io/images/w3a-L-Favicon-1.svg',
-            logoDark: 'https://web3auth.io/images/w3a-D-Favicon-1.svg',
-            defaultLanguage: 'en',
-            dark: true // whether to enable dark mode. defaultValue: false
+            defaultLanguage: 'en'
           }
         }
       })
 
       web3auth.configureAdapter(openloginAdapter)
 
-      await web3auth.initModal({
-        modalConfig: {
-          [WALLET_ADAPTERS.OPENLOGIN]: {
-            label: 'openlogin',
-            loginMethods: {
-              google: {
-                name: 'google login',
-                logoDark: 'url to your custom logo which will shown in dark mode'
-              },
-              facebook: {
-                name: 'facebook login',
-                // it will hide the facebook option from the Web3Auth modal.
-                showOnModal: false
-              }
-            },
-            // setting it to false will hide all social login methods from modal.
-            showOnModal: true
-          }
-        }
-      })
+      await web3auth.initModal()
 
       this.provider = web3auth.provider
       this.web3authInstance = web3auth

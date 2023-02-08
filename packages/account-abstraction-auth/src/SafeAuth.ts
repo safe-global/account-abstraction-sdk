@@ -21,11 +21,7 @@ export default class SafeAuth extends EventEmitter {
   private async initializeAuthProvider(type: SafeAuthProviderType) {
     switch (type) {
       case SafeAuthProviderType.Web3Auth:
-        this.authClient = new Web3AuthProvider(
-          this.config.web3AuthClientId || '',
-          this.config.chainId,
-          this.config.rpcTarget
-        )
+        this.authClient = new Web3AuthProvider(this.config.chainId, this.config.authProviderConfig)
 
         return await this.authClient.initialize()
       default:

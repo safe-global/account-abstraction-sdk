@@ -7,13 +7,13 @@ import type { SafeAuthClient } from '../types'
 export default class Web3AuthProvider implements SafeAuthClient {
   provider: any
   private clientId: string
-  private chain: string
+  private chainId: string
   private web3authInstance?: Web3Auth
   private rpcTarget: string
 
-  constructor(clientId: string, chain: string, rpcTarget: string) {
+  constructor(clientId: string, chainId: string, rpcTarget: string) {
     this.clientId = clientId
-    this.chain = chain
+    this.chainId = chainId
     this.rpcTarget = rpcTarget
   }
 
@@ -24,7 +24,7 @@ export default class Web3AuthProvider implements SafeAuthClient {
         web3AuthNetwork: 'testnet', // mainnet, aqua, celeste, cyan or testnet
         chainConfig: {
           chainNamespace: CHAIN_NAMESPACES.EIP155,
-          chainId: '0x1',
+          chainId: this.chainId,
           rpcTarget: this.rpcTarget
         },
         uiConfig: {
@@ -41,7 +41,7 @@ export default class Web3AuthProvider implements SafeAuthClient {
         adapterSettings: {
           uxMode: 'popup',
           whiteLabel: {
-            name: 'Your app Name',
+            name: 'Safe',
             logoLight: 'https://web3auth.io/images/w3a-L-Favicon-1.svg',
             logoDark: 'https://web3auth.io/images/w3a-D-Favicon-1.svg',
             defaultLanguage: 'en',

@@ -18,13 +18,13 @@ const safeAuth = new SafeAuth(SafeAuthProviderType.Web3Auth, {
 Once the instance is created, you can call the `signIn` method to start the authentication process showing the web3Auth modal.
 
 ```typescript
-web3Auth.signIn()
+await web3Auth.signIn()
 ```
 
 The `signOut` method will remove the current session.
 
 ```typescript
-web3Auth.signOut()
+await web3Auth.signOut()
 ```
 
 You can get the provider instance by calling the `getProvider` method.

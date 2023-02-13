@@ -2,12 +2,13 @@
   "name": "account-abstraction-sdk",
   "private": true,
   "scripts": {
-    "clean": "lerna clean",
+    "clean": "lerna clean && rm -rf ./node_modules",
     "format:check": "lerna run format:check",
     "format": "lerna run format",
     "unbuild": "lerna run unbuild",
     "build": "lerna run build --stream",
-    "test": "FORCE_COLOR=1 lerna run test --stream"
+    "test": "FORCE_COLOR=1 lerna run test --stream",
+    "play": "ts-node ./playground/config/run.ts"
   },
   "workspaces": {
     "packages": [
@@ -17,6 +18,8 @@
   "author": "Safe (https://safe.global)",
   "license": "MIT",
   "devDependencies": {
-    "lerna": "^6.4.1"
+    "@types/node": "^18.11.18",
+    "lerna": "^6.4.1",
+    "ts-node": "^10.9.1"
   }
 }

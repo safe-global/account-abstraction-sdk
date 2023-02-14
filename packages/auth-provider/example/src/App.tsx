@@ -18,7 +18,7 @@ function App() {
       setSafeAuth(
         await SafeAuth.initialize(SafeAuthProviderType.Web3Auth, {
           chainId: '0x5',
-          txServiceUrl: 'https://safe-transaction-goerli.safe.global',
+          txServiceUrl: 'https://safe-transaction-goerli.safe.global', // Optional. Only if want to retrieve related safes
           authProviderConfig: {
             rpcTarget: `https://goerli.infura.io/v3/${import.meta.env.VITE_INFURA_KEY}`,
             web3AuthClientId: import.meta.env.VITE_WEB3AUTH_CLIENT_ID || '',
@@ -34,6 +34,8 @@ function App() {
     if (!safeAuth) return
 
     const response = await safeAuth.signIn()
+    console.log('SIGN IN RESPONSE: ', response)
+
     setSafeAuthSignInResponse(response)
     setProvider(safeAuth.getProvider() as SafeEventEmitterProvider)
   }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { SafeEventEmitterProvider } from '@web3auth/base'
-import { Box, Divider, Grid, TextField, Typography } from '@mui/material'
+import { Box, Divider, Grid, Typography } from '@mui/material'
 import { EthHashInfo } from '@safe-global/safe-react-components'
 import { SafeAuth, SafeAuthProviderType, SafeAuthSignInData } from '../../src/index'
 

@@ -5,7 +5,6 @@ Create an instance of the SafeAuth class and pass the `SafeAuthProviderType` and
 ```typescript
 const safeAuth = new SafeAuth(SafeAuthProviderType.Web3Auth, {
   chainId: '0x5',
-  txServiceUrl: 'https://safe-transaction-goerli.safe.global',
   authProviderConfig: {
     rpcTarget: `https://goerli.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`,
     web3AuthClientId: process.env.REACT_APP_WEB3AUTH_CLIENT_ID || '',
@@ -44,3 +43,15 @@ web3Auth.subscribe(SafeAuthEvents.SIGN_OUT, () => {
   console.log('User is not authenticated')
 })
 ```
+
+It's also possible to get the associated safes to a external owned account adding the transaction service url to the config.
+
+```typescript
+const safeAuth = new SafeAuth(SafeAuthProviderType.Web3Auth, {
+  ...
+  txServiceUrl: 'https://safe-transaction-goerli.safe.global'
+  authProviderConfig: { ... }
+})
+```
+
+When provided, the list of associated safes will be provided as part of the `signIn` method response.

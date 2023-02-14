@@ -27,7 +27,7 @@ export default class Web3AuthProvider implements SafeAuthClient {
         },
         uiConfig: {
           theme: this.config.theme,
-          loginMethodsOrder: ['facebook', 'google']
+          loginMethodsOrder: ['google', 'facebook']
         }
       })
 

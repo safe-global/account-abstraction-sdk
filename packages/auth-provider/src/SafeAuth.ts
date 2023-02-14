@@ -4,7 +4,7 @@ import EthersAdapter from '@safe-global/safe-ethers-lib'
 import SafeServiceClient from '@safe-global/safe-service-client'
 
 import Web3AuthProvider from './auth-providers/Web3AuthProvider'
-import RPC from './EthereumRPC'
+
 import {
   SafeAuthClient,
   SafeAuthConfig,
@@ -39,22 +39,28 @@ export default class SafeAuth extends EventEmitter {
   async signIn(): Promise<SafeAuthSignInData> {
     await this.authClient?.signIn()
 
-    const userInfo = await this.authClient?.getUserInfo()
+    const ethersProvider = new ethers.providers.Web3Provider(this.authClient?.provider)
+    const signer = ethersProvider.getSigner()
+    const address = await signer.getAddress()
 
-    const rpc = new RPC(this.getProvider())
-    const address = await rpc.getAccounts()
-    const balance = await rpc.getBalance()
-    const chainId = await rpc.getChainId()
+    let safes: string[] | undefined
 
-    const { safes } = await this.getSafeCoreClient().getSafesByOwner(address)
+    // Retrieve safes if txServiceUrl is provided
+    if (this.config.txServiceUrl) {
+      try {
+        const safesByOwner = await this.getSafeCoreClient().getSafesByOwner(address)
+        safes = safesByOwner.safes
+      } catch (e) {
+        console.error('There was an error while trying to get the safes for the current user')
+      }
+    }
 
-    this.emit(SafeAuthEvents.SIGN_IN)
+    this.emit(SafeAuthEvents.SIGNED_IN)
 
     this.safeAuthData = {
-      chainId,
-      eoa: { address, balance },
-      safes,
-      userInfo: userInfo || {}
+      chainId: this.config.chainId,
+      eoa: address,
+      safes
     }
 
     return this.safeAuthData
@@ -64,7 +70,7 @@ export default class SafeAuth extends EventEmitter {
     await this.authClient?.signOut()
 
     this.safeAuthData = undefined
-    this.emit(SafeAuthEvents.SIGN_OUT)
+    this.emit(SafeAuthEvents.SIGNED_OUT)
   }
 
   getProvider() {
@@ -75,7 +81,11 @@ export default class SafeAuth extends EventEmitter {
     this.on(eventName.toString(), listener)
   }
 
-  private getSafeCoreClient() {
+  private getSafeCoreClient(): SafeServiceClient {
+    if (!this.config.txServiceUrl) {
+      throw new Error('txServiceUrl is not defined')
+    }
+
     const provider = new ethers.providers.Web3Provider(this.getProvider())
     const safeOwner = provider.getSigner(0)
 

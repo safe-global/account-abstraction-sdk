@@ -1,22 +1,16 @@
-import {
-  AppBar as MuiAppBar,
-  Typography,
-  styled,
-  Box,
-  Button,
-} from '@mui/material';
+import { AppBar as MuiAppBar, Typography, styled, Box, Button } from '@mui/material'
 
 type AppBarProps = {
-  isLoggedIn: boolean;
-  onLogin: () => void;
-  onLogout: () => void;
-};
+  isLoggedIn: boolean
+  onLogin: () => void
+  onLogout: () => void
+}
 
 const AppBar = ({ isLoggedIn, onLogin, onLogout }: AppBarProps) => {
   return (
     <StyledAppBar position="static" color="default">
       <Typography variant="h3" pl={4} fontWeight={700}>
-        Web3Auth Demo
+        Auth Provider Demo
       </Typography>
 
       <Box mr={5}>
@@ -31,8 +25,8 @@ const AppBar = ({ isLoggedIn, onLogin, onLogout }: AppBarProps) => {
         )}
       </Box>
     </StyledAppBar>
-  );
-};
+  )
+}
 
 const StyledAppBar = styled(MuiAppBar)`
   && {
@@ -46,6 +40,6 @@ const StyledAppBar = styled(MuiAppBar)`
     border-bottom: 2px solid ${({ theme }) => theme.palette.background.paper};
     box-shadow: none;
   }
-`;
+`
 
-export default AppBar;
+export default AppBar

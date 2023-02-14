@@ -3,7 +3,7 @@
 Create an instance of the SafeAuth class and pass the `SafeAuthProviderType` and the `SafeAuthConfig` object as parameters.
 
 ```typescript
-const safeAuth = new SafeAuth(SafeAuthProviderType.Web3Auth, {
+const safeAuth = await SafeAuth.initialize(SafeAuthProviderType.Web3Auth, {
   chainId: '0x5',
   authProviderConfig: {
     rpcTarget: `https://goerli.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`,
@@ -17,29 +17,29 @@ const safeAuth = new SafeAuth(SafeAuthProviderType.Web3Auth, {
 Once the instance is created, you can call the `signIn` method to start the authentication process showing the web3Auth modal.
 
 ```typescript
-await web3Auth.signIn()
+await safeAuth.signIn()
 ```
 
 The `signOut` method will remove the current session.
 
 ```typescript
-await web3Auth.signOut()
+await safeAuth.signOut()
 ```
 
 You can get the provider instance by calling the `getProvider` method.
 
 ```typescript
-web3Auth.getProvider()
+safeAuth.getProvider()
 ```
 
 We expose to events to know when the user is authenticated or when the session is removed.
 
 ```typescript
-web3Auth.subscribe(SafeAuthEvents.SIGN_IN, () => {
+safeAuth.subscribe(SafeAuthEvents.SIGN_IN, () => {
   console.log('User is authenticated')
 })
 
-web3Auth.subscribe(SafeAuthEvents.SIGN_OUT, () => {
+safeAuth.subscribe(SafeAuthEvents.SIGN_OUT, () => {
   console.log('User is not authenticated')
 })
 ```
@@ -47,7 +47,7 @@ web3Auth.subscribe(SafeAuthEvents.SIGN_OUT, () => {
 It's also possible to get the associated safes to a external owned account adding the transaction service url to the config.
 
 ```typescript
-const safeAuth = new SafeAuth(SafeAuthProviderType.Web3Auth, {
+const safeAuth = await SafeAuth.initialize(SafeAuthProviderType.Web3Auth, {
   ...
   txServiceUrl: 'https://safe-transaction-goerli.safe.global'
   authProviderConfig: { ... }

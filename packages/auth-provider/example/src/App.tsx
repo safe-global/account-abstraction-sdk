@@ -35,7 +35,7 @@ function App() {
 
     const response = await safeAuth.signIn()
     setSafeAuthSignInResponse(response)
-    setProvider(safeAuth.getProvider())
+    setProvider(safeAuth.getProvider() as SafeEventEmitterProvider)
   }
 
   const logout = async () => {

@@ -1,11 +1,12 @@
 import { CHAIN_NAMESPACES, WALLET_ADAPTERS } from '@web3auth/base'
 import { Web3Auth } from '@web3auth/modal'
 import { OpenloginAdapter } from '@web3auth/openlogin-adapter'
+import { ExternalProvider } from '@ethersproject/providers'
 
 import type { SafeAuthClient, Web3AuthProviderConfig } from '../types'
 
 export default class Web3AuthProvider implements SafeAuthClient {
-  provider: any
+  provider: ExternalProvider | null
   private chainId: string
   private web3authInstance?: Web3Auth
   private config: Web3AuthProviderConfig
@@ -13,6 +14,7 @@ export default class Web3AuthProvider implements SafeAuthClient {
   constructor(chainId: string, config: Web3AuthProviderConfig) {
     this.config = config
     this.chainId = chainId
+    this.provider = null
   }
 
   async initialize() {

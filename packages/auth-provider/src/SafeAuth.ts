@@ -43,7 +43,11 @@ export default class SafeAuth extends EventEmitter {
   async signIn(): Promise<SafeAuthSignInData> {
     await this.authClient?.signIn()
 
-    const ethersProvider = new ethers.providers.Web3Provider(this.authClient?.provider)
+    if (!this.authClient?.provider) {
+      throw new Error('Provider is not defined')
+    }
+
+    const ethersProvider = new ethers.providers.Web3Provider(this.authClient.provider)
     const signer = ethersProvider.getSigner()
     const address = await signer.getAddress()
 
@@ -78,6 +82,8 @@ export default class SafeAuth extends EventEmitter {
   }
 
   getProvider() {
+    if (!this.authClient) return null
+
     return this.authClient?.provider
   }
 
@@ -86,11 +92,15 @@ export default class SafeAuth extends EventEmitter {
   }
 
   private getSafeCoreClient(): SafeServiceClient {
+    if (!this.authClient?.provider) {
+      throw new Error('Provider is not defined')
+    }
+
     if (!this.config.txServiceUrl) {
       throw new Error('txServiceUrl is not defined')
     }
 
-    const provider = new ethers.providers.Web3Provider(this.getProvider())
+    const provider = new ethers.providers.Web3Provider(this.authClient?.provider)
     const safeOwner = provider.getSigner(0)
 
     const adapter = new EthersAdapter({

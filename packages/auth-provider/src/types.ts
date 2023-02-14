@@ -1,3 +1,5 @@
+import { ExternalProvider } from '@ethersproject/providers'
+
 type UserInfo = {
   name?: string
   email?: string
@@ -10,7 +12,7 @@ export interface SafeAuthSignInData {
 }
 
 export interface SafeAuthClient {
-  provider: any
+  provider: ExternalProvider | null
   getUserInfo(): Promise<UserInfo>
   initialize(): Promise<void>
   signIn(): Promise<void>

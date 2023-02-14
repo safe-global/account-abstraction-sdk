@@ -38,8 +38,7 @@ export default class Web3AuthProvider implements SafeAuthClient {
         adapterSettings: {
           uxMode: 'popup',
           whiteLabel: {
-            name: 'Safe',
-            defaultLanguage: 'en'
+            name: 'Safe'
           }
         }
       })

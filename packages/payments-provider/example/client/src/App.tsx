@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { SafePayments } from '../../src/index'
+import { SafePayments } from '../../../src/index'
 
 import AppBar from './AppBar'
 

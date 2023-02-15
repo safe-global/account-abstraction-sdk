@@ -59,7 +59,7 @@ export default class SafeAuth extends EventEmitter {
         const safesByOwner = await this.getSafeCoreClient().getSafesByOwner(address)
         safes = safesByOwner.safes
       } catch (e) {
-        console.error('There was an error while trying to get the safes for the current user')
+        throw new Error('There was an error while trying to get the safes for the current user')
       }
     }
 

@@ -28,15 +28,18 @@ export class SafePayments {
     }
   }
 
-  async createSession(address: string) {
+  async createSession(walletAddress: string) {
     try {
-      const response = await fetch(`${this.config.safePaymentsBackendUrl}/create-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ address })
-      })
+      const response = await fetch(
+        `${this.config.safePaymentsBackendUrl}/api/v1/onramp/stripe/session`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ walletAddress })
+        }
+      )
 
       const { clientSecret } = await response.json()
 

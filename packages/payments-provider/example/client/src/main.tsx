@@ -1,4 +1,3 @@
-import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { SafeThemeProvider } from '@safe-global/safe-react-components'
 import { ThemeProvider, CssBaseline } from '@mui/material'

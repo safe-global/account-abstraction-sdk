@@ -12,7 +12,12 @@ function App() {
         mountElementSelector: '#stripe-root'
       })
 
-      safePayments.createSession(import.meta.env.VITE_SESSION_ADDRESS)
+      const session = await safePayments.createSession(import.meta.env.VITE_SESSION_ADDRESS)
+
+      session.mount('#stripe-root')
+      session.addEventListener('*', (event: any) => {
+        console.log('event', event)
+      })
     })()
   }, [])
 

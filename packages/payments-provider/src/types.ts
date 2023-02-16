@@ -1,9 +1,10 @@
 export type SafePaymentsConfig = {
   stripePublicKey: string
   safePaymentsBackendUrl: string
-  mountElementSelector: string
 }
 
 export type StripeSession = {
-  clientSecret: string
+  mount: (element: string) => void
+  addEventListener: (event: string, callback: () => void) => void
+  removeEventListener: (event: string, callback: () => void) => void
 }

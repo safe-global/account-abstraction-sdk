@@ -28,7 +28,7 @@ export class SafePayments {
     }
   }
 
-  async createSession(walletAddress: string) {
+  async createSession(walletAddress: string): Promise<StripeSession> {
     try {
       const response = await fetch(
         `${this.config.safePaymentsBackendUrl}/api/v1/onramp/stripe/session`,
@@ -45,8 +45,11 @@ export class SafePayments {
 
       if (!response.ok) throw new Error()
 
-      const onRampSession = this.stripeOnRamp.createSession({ clientSecret })
-      onRampSession.mount(this.config.mountElementSelector)
+      const onRampSession = await this.stripeOnRamp.createSession({
+        clientSecret
+      })
+
+      return onRampSession
     } catch {
       throw new Error('Error trying to create a new Stripe session')
     }

@@ -1,10 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 import dotenv from 'dotenv'
 
-type stripeParamsType = {
-  walletAddress: string
-}
-
 type stripeSuccessType = Promise<{
   clientSecret: string
 }>
@@ -27,11 +23,11 @@ const axiosStripeAPI: AxiosInstance = axios.create({
 })
 
 async function getStripeClientSecret(
-  stripeRequest: stripeParamsType
+  walletAddress: string
 ): Promise<stripeSuccessType | stripeErrorType> {
   const { data } = await axiosStripeAPI.post<stripeSuccessType>(GET_STRIPE_CLIENT_SECRET_PATH, {
     transaction_details: {
-      wallet_address: stripeRequest.walletAddress,
+      wallet_address: walletAddress,
       supported_destination_networks: ['polygon']
     }
   })
@@ -39,8 +35,17 @@ async function getStripeClientSecret(
   return data
 }
 
+async function getStripeSession(sessionId: string) {
+  const { data } = await axiosStripeAPI.get<stripeSuccessType>(
+    `${GET_STRIPE_CLIENT_SECRET_PATH}/${sessionId}`
+  )
+
+  return data
+}
+
 const stripeService = {
-  getStripeClientSecret
+  getStripeClientSecret,
+  getStripeSession
 }
 
 export default stripeService

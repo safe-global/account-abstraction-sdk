@@ -1,45 +1,28 @@
 import { useEffect, useState } from 'react'
 import { isAddress } from '@ethersproject/address'
-import { SafePayments } from '../../../src/index'
+import { SafePayments } from '../../../src'
 import { Grid, TextField, Button } from '@mui/material'
 
 import AppBar from './AppBar'
+import { SafePaymentsProviderType } from '../../../src/types'
 
 function App() {
   const [walletAddress, setWalletAddress] = useState<string>('')
-  const [onRampClient, setOnRampClient] = useState<any>(null)
-  const [onRampSession, setOnRampSession] = useState<any>(null)
+  const [onRampClient, setOnRampClient] = useState<SafePayments>()
 
   const handleCreateSession = async () => {
     if (!isAddress(walletAddress)) return
 
-    const session = await onRampClient.createSession(walletAddress)
-
-    setOnRampSession(session)
+    await onRampClient?.open({ walletAddress, element: '#stripe-root' })
   }
 
   useEffect(() => {
-    if (!onRampSession) return
-
-    onRampSession.mount('#stripe-root')
-
-    const handler = (event: any) => {
-      console.log('event', event)
-    }
-
-    onRampSession.addEventListener('*', handler)
-
-    return () => {
-      onRampSession.removeEventListener(handler)
-    }
-  }, [onRampSession])
-
-  useEffect(() => {
     ;(async () => {
-      const onRampClient = await SafePayments.initialize({
-        stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY,
-        safePaymentsBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL,
-        mountElementSelector: '#stripe-root'
+      const onRampClient = await SafePayments.initialize(SafePaymentsProviderType.Stripe, {
+        paymentsProviderConfig: {
+          stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY,
+          safePaymentsBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL
+        }
       })
 
       setOnRampClient(onRampClient)

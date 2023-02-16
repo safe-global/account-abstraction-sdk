@@ -91,6 +91,10 @@ export default class SafeAuth extends EventEmitter {
     this.on(eventName.toString(), listener)
   }
 
+  unsubscribe(eventName: typeof SafeAuthEvents, listener: (...args: any[]) => void) {
+    this.off(eventName.toString(), listener)
+  }
+
   private getSafeCoreClient(): SafeServiceClient {
     if (!this.authClient?.provider) {
       throw new Error('Provider is not defined')

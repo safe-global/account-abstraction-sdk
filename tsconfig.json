@@ -3,6 +3,7 @@
   "references": [
     { "path": "account-abstraction" },
     { "path": "relay-provider" },
+    { "path": "auth-provider" }
   ],
-  "include": ["contracts/abis/**/*.json"],
+  "include": ["contracts/abis/**/*.json"]
 }

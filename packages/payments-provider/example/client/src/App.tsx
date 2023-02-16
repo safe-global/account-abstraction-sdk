@@ -52,8 +52,9 @@ function App() {
       <Grid container p={2}>
         <Grid item sm={12} md={4}>
           <TextField
-            id="outlined-basic"
-            label="Outlined"
+            id="wallet-address"
+            label="Wallet address"
+            placeholder="Enter the address you want to initialize the session with"
             variant="outlined"
             value={walletAddress}
             onChange={(event) => setWalletAddress(event.target.value)}

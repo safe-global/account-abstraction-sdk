@@ -1,4 +1,5 @@
 import type { SafePaymentsConfig, StripeSession } from 'types'
+
 import { loadScript } from './utils'
 
 const STRIPE_JS_URL = 'https://js.stripe.com/v3/'

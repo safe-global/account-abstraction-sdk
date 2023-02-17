@@ -18,7 +18,9 @@ function App() {
       element: '#stripe-root',
       events: {
         onLoaded: () => console.log('Loaded'),
-        onPaymentSuccessful: () => console.log('Payment successful')
+        onPaymentSuccessful: () => console.log('Payment successful'),
+        onPaymentProcessing: () => console.log('Payment processing'),
+        onPaymentError: () => console.log('Payment failed')
       }
     })
   }

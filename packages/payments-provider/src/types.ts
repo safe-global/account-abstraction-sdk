@@ -1,5 +1,5 @@
 export interface SafePaymentsClient {
-  initialize(): Promise<void>
+  init(): Promise<void>
   open(options: SafePaymentsOpenOptions): Promise<void>
   destroy(): Promise<void>
 }

@@ -3,7 +3,7 @@
 Create an instance of the SafePayments class and pass the `SafePaymentsProviderType` and the `SafePaymentsConfig` object as parameters.
 
 ```typescript
-const safePayments = await SafePayments.initialize(SafePaymentsProviderType.Stripe, {
+const safePayments = await SafePayments.init(SafePaymentsProviderType.Stripe, {
   paymentsProviderConfig: {
     stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY,
     safePaymentsBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL

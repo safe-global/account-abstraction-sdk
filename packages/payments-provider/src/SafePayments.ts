@@ -18,12 +18,12 @@ export class SafePayments {
     this.config = config
   }
 
-  static async initialize(providerType: SafePaymentsProviderType, config: SafePaymentsConfig) {
+  static async init(providerType: SafePaymentsProviderType, config: SafePaymentsConfig) {
     switch (providerType) {
       case SafePaymentsProviderType.Stripe:
         const client = new StripeProvider(config.paymentsProviderConfig)
 
-        await client.initialize()
+        await client.init()
 
         return new SafePayments(client, config)
       default:

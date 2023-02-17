@@ -24,7 +24,7 @@ export default class SafeAuth extends EventEmitter {
     this.config = config
   }
 
-  static async initialize(
+  static async init(
     providerType: SafeAuthProviderType,
     config: SafeAuthConfig
   ): Promise<SafeAuth | undefined> {
@@ -32,7 +32,7 @@ export default class SafeAuth extends EventEmitter {
       case SafeAuthProviderType.Web3Auth:
         const client = new Web3AuthProvider(config.chainId, config.authProviderConfig)
 
-        await client.initialize()
+        await client.init()
 
         return new SafeAuth(client, config)
       default:

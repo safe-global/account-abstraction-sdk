@@ -14,7 +14,7 @@ export interface SafeAuthSignInData {
 export interface SafeAuthClient {
   provider: ExternalProvider | null
   getUserInfo(): Promise<UserInfo>
-  initialize(): Promise<void>
+  init(): Promise<void>
   signIn(): Promise<void>
   signOut(): Promise<void>
 }

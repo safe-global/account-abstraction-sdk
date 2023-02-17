@@ -17,7 +17,7 @@ export default class Web3AuthProvider implements SafeAuthClient {
     this.provider = null
   }
 
-  async initialize() {
+  async init() {
     try {
       const web3auth = new Web3Auth({
         clientId: this.config.web3AuthClientId,

@@ -6,7 +6,7 @@ import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfil
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3000
+    port: 3003
   },
   optimizeDeps: {
     disabled: false,

@@ -19,7 +19,7 @@ export default class StripeProvider implements SafePaymentsClient {
     this.config = config
   }
 
-  async initialize() {
+  async init() {
     try {
       await loadScript(STRIPE_JS_URL)
       await loadScript(STRIPE_CRYPTO_JS_URL)

@@ -16,7 +16,7 @@ function App() {
   useEffect(() => {
     ;(async () => {
       setSafeAuth(
-        await SafeAuth.initialize(SafeAuthProviderType.Web3Auth, {
+        await SafeAuth.init(SafeAuthProviderType.Web3Auth, {
           chainId: '0x5',
           txServiceUrl: 'https://safe-transaction-goerli.safe.global', // Optional. Only if want to retrieve related safes
           authProviderConfig: {

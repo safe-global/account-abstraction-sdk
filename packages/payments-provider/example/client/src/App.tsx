@@ -28,7 +28,7 @@ function App() {
 
   useEffect(() => {
     ;(async () => {
-      const onRampClient = await SafePayments.initialize(SafePaymentsProviderType.Stripe, {
+      const onRampClient = await SafePayments.init(SafePaymentsProviderType.Stripe, {
         paymentsProviderConfig: {
           stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY,
           safePaymentsBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL

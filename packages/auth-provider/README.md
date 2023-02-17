@@ -3,7 +3,7 @@
 Create an instance of the SafeAuth class and pass the `SafeAuthProviderType` and the `SafeAuthConfig` object as parameters.
 
 ```typescript
-const safeAuth = await SafeAuth.initialize(SafeAuthProviderType.Web3Auth, {
+const safeAuth = await SafeAuth.init(SafeAuthProviderType.Web3Auth, {
   chainId: '0x5',
   authProviderConfig: {
     rpcTarget: `https://goerli.infura.io/v3/${import.meta.env.VITE_INFURA_KEY}`,
@@ -47,7 +47,7 @@ safeAuth.subscribe(SafeAuthEvents.SIGN_OUT, () => {
 It's also possible to get the associated safes to a external owned account adding the transaction service url to the config.
 
 ```typescript
-const safeAuth = await SafeAuth.initialize(SafeAuthProviderType.Web3Auth, {
+const safeAuth = await SafeAuth.init(SafeAuthProviderType.Web3Auth, {
   ...
   txServiceUrl: 'https://safe-transaction-goerli.safe.global'
   authProviderConfig: { ... }

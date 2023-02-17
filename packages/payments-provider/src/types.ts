@@ -6,7 +6,7 @@ export interface SafePaymentsClient {
 
 type Network = 'ethereum' | 'polygon'
 
-export type SafePaymentsOpenOptions = {
+export interface SafePaymentsOpenOptions {
   element: HTMLElement | string
   walletAddress: string
   networks: Network[]
@@ -22,16 +22,16 @@ export enum SafePaymentsProviderType {
   Stripe
 }
 
-export type SafePaymentsConfig = {
+export interface SafePaymentsConfig {
   paymentsProviderConfig: StripeProviderConfig
 }
 
-export type StripeProviderConfig = {
+export interface StripeProviderConfig {
   stripePublicKey: string
   safePaymentsBackendUrl: string
 }
 
-export type StripeSession = {
+export interface StripeSession {
   mount: (element: string) => void
   addEventListener: (event: string, callback: () => void) => void
   removeEventListener: (event: string, callback: () => void) => void

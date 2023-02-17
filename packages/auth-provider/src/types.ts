@@ -1,6 +1,6 @@
 import { ExternalProvider } from '@ethersproject/providers'
 
-type UserInfo = {
+interface UserInfo {
   name?: string
   email?: string
 }

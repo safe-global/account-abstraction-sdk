@@ -29,6 +29,7 @@ async function getStripeClientSecret(
   const { data } = await axiosStripeAPI.post<stripeSuccessType>(GET_STRIPE_CLIENT_SECRET_PATH, {
     transaction_details: {
       wallet_address: walletAddress,
+      lock_wallet_address: true,
       supported_destination_networks: supportedNetworks
     }
   })

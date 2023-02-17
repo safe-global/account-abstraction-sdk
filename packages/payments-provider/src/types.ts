@@ -6,16 +6,18 @@ export interface SafePaymentsClient {
 
 type Network = 'ethereum' | 'polygon'
 
+export interface EventHandlers {
+  onLoaded?: (e: any) => void
+  onPaymentSuccessful?: (e: any) => void
+  onPaymentError?: (e: any) => void
+  onPaymentProcessing?: (e: any) => void
+}
+
 export interface SafePaymentsOpenOptions {
   element: HTMLElement | string
   walletAddress: string
   networks: Network[]
-  events?: {
-    onLoaded?: () => void
-    onPaymentSuccessful?: () => void
-    onPaymentError?: () => void
-    onPaymentProcessing?: () => void
-  }
+  events?: EventHandlers
 }
 
 export enum SafePaymentsProviderType {
@@ -33,8 +35,8 @@ export interface StripeProviderConfig {
 
 export interface StripeSession {
   mount: (element: string) => void
-  addEventListener: (event: string, callback: () => void) => void
-  removeEventListener: (event: string, callback: () => void) => void
+  addEventListener: (event: string, callback: (e: any) => void) => void
+  removeEventListener: (event: string, callback: (e: any) => void) => void
 }
 
 export const SafePaymentEvents = {

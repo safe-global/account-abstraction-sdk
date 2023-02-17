@@ -2,7 +2,8 @@ import {
   SafePaymentsClient,
   StripeProviderConfig,
   StripeSession,
-  SafePaymentsOpenOptions
+  SafePaymentsOpenOptions,
+  EventHandlers
 } from '../types'
 
 import { loadScript } from '../utils'
@@ -51,26 +52,7 @@ export default class StripeProvider implements SafePaymentsClient {
         clientSecret: data.client_secret
       })
 
-      onRampSession.addEventListener('onramp_ui_loaded', (e: any) => {
-        options.events?.onLoaded?.()
-        console.log('onramp_ui_loaded', e)
-      })
-
-      onRampSession.addEventListener('onramp_session_updated', (e: any) => {
-        console.log('onramp_session_updated', e)
-
-        if (e.payload.session.status === 'fulfillment_complete') {
-          options.events?.onPaymentSuccessful?.()
-        }
-
-        if (e.payload.session.status === 'fulfillment_processing') {
-          options.events?.onPaymentProcessing?.()
-        }
-
-        if (e.payload.session.status === 'rejected') {
-          options.events?.onPaymentError?.()
-        }
-      })
+      if (options.events) this.bindEvents(options.events)
 
       onRampSession.mount(options.element)
 
@@ -81,5 +63,28 @@ export default class StripeProvider implements SafePaymentsClient {
   }
   async destroy() {
     throw new Error('Method not implemented.')
+  }
+
+  private bindEvents(events: EventHandlers) {
+    this.onRampSession?.addEventListener('onramp_ui_loaded', (e: any) => {
+      events?.onLoaded?.(e)
+      console.log('onramp_ui_loaded', e)
+    })
+
+    this.onRampSession?.addEventListener('onramp_session_updated', (e: any) => {
+      console.log('onramp_session_updated', e)
+
+      if (e.payload.session.status === 'fulfillment_complete') {
+        events?.onPaymentSuccessful?.(e)
+      }
+
+      if (e.payload.session.status === 'fulfillment_processing') {
+        events?.onPaymentProcessing?.(e)
+      }
+
+      if (e.payload.session.status === 'rejected') {
+        events?.onPaymentError?.(e)
+      }
+    })
   }
 }

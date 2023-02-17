@@ -11,11 +11,9 @@ import { SafePaymentsProviderType } from './types'
 
 export class SafePayments {
   private client: SafePaymentsClient
-  private config: SafePaymentsConfig
 
-  constructor(client: SafePaymentsClient, config: SafePaymentsConfig) {
+  constructor(client: SafePaymentsClient) {
     this.client = client
-    this.config = config
   }
 
   static async init(providerType: SafePaymentsProviderType, config: SafePaymentsConfig) {
@@ -25,7 +23,7 @@ export class SafePayments {
 
         await client.init()
 
-        return new SafePayments(client, config)
+        return new SafePayments(client)
       default:
         return
     }
@@ -35,7 +33,7 @@ export class SafePayments {
     await this.client.open(options)
   }
 
-  destroy() {
-    throw new Error('Method not implemented.')
+  async destroy() {
+    await this.client.destroy()
   }
 }

@@ -18,6 +18,7 @@ You should pass an object with the `SafePaymentsOpenOptions`
 ```typescript
 await safePayments.open({
   walletAddress,
+  networks: ['polygon']
   element: '#stripe-root',
   events: {
     onLoaded: () => console.log('Loaded'),

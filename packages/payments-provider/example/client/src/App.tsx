@@ -13,7 +13,14 @@ function App() {
   const handleCreateSession = async () => {
     if (!isAddress(walletAddress)) return
 
-    await onRampClient?.open({ walletAddress, element: '#stripe-root' })
+    await onRampClient?.open({
+      walletAddress,
+      element: '#stripe-root',
+      events: {
+        onLoaded: () => console.log('Loaded'),
+        onPaymentSuccessful: () => console.log('Payment successful')
+      }
+    })
   }
 
   useEffect(() => {
@@ -33,7 +40,7 @@ function App() {
     <>
       <AppBar />
       <Grid container p={2}>
-        <Grid item sm={12} md={4}>
+        <Grid item sm={12} md={4} p={2}>
           <TextField
             id="wallet-address"
             label="Wallet address"
@@ -48,7 +55,7 @@ function App() {
             Create session
           </Button>
         </Grid>
-        <Grid item sm={12} md={8}>
+        <Grid item sm={12} md={8} p={2}>
           <div id="stripe-root"></div>
         </Grid>
       </Grid>

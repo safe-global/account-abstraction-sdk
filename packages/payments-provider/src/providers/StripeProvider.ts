@@ -51,6 +51,27 @@ export default class StripeProvider implements SafePaymentsClient {
         clientSecret: data.client_secret
       })
 
+      onRampSession.addEventListener('onramp_ui_loaded', (e: any) => {
+        options.events?.onLoaded?.()
+        console.log('onramp_ui_loaded', e)
+      })
+
+      onRampSession.addEventListener('onramp_session_updated', (e: any) => {
+        console.log('onramp_session_updated', e)
+
+        if (e.payload.session.status === 'fulfillment_complete') {
+          options.events?.onPaymentSuccessful?.()
+        }
+
+        if (e.payload.session.status === 'fulfillment_processing') {
+          options.events?.onPaymentProcessing?.()
+        }
+
+        if (e.payload.session.status === 'rejected') {
+          options.events?.onPaymentError?.()
+        }
+      })
+
       onRampSession.mount(options.element)
 
       this.onRampSession = onRampSession

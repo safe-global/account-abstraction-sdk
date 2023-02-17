@@ -1,4 +1,3 @@
-import EventEmitter from 'events'
 import StripeProvider from './providers/StripeProvider'
 import type {
   StripeSession,
@@ -10,13 +9,11 @@ import type {
 
 import { SafePaymentsProviderType } from './types'
 
-export class SafePayments extends EventEmitter {
+export class SafePayments {
   private client: SafePaymentsClient
   private config: SafePaymentsConfig
 
   constructor(client: SafePaymentsClient, config: SafePaymentsConfig) {
-    super()
-
     this.client = client
     this.config = config
   }
@@ -40,13 +37,5 @@ export class SafePayments extends EventEmitter {
 
   destroy() {
     throw new Error('Method not implemented.')
-  }
-
-  subscribe(eventName: typeof SafePaymentEvents, listener: (...args: any[]) => void) {
-    this.on(eventName.toString(), listener)
-  }
-
-  unsubscribe(eventName: typeof SafePaymentEvents, listener: (...args: any[]) => void) {
-    this.off(eventName.toString(), listener)
   }
 }

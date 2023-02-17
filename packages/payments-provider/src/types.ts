@@ -7,6 +7,12 @@ export interface SafePaymentsClient {
 export type SafePaymentsOpenOptions = {
   element: HTMLElement | string
   walletAddress: string
+  events?: {
+    onLoaded?: () => void
+    onPaymentSuccessful?: () => void
+    onPaymentError?: () => void
+    onPaymentProcessing?: () => void
+  }
 }
 
 export enum SafePaymentsProviderType {
@@ -29,6 +35,7 @@ export type StripeSession = {
 }
 
 export const SafePaymentEvents = {
+  UI_LOADED: 'UI_LOADED',
   PAYMENT_SUCCESSFUL: 'PAYMENT_SUCCESSFUL',
   PAYMENT_ERROR: 'PAYMENT_ERROR'
 }

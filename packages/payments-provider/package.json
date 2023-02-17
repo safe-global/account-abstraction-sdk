@@ -37,7 +37,6 @@
   },
   "dependencies": {
     "@ethersproject/address": "^5.7.0",
-    "@testing-library/jest-dom": "^5.16.5",
-    "events": "^3.3.0"
+    "@testing-library/jest-dom": "^5.16.5"
   }
 }

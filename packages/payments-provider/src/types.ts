@@ -4,9 +4,12 @@ export interface SafePaymentsClient {
   destroy(): Promise<void>
 }
 
+type Network = 'ethereum' | 'polygon'
+
 export type SafePaymentsOpenOptions = {
   element: HTMLElement | string
   walletAddress: string
+  networks: Network[]
   events?: {
     onLoaded?: () => void
     onPaymentSuccessful?: () => void

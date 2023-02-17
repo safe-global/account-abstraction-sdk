@@ -15,6 +15,7 @@ function App() {
 
     await onRampClient?.open({
       walletAddress,
+      networks: ['polygon'],
       element: '#stripe-root',
       events: {
         onLoaded: () => console.log('Loaded'),

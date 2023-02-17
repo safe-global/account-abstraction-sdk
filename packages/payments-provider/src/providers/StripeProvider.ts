@@ -39,7 +39,7 @@ export default class StripeProvider implements SafePaymentsClient {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ walletAddress: options.walletAddress })
+          body: JSON.stringify({ walletAddress: options.walletAddress, networks: options.networks })
         }
       )
 

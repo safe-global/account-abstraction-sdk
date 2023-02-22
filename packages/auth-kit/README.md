@@ -18,7 +18,7 @@ npm install @safe-global/safe-auth-kit @web3auth/base @web3auth/modal @web3auth/
 yarn add @safe-global/safe-auth-kit @web3auth/base @web3auth/modal @web3auth/openlogin-adapter
 ```
 
-### How to use the library
+### How to use
 
 Create an instance of the SafeAuthKit class and pass the `SafeAuthProviderType` and the `SafeAuthConfig` object as parameters.
 Right now we only support the `Web3Auth` provider type.
@@ -27,10 +27,10 @@ Right now we only support the `Web3Auth` provider type.
 const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, {
   chainId: '0x5',
   authProviderConfig: {
-    rpc: `https://goerli.infura.io/v3/${import.meta.env.VITE_INFURA_KEY}`,
-    clientId: import.meta.env.VITE_WEB3AUTH_CLIENT_ID || '',
-    network: 'testnet',
-    theme: 'dark'
+    rpc: <Your rpc url>,
+    clientId: <Your client id>,
+    network: 'testnet' | 'mainnet' | 'cyan',
+    theme: 'light' | 'dark'
   }
 })
 ```

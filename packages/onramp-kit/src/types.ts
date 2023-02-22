@@ -30,7 +30,7 @@ export interface SafeOnRampConfig {
 
 export interface StripeProviderConfig {
   stripePublicKey: string
-  safeOnRampBackendUrl: string
+  onRampBackendUrl: string
 }
 
 export interface StripeSession {

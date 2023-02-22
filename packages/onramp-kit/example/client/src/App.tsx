@@ -31,7 +31,7 @@ function App() {
       const onRampClient = await SafeOnRampKit.init(SafeOnRampProviderType.Stripe, {
         onRampProviderConfig: {
           stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY,
-          safeOnRampBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL
+          onRampBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL
         }
       })
 

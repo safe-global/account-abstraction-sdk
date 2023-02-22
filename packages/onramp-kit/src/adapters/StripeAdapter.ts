@@ -49,16 +49,13 @@ export default class StripeProvider implements SafeOnRampClient {
    */
   async open(options: SafeOnRampOpenOptions) {
     try {
-      const response = await fetch(
-        `${this.config.safeOnRampBackendUrl}/api/v1/onramp/stripe/session`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ walletAddress: options.walletAddress, networks: options.networks })
-        }
-      )
+      const response = await fetch(`${this.config.onRampBackendUrl}/api/v1/onramp/stripe/session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ walletAddress: options.walletAddress, networks: options.networks })
+      })
 
       const data = await response.json()
 

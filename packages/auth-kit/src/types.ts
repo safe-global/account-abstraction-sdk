@@ -1,10 +1,5 @@
 import { ExternalProvider } from '@ethersproject/providers'
 
-interface UserInfo {
-  name?: string
-  email?: string
-}
-
 export interface SafeAuthSignInData {
   chainId: string
   eoa: string
@@ -13,7 +8,6 @@ export interface SafeAuthSignInData {
 
 export interface SafeAuthClient {
   provider: ExternalProvider | null
-  getUserInfo(): Promise<UserInfo>
   init(): Promise<void>
   signIn(): Promise<void>
   signOut(): Promise<void>

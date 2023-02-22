@@ -12,42 +12,67 @@ import {
   SafeAuthEvents
 } from './types'
 
+/**
+ * SafeAuthKit provides a simple interface for web2 logins
+ */
 export default class SafeAuthKit extends EventEmitter {
   safeAuthData?: SafeAuthSignInData
-  private authClient?: SafeAuthClient
+  private client: SafeAuthClient
   private config: SafeAuthConfig
 
+  /**
+   * Initialize the SafeAuthKit
+   * @constructor
+   * @param client
+   * @param config
+   */
   constructor(client: SafeAuthClient, config: SafeAuthConfig) {
     super()
 
-    this.authClient = client
+    this.client = client
     this.config = config
   }
 
+  /**
+   * The static method allows to initialize the SafeAuthKit asynchronously
+   * @param providerType Choose the provider service to use
+   * @param config The configuration including the one for the specific provider
+   * @returns A SafeAuthKit instance
+   * @throws Error if the provider type is not supported
+   */
   static async init(
     providerType: SafeAuthProviderType,
     config: SafeAuthConfig
   ): Promise<SafeAuthKit | undefined> {
+    let client
+
     switch (providerType) {
       case SafeAuthProviderType.Web3Auth:
-        const client = new Web3AuthAdapter(config.chainId, config.authProviderConfig)
-
-        await client.init()
-
-        return new SafeAuthKit(client, config)
+        client = new Web3AuthAdapter(config.chainId, config.authProviderConfig)
+        break
       default:
-        return
+        throw new Error('Provider type not supported')
     }
+
+    await client.init()
+
+    return new SafeAuthKit(client, config)
   }
 
+  /**
+   * Authenticate the user
+   * @returns the derived external owned account and the safes associated with the user if the txServiceUrl is provided
+   * @throws Error if the provider was not created
+   * @throws Error if there was an error while trying to get the safes for the current user using the provided txServiceUrl
+   */
   async signIn(): Promise<SafeAuthSignInData> {
-    await this.authClient?.signIn()
+    await this.client.signIn()
 
-    if (!this.authClient?.provider) {
+    if (!this.client.provider) {
       throw new Error('Provider is not defined')
     }
 
-    const ethersProvider = new ethers.providers.Web3Provider(this.authClient.provider)
+    const ethersProvider = new ethers.providers.Web3Provider(this.client.provider)
     const signer = ethersProvider.getSigner()
     const address = await signer.getAddress()
 
@@ -74,29 +99,50 @@ export default class SafeAuthKit extends EventEmitter {
     return this.safeAuthData
   }
 
+  /**
+   * Sign out the user
+   */
   async signOut(): Promise<void> {
-    await this.authClient?.signOut()
+    await this.client?.signOut()
 
     this.safeAuthData = undefined
     this.emit(SafeAuthEvents.SIGNED_OUT)
   }
 
+  /**
+   *
+   * @returns The Ethereum provider
+   */
   getProvider() {
-    if (!this.authClient) return null
+    if (!this.client) return null
 
-    return this.authClient?.provider
+    return this.client?.provider
   }
 
+  /**
+   * Subscribe to an event
+   * @param eventName The event name to subscribe to. Choose from SafeAuthEvents type
+   * @param listener The callback function to be called when the event is emitted
+   */
   subscribe(eventName: typeof SafeAuthEvents, listener: (...args: any[]) => void) {
     this.on(eventName.toString(), listener)
   }
 
+  /**
+   * Unsubscribe from an event
+   * @param eventName The event name to unsubscribe from. Choose from SafeAuthEvents type
+   * @param listener The callback function to unsubscribe
+   */
   unsubscribe(eventName: typeof SafeAuthEvents, listener: (...args: any[]) => void) {
     this.off(eventName.toString(), listener)
   }
 
+  /**
+   * Get the SafeServiceClient instance
+   * @returns A SafeServiceClient instance
+   */
   private getSafeCoreClient(): SafeServiceClient {
-    if (!this.authClient?.provider) {
+    if (!this.client?.provider) {
       throw new Error('Provider is not defined')
     }
 
@@ -104,7 +150,7 @@ export default class SafeAuthKit extends EventEmitter {
       throw new Error('txServiceUrl is not defined')
     }
 
-    const provider = new ethers.providers.Web3Provider(this.authClient?.provider)
+    const provider = new ethers.providers.Web3Provider(this.client?.provider)
     const safeOwner = provider.getSigner(0)
 
     const adapter = new EthersAdapter({

@@ -25,7 +25,7 @@ export enum SafeOnRampProviderType {
 }
 
 export interface SafeOnRampConfig {
-  paymentsProviderConfig: StripeProviderConfig
+  onRampProviderConfig: StripeProviderConfig
 }
 
 export interface StripeProviderConfig {

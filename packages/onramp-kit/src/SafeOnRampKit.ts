@@ -13,7 +13,7 @@ export class SafeOnRampKit {
   static async init(providerType: SafeOnRampProviderType, config: SafeOnRampConfig) {
     switch (providerType) {
       case SafeOnRampProviderType.Stripe:
-        const client = new StripeAdapter(config.paymentsProviderConfig)
+        const client = new StripeAdapter(config.onRampProviderConfig)
 
         await client.init()
 

@@ -20,8 +20,8 @@ export default class Web3AuthAdapter implements SafeAuthClient {
   async init() {
     try {
       const web3auth = new Web3Auth({
-        clientId: this.config.web3AuthClientId,
-        web3AuthNetwork: this.config.web3AuthNetwork,
+        clientId: this.config.clientId,
+        web3AuthNetwork: this.config.network,
         chainConfig: {
           chainNamespace: CHAIN_NAMESPACES.EIP155,
           chainId: this.chainId,

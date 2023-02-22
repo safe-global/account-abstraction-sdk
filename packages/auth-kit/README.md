@@ -6,9 +6,9 @@ Create an instance of the SafeAuthKit class and pass the `SafeAuthProviderType` 
 const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, {
   chainId: '0x5',
   authProviderConfig: {
-    rpcTarget: `https://goerli.infura.io/v3/${import.meta.env.VITE_INFURA_KEY}`,
-    web3AuthClientId: import.meta.env.VITE_WEB3AUTH_CLIENT_ID || '',
-    web3AuthNetwork: 'testnet',
+    rpc: `https://goerli.infura.io/v3/${import.meta.env.VITE_INFURA_KEY}`,
+    clientId: import.meta.env.VITE_WEB3AUTH_CLIENT_ID || '',
+    network: 'testnet',
     theme: 'dark'
   }
 })

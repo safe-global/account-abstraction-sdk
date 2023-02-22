@@ -21,8 +21,8 @@ function App() {
           txServiceUrl: 'https://safe-transaction-goerli.safe.global', // Optional. Only if want to retrieve related safes
           authProviderConfig: {
             rpcTarget: `https://goerli.infura.io/v3/${import.meta.env.VITE_INFURA_KEY}`,
-            web3AuthClientId: import.meta.env.VITE_WEB3AUTH_CLIENT_ID || '',
-            web3AuthNetwork: 'testnet',
+            clientId: import.meta.env.VITE_WEB3AUTH_CLIENT_ID || '',
+            network: 'testnet',
             theme: 'dark'
           }
         })

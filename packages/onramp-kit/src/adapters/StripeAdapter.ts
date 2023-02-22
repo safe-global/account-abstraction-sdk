@@ -11,15 +11,27 @@ import { loadScript } from '../utils'
 const STRIPE_JS_URL = 'https://js.stripe.com/v3/'
 const STRIPE_CRYPTO_JS_URL = 'https://crypto-js.stripe.com/crypto-onramp-outer.js'
 
+/**
+ * This class implements the SafeOnRampClient interface for the Stripe provider
+ * @class StripeProvider
+ */
 export default class StripeProvider implements SafeOnRampClient {
   private stripeOnRamp: any
   private onRampSession?: StripeSession
   private config: StripeProviderConfig
 
+  /**
+   * Initialize the StripeProvider
+   * @constructor
+   * @param config The configuration object for the Stripe provider
+   */
   constructor(config: StripeProviderConfig) {
     this.config = config
   }
 
+  /**
+   * This method loads the Stripe JS files and initializes the StripeOnRamp object
+   */
   async init() {
     try {
       await loadScript(STRIPE_JS_URL)
@@ -31,6 +43,10 @@ export default class StripeProvider implements SafeOnRampClient {
     }
   }
 
+  /**
+   * This method open the onramp widget with the provided options
+   * @param options The options to open the onramp widget
+   */
   async open(options: SafeOnRampOpenOptions) {
     try {
       const response = await fetch(
@@ -61,10 +77,18 @@ export default class StripeProvider implements SafeOnRampClient {
       throw new Error('Error trying to create a new Stripe session')
     }
   }
-  async destroy() {
-    throw new Error('Method not implemented.')
+
+  /**
+   * This method close the onramp widget
+   */
+  async close() {
+    this.stripeOnRamp?.close()
   }
 
+  /**
+   * This method binds the event handlers to the onramp widget
+   * @param events The event handlers to bind to the onramp widget
+   */
   private bindEvents(events: EventHandlers) {
     this.onRampSession?.addEventListener('onramp_ui_loaded', (e: any) => {
       events?.onLoaded?.(e)

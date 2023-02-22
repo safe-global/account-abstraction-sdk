@@ -23,8 +23,8 @@ export default class SafeAuthKit extends EventEmitter {
   /**
    * Initialize the SafeAuthKit
    * @constructor
-   * @param client
-   * @param config
+   * @param client The client implementing the SafeAuthClient interface
+   * @param config The configuration options
    */
   constructor(client: SafeAuthClient, config: SafeAuthConfig) {
     super()

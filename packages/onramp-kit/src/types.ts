@@ -1,7 +1,7 @@
 export interface SafeOnRampClient {
   init(): Promise<void>
   open(options: SafeOnRampOpenOptions): Promise<void>
-  destroy(): Promise<void>
+  close(): Promise<void>
 }
 
 type Network = 'ethereum' | 'polygon'

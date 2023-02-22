@@ -1,3 +1,9 @@
+/**
+ * Utility function to load a script and inject it into the DOM
+ * @param url The url of the script to load
+ * @param async If the script should be loaded asynchronously
+ * @param type The type of the script
+ */
 export const loadScript = (
   url: string,
   async = 'true',

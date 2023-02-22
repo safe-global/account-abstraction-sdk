@@ -5,7 +5,7 @@ import { ExternalProvider } from '@ethersproject/providers'
 
 import type { SafeAuthClient, Web3AuthProviderConfig } from '../types'
 
-export default class Web3AuthProvider implements SafeAuthClient {
+export default class Web3AuthAdapter implements SafeAuthClient {
   provider: ExternalProvider | null
   private chainId: string
   private web3authInstance?: Web3Auth

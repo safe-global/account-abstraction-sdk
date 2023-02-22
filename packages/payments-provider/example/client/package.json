@@ -1,5 +1,5 @@
 {
-  "name": "@safe-global/auth-provider-example",
+  "name": "@safe-global/payments-provider-example",
   "private": true,
   "version": "0.0.0",
   "type": "module",

@@ -52,11 +52,11 @@ export default class StripeProvider implements SafePaymentsClient {
         clientSecret: data.client_secret
       })
 
+      this.onRampSession = onRampSession
+
       if (options.events) this.bindEvents(options.events)
 
       onRampSession.mount(options.element)
-
-      this.onRampSession = onRampSession
     } catch {
       throw new Error('Error trying to create a new Stripe session')
     }

@@ -2,7 +2,7 @@ import { ethers } from 'ethers'
 import EventEmitter from 'events'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
 import SafeServiceClient from '@safe-global/safe-service-client'
-import Web3AuthProvider from './providers/Web3AuthProvider'
+import Web3AuthAdapter from './adapters/Web3AuthAdapter'
 
 import {
   SafeAuthClient,
@@ -30,7 +30,7 @@ export default class SafeAuth extends EventEmitter {
   ): Promise<SafeAuth | undefined> {
     switch (providerType) {
       case SafeAuthProviderType.Web3Auth:
-        const client = new Web3AuthProvider(config.chainId, config.authProviderConfig)
+        const client = new Web3AuthAdapter(config.chainId, config.authProviderConfig)
 
         await client.init()
 

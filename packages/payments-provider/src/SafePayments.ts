@@ -1,11 +1,5 @@
-import StripeProvider from './providers/StripeProvider'
-import type {
-  StripeSession,
-  SafePaymentEvents,
-  SafePaymentsConfig,
-  SafePaymentsClient,
-  SafePaymentsOpenOptions
-} from './types'
+import StripeAdapter from './adapters/StripeAdapter'
+import type { SafePaymentsConfig, SafePaymentsClient, SafePaymentsOpenOptions } from './types'
 
 import { SafePaymentsProviderType } from './types'
 
@@ -19,7 +13,7 @@ export class SafePayments {
   static async init(providerType: SafePaymentsProviderType, config: SafePaymentsConfig) {
     switch (providerType) {
       case SafePaymentsProviderType.Stripe:
-        const client = new StripeProvider(config.paymentsProviderConfig)
+        const client = new StripeAdapter(config.paymentsProviderConfig)
 
         await client.init()
 

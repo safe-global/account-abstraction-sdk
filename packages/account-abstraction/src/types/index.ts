@@ -5,6 +5,10 @@ export enum OperationType {
   DelegateCall
 }
 
+export interface AccountAbstractionConfig {
+  relayProvider: RelayProvider
+}
+
 export interface MetaTransactionData {
   to: string
   value: BigNumber
@@ -19,13 +23,43 @@ export interface SafeTransactionData extends MetaTransactionData {
   gasPrice: BigNumber
   gasToken: string
   refundReceiver: string
-  nonce: BigNumber
+  nonce: number
 }
+
+// TO-DO: Duplicated. Remove local type and import from "types" package
+// {
 
 export interface MetaTransactionOptions {
   isSponsored: boolean
   gasLimit: BigNumber
   gasToken?: string
+}
+
+export interface RelayTransaction {
+  target: string
+  encodedTransaction: string
+  chainId: number
+  options: MetaTransactionOptions
+}
+
+// import { RelayResponse } from '@gelatonetwork/relay-sdk'
+export interface RelayResponse {
+  taskId: string
+}
+
+export interface RelayProvider {
+  getFeeCollector(): string
+  getEstimateFee(chainId: number, gasLimit: BigNumber, gasToken?: string): Promise<BigNumber>
+  relayTransaction(transaction: RelayTransaction): Promise<RelayResponse>
+}
+
+// }
+// TO-DO: Duplicated. Remove local type and import from "types" package
+
+export interface SafeSetupConfig {
+  owners: string[]
+  threshold: number
+  fallbackHandlerAddress: string
 }
 
 interface Eip712MessageTypes {

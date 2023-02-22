@@ -1,8 +1,8 @@
 import {
-  SafePaymentsClient,
+  SafeOnRampClient,
   StripeProviderConfig,
   StripeSession,
-  SafePaymentsOpenOptions,
+  SafeOnRampOpenOptions,
   EventHandlers
 } from '../types'
 
@@ -11,7 +11,7 @@ import { loadScript } from '../utils'
 const STRIPE_JS_URL = 'https://js.stripe.com/v3/'
 const STRIPE_CRYPTO_JS_URL = 'https://crypto-js.stripe.com/crypto-onramp-outer.js'
 
-export default class StripeProvider implements SafePaymentsClient {
+export default class StripeProvider implements SafeOnRampClient {
   private stripeOnRamp: any
   private onRampSession?: StripeSession
   private config: StripeProviderConfig
@@ -31,10 +31,10 @@ export default class StripeProvider implements SafePaymentsClient {
     }
   }
 
-  async open(options: SafePaymentsOpenOptions) {
+  async open(options: SafeOnRampOpenOptions) {
     try {
       const response = await fetch(
-        `${this.config.safePaymentsBackendUrl}/api/v1/onramp/stripe/session`,
+        `${this.config.safeOnRampBackendUrl}/api/v1/onramp/stripe/session`,
         {
           method: 'POST',
           headers: {

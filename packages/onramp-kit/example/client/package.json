@@ -1,5 +1,5 @@
 {
-  "name": "@safe-global/payments-provider-example",
+  "name": "@safe-global/onramp-kit-example-client",
   "private": true,
   "version": "0.0.0",
   "type": "module",

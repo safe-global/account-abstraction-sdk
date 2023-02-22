@@ -1,22 +1,22 @@
 # How to use
 
-Create an instance of the SafePayments class and pass the `SafePaymentsProviderType` and the `SafePaymentsConfig` object as parameters.
+Create an instance of the SafeOnRampKit class and pass the `SafeSafeOnRampProviderType` and the `SafeOnRampConfig` object as parameters.
 
 ```typescript
-const safePayments = await SafePayments.init(SafePaymentsProviderType.Stripe, {
-  paymentsProviderConfig: {
+const safeOnRamp = await SafeOnRampKit.init(SafeOnRampProviderType.Stripe, {
+  onRampProviderConfig: {
     stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY,
-    safePaymentsBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL
+    safeOnRampBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL
   }
 })
 ```
 
 Once the instance is created, you can call the `open` method to start the session with the provider and open the widget.
 
-You should pass an object with the `SafePaymentsOpenOptions`
+You should pass an object with the `SafeOnRampOpenOptions`
 
 ```typescript
-await safePayments.open({
+await safeOnRamp.open({
   walletAddress,
   networks: ['polygon']
   element: '#stripe-root',

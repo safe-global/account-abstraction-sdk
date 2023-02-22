@@ -1,6 +1,6 @@
-export interface SafePaymentsClient {
+export interface SafeOnRampClient {
   init(): Promise<void>
-  open(options: SafePaymentsOpenOptions): Promise<void>
+  open(options: SafeOnRampOpenOptions): Promise<void>
   destroy(): Promise<void>
 }
 
@@ -13,24 +13,24 @@ export interface EventHandlers {
   onPaymentProcessing?: (e: any) => void
 }
 
-export interface SafePaymentsOpenOptions {
+export interface SafeOnRampOpenOptions {
   element: HTMLElement | string
   walletAddress: string
   networks: Network[]
   events?: EventHandlers
 }
 
-export enum SafePaymentsProviderType {
+export enum SafeOnRampProviderType {
   Stripe
 }
 
-export interface SafePaymentsConfig {
+export interface SafeOnRampConfig {
   paymentsProviderConfig: StripeProviderConfig
 }
 
 export interface StripeProviderConfig {
   stripePublicKey: string
-  safePaymentsBackendUrl: string
+  safeOnRampBackendUrl: string
 }
 
 export interface StripeSession {

@@ -12,7 +12,7 @@ import {
   SafeAuthEvents
 } from './types'
 
-export default class SafeAuth extends EventEmitter {
+export default class SafeAuthKit extends EventEmitter {
   safeAuthData?: SafeAuthSignInData
   private authClient?: SafeAuthClient
   private config: SafeAuthConfig
@@ -27,14 +27,14 @@ export default class SafeAuth extends EventEmitter {
   static async init(
     providerType: SafeAuthProviderType,
     config: SafeAuthConfig
-  ): Promise<SafeAuth | undefined> {
+  ): Promise<SafeAuthKit | undefined> {
     switch (providerType) {
       case SafeAuthProviderType.Web3Auth:
         const client = new Web3AuthAdapter(config.chainId, config.authProviderConfig)
 
         await client.init()
 
-        return new SafeAuth(client, config)
+        return new SafeAuthKit(client, config)
       default:
         return
     }

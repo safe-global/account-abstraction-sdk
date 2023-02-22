@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import { isAddress } from '@ethersproject/address'
-import { SafePayments } from '../../../src'
+import { SafeOnRampKit } from '../../../src'
 import { Grid, TextField, Button } from '@mui/material'
 
 import AppBar from './AppBar'
-import { SafePaymentsProviderType } from '../../../src/types'
+import { SafeOnRampProviderType } from '../../../src/types'
 
 function App() {
   const [walletAddress, setWalletAddress] = useState<string>('')
-  const [onRampClient, setOnRampClient] = useState<SafePayments>()
+  const [onRampClient, setOnRampClient] = useState<SafeOnRampKit>()
 
   const handleCreateSession = async () => {
     if (!isAddress(walletAddress)) return
@@ -28,10 +28,10 @@ function App() {
 
   useEffect(() => {
     ;(async () => {
-      const onRampClient = await SafePayments.init(SafePaymentsProviderType.Stripe, {
+      const onRampClient = await SafeOnRampKit.init(SafeOnRampProviderType.Stripe, {
         paymentsProviderConfig: {
           stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY,
-          safePaymentsBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL
+          safeOnRampBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL
         }
       })
 

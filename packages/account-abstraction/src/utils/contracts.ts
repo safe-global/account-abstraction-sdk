@@ -1,88 +1,107 @@
-import {
-  DeploymentFilter,
-  getCompatibilityFallbackHandlerDeployment,
-  getMultiSendCallOnlyDeployment,
-  getProxyFactoryDeployment,
-  getSafeL2SingletonDeployment,
-  getSafeSingletonDeployment
-} from '@gnosis.pm/safe-deployments'
-import { ethers } from 'ethers'
-import { GnosisSafe__factory } from '../../typechain/factories'
-import { MultiSendCallOnly__factory } from '../../typechain/factories/libraries'
-import { GnosisSafeProxyFactory__factory } from '../../typechain/factories/proxies'
+import { BigNumber } from '@ethersproject/bignumber'
+import { arrayify, BytesLike } from '@ethersproject/bytes'
+import { pack as solidityPack } from '@ethersproject/solidity'
+import { BigNumberish, ethers, Signer } from 'ethers'
 import { GnosisSafe } from '../../typechain/GnosisSafe'
-import { MultiSendCallOnly } from './../../typechain/libraries/MultiSendCallOnly'
-import { GnosisSafeProxyFactory } from './../../typechain/proxies/GnosisSafeProxyFactory'
+import { GnosisSafeProxyFactory } from '../../typechain/proxies/GnosisSafeProxyFactory'
+import { PREDETERMINED_SALT_NONCE, ZERO_ADDRESS } from '../constants'
+import { MetaTransactionData, SafeTransactionData } from '../types'
+import {
+  getCompatibilityFallbackHandlerAddress,
+  getSafeContract,
+  getSafeProxyFactoryContract
+} from './deployments'
 
-export const safeDeploymentsL1ChainIds: number[] = [
-  1 // Ethereum Mainnet
-]
-
-export function getSafeContract(
-  chainId: number,
-  signer: ethers.Signer,
-  isL1SafeMasterCopy: boolean = false
-): GnosisSafe {
-  const filters: DeploymentFilter = {
-    version: '1.3.0', // Only Safe v1.3.0 supported so far
-    network: chainId.toString(),
-    released: true
-  }
-  const contractDeployment =
-    safeDeploymentsL1ChainIds.includes(chainId) || isL1SafeMasterCopy
-      ? getSafeSingletonDeployment(filters)
-      : getSafeL2SingletonDeployment(filters)
-  const contractAddress = contractDeployment?.networkAddresses[chainId]
-  if (!contractAddress) {
-    throw new Error('Invalid SafeProxy contract address')
-  }
-  const contract = GnosisSafe__factory.connect(contractAddress, signer)
-  return contract
+export function encodeSetupCallData(
+  safeContract: GnosisSafe,
+  owners: string[],
+  chainId: number
+): string {
+  return safeContract.interface.encodeFunctionData('setup', [
+    owners,
+    BigNumber.from(1) as BigNumberish,
+    ZERO_ADDRESS,
+    '0x' as BytesLike,
+    getCompatibilityFallbackHandlerAddress(chainId),
+    ZERO_ADDRESS,
+    BigNumber.from(0) as BigNumberish,
+    ZERO_ADDRESS
+  ])
 }
 
-export function getSafeProxyFactoryContract(
-  chainId: number,
-  signer: ethers.Signer
-): GnosisSafeProxyFactory {
-  const contractDeployment = getProxyFactoryDeployment({
-    version: '1.3.0', // Only Safe v1.3.0 supported so far
-    network: chainId.toString(),
-    released: true
-  })
-  const contractAddress = contractDeployment?.networkAddresses[chainId]
-  if (!contractAddress) {
-    throw new Error('Invalid SafeProxyFactory contract address')
-  }
-  const contract = GnosisSafeProxyFactory__factory.connect(contractAddress, signer)
-  return contract
+export function encodeExecTransaction(
+  safeContract: GnosisSafe,
+  transaction: SafeTransactionData,
+  signature: string
+): string {
+  return safeContract.interface.encodeFunctionData('execTransaction', [
+    transaction.to,
+    transaction.value,
+    transaction.data,
+    transaction.operation,
+    transaction.safeTxGas,
+    transaction.baseGas,
+    transaction.gasPrice,
+    transaction.gasToken,
+    transaction.refundReceiver,
+    signature
+  ])
 }
 
-export function getMultiSendCallOnlyContract(
-  chainId: number,
-  signer: ethers.Signer
-): MultiSendCallOnly {
-  const contractDeployment = getMultiSendCallOnlyDeployment({
-    version: '1.3.0', // Only Safe v1.3.0 supported so far
-    network: chainId.toString(),
-    released: true
-  })
-  const contractAddress = contractDeployment?.networkAddresses[chainId]
-  if (!contractAddress) {
-    throw new Error('Invalid MultiSendCallOnly contract address')
-  }
-  const contract = MultiSendCallOnly__factory.connect(contractAddress, signer)
-  return contract
+function encodeMetaTransaction(tx: MetaTransactionData): string {
+  const data = arrayify(tx.data)
+  const encoded = solidityPack(
+    ['uint8', 'address', 'uint256', 'uint256', 'bytes'],
+    [tx.operation, tx.to, tx.value, data.length, data]
+  )
+  return encoded.slice(2)
 }
 
-export function getCompatibilityFallbackHandlerAddress(chainId: number): string {
-  const contractDeployment = getCompatibilityFallbackHandlerDeployment({
-    version: '1.3.0', // Only Safe v1.3.0 supported so far
-    network: chainId.toString(),
-    released: true
-  })
-  const contractAddress = contractDeployment?.networkAddresses[chainId]
-  if (!contractAddress) {
-    throw new Error('Invalid CompatibilityFallbackHandler contract address')
-  }
-  return contractAddress
+export function encodeMultiSendData(txs: MetaTransactionData[]): string {
+  return '0x' + txs.map((tx) => encodeMetaTransaction(tx)).join('')
+}
+
+export async function getSafeInitializer(
+  safeContract: GnosisSafe,
+  signerAddress: string,
+  chainId: number
+): Promise<string> {
+  const initializer = await encodeSetupCallData(safeContract, [signerAddress], chainId)
+  return initializer
+}
+
+export async function calculateChainSpecificProxyAddress(
+  safeProxyFactoryContract: GnosisSafeProxyFactory,
+  signer: Signer,
+  chainId: number
+): Promise<string> {
+  const safeSingletonContract = getSafeContract(chainId, signer)
+  const deployer = safeProxyFactoryContract.address
+  const signerAddress = await signer.getAddress()
+
+  const deploymentCode = ethers.utils.solidityPack(
+    ['bytes', 'uint256'],
+    [
+      await getSafeProxyFactoryContract(chainId, signer).proxyCreationCode(),
+      safeSingletonContract.address
+    ]
+  )
+  const salt = ethers.utils.solidityKeccak256(
+    ['bytes32', 'uint256', 'uint256'],
+    [
+      ethers.utils.solidityKeccak256(
+        ['bytes'],
+        [await getSafeInitializer(safeSingletonContract, signerAddress, chainId)]
+      ),
+      PREDETERMINED_SALT_NONCE,
+      chainId
+    ]
+  )
+  const derivedAddress = ethers.utils.getCreate2Address(
+    deployer,
+    salt,
+    ethers.utils.keccak256(deploymentCode)
+  )
+  console.log({ derivedAddress })
+  return derivedAddress
 }

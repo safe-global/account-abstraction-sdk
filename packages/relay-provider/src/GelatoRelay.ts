@@ -8,7 +8,12 @@ import {
   RelayResponse
 } from '@gelatonetwork/relay-sdk'
 import { BigNumber } from '@ethersproject/bignumber'
-import { GELATO_FEE_COLLECTOR, GELATO_NATIVE_TOKEN_ADDRESS, GELATO_RELAY_URL, ZERO_ADDRESS } from './constants'
+import {
+  GELATO_FEE_COLLECTOR,
+  GELATO_NATIVE_TOKEN_ADDRESS,
+  GELATO_RELAY_URL,
+  ZERO_ADDRESS
+} from './constants'
 
 class GelatoNetworkRelay implements RelayProvider {
   #gelatoRelay: GelatoRelay
@@ -89,7 +94,7 @@ class GelatoNetworkRelay implements RelayProvider {
   }
 
   async checkTask(taskId: string) {
-    const url = `${ GELATO_RELAY_URL }/tasks/status/${ taskId }`
+    const url = `${GELATO_RELAY_URL}/tasks/status/${taskId}`
     const apiCallResponse = await fetch(url)
     const responseJson = await apiCallResponse.json()
     return responseJson

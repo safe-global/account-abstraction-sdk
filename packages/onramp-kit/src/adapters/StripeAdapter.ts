@@ -88,9 +88,9 @@ export default class StripeAdapter implements SafeOnRampClient {
    * This method binds the event handlers to the onramp widget
    * @param events The event handlers to bind to the onramp widget
    */
-  private bindEvents(events: EventHandlers) {
-    this.onRampSession?.addEventListener('onramp_ui_loaded', (e: OnrampSessionUpdatedEvent) => {
-      events?.onLoaded?.(this.stripeEventToSafeEvent(e))
+  private bindEvents(events: SafeOnRampEventHandlers) {
+    this.onRampSession?.addEventListener('onramp_ui_loaded', () => {
+      events?.onLoaded?.()
     })
 
     this.onRampSession?.addEventListener(

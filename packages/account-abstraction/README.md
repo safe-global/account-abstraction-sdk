@@ -7,10 +7,11 @@
 Description TBD
 
 ## Table of contents
-* [Installation](#installation)
-* [Build](#build)
-* [Initialization](#initialization)
-* [License](#license)
+
+- [Installation](#installation)
+- [Build](#build)
+- [Initialization](#initialization)
+- [License](#license)
 
 ## <a name="installation">Installation</a>
 

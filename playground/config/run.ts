@@ -11,11 +11,10 @@ const path = playgroundPaths[playInput]
 if (!path) {
   console.log('Execute one of the existing playgrounds:')
   const playgrounds = Object.keys(playgroundPaths)
-  playgrounds.forEach(playground => {
+  playgrounds.forEach((playground) => {
     console.log(` > yarn play ${playground}`)
   })
   process.exit()
 }
 
 execSync(`ts-node ./playground/${path}`, { stdio: 'inherit' })
-

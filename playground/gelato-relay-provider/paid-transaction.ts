@@ -1,6 +1,11 @@
-import AccountAbstraction, { MetaTransactionData, MetaTransactionOptions, OperationType } from '@safe-global/account-abstraction'
+import AccountAbstraction, {
+  AccountAbstractionConfig,
+  MetaTransactionData,
+  MetaTransactionOptions,
+  OperationType
+} from '@safe-global/account-abstraction'
 import GelatoNetworkRelay from '@safe-global/relay-provider'
-import { ethers, BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 
 // Check the status of a transaction after it is relayed:
 // https://relay.gelato.digital/tasks/status/<TASK_ID>
@@ -9,10 +14,8 @@ import { ethers, BigNumber } from 'ethers'
 // https://goerli.etherscan.io/tx/<TRANSACTION_HASH>
 
 const config = {
-  SAFE_ADDRESS: '<SAFE_ADDRESS>',
   SAFE_SIGNER_PRIVATE_KEY: '<SAFE_SIGNER_PRIVATE_KEY>',
-  CHAIN_ID: 5,
-  RPC_URL: 'https://goerli.infura.io/v3/<INFURA_API_KEY>',
+  RPC_URL: 'https://goerli.infura.io/v3/<INFURA_API_KEY>'
 }
 
 const txConfig = {
@@ -25,15 +28,18 @@ const txConfig = {
 }
 
 async function main() {
-  console.log('Execute meta-transaction via Gelato Relay payed by the Safe')
+  console.log('Execute meta-transaction via Gelato Relay paid by the Safe')
 
   const provider = new ethers.providers.JsonRpcProvider(config.RPC_URL)
   const signer = new ethers.Wallet(config.SAFE_SIGNER_PRIVATE_KEY, provider)
-  
+
   const relayProvider = new GelatoNetworkRelay()
 
-  const safeAccountAbstraction = new AccountAbstraction(signer, config.SAFE_ADDRESS, config.CHAIN_ID)
-  safeAccountAbstraction.setRelayProvider(relayProvider)
+  const safeAccountAbstraction = new AccountAbstraction(signer)
+  const sdkConfig: AccountAbstractionConfig = {
+    relayProvider
+  }
+  await safeAccountAbstraction.init(sdkConfig)
 
   const safeTransaction: MetaTransactionData = {
     to: txConfig.TO,

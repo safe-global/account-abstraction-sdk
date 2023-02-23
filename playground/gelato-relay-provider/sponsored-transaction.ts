@@ -1,6 +1,11 @@
-import AccountAbstraction, { MetaTransactionData, MetaTransactionOptions, OperationType } from '@safe-global/account-abstraction'
+import AccountAbstraction, {
+  MetaTransactionData,
+  MetaTransactionOptions,
+  OperationType
+} from '@safe-global/account-abstraction'
 import GelatoNetworkRelay from '@safe-global/relay-provider'
-import { ethers, BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
+import { AccountAbstractionConfig } from './../../packages/account-abstraction/src/types/index'
 
 // Fund the 1Balance account that will sponsor the transaction and get the API key:
 // https://relay.gelato.network/
@@ -12,11 +17,9 @@ import { ethers, BigNumber } from 'ethers'
 // https://goerli.etherscan.io/tx/<TRANSACTION_HASH>
 
 const config = {
-  SAFE_ADDRESS: '<SAFE_ADDRESS>',
   SAFE_SIGNER_PRIVATE_KEY: '<SAFE_SIGNER_PRIVATE_KEY>',
-  CHAIN_ID: 5,
   RPC_URL: 'https://goerli.infura.io/v3/<INFURA_API_KEY>',
-  GELATO_RELAY_API_KEY: '<GELATO_RELAY_API_KEY>',
+  RELAY_API_KEY: '<GELATO_RELAY_API_KEY>'
 }
 
 const txConfig = {
@@ -32,11 +35,14 @@ async function main() {
 
   const provider = new ethers.providers.JsonRpcProvider(config.RPC_URL)
   const signer = new ethers.Wallet(config.SAFE_SIGNER_PRIVATE_KEY, provider)
-  
-  const relayProvider = new GelatoNetworkRelay(config.GELATO_RELAY_API_KEY)
 
-  const safeAccountAbstraction = new AccountAbstraction(signer, config.SAFE_ADDRESS, config.CHAIN_ID)
-  safeAccountAbstraction.setRelayProvider(relayProvider)
+  const relayProvider = new GelatoNetworkRelay(config.RELAY_API_KEY)
+
+  const safeAccountAbstraction = new AccountAbstraction(signer)
+  const sdkConfig: AccountAbstractionConfig = {
+    relayProvider
+  }
+  await safeAccountAbstraction.init(sdkConfig)
 
   const safeTransaction: MetaTransactionData = {
     to: txConfig.TO,

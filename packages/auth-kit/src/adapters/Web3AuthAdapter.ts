@@ -25,9 +25,6 @@ export default class Web3AuthAdapter implements SafeAuthClient {
     this.chainId = chainId
     this.provider = null
   }
-  getUserInfo(): Promise<UserInfo> {
-    throw new Error('Method not implemented.')
-  }
 
   /**
    * Initialize the Web3Auth service provider {@link https://web3auth.io/docs/sdk/web/modal/initialize}

@@ -1,6 +1,6 @@
 # Safe Auth Kit
 
-This library provides a way to authenticate users using mails, social accounts or the traditional web3 wallets. When using web2 methods as your social account a derived ethereum address will be provided.
+This library provides a way to authenticate users using mails, social accounts or the traditional web3 wallets. When using web2 methods as your social account, a derived ethereum address will be provided.
 
 # Quickstart
 

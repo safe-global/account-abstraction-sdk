@@ -5,12 +5,12 @@ import { BigNumber } from 'ethers'
 // {
 
 export interface MetaTransactionOptions {
-  isSponsored: boolean
   gasLimit: BigNumber
   gasToken?: string
+  isSponsored?: boolean
 }
 
-export interface RelayProvider {
+export interface RelayAdapter {
   getFeeCollector(): string
   getEstimateFee(chainId: number, gasLimit: BigNumber, gasToken?: string): Promise<BigNumber>
   relayTransaction(transaction: RelayTransaction): Promise<RelayResponse>

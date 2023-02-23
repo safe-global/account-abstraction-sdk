@@ -3,8 +3,8 @@ import { execSync } from 'child_process'
 const playInput = process.argv[2]
 
 const playgroundPaths = {
-  'paid-transaction': 'gelato-relay-provider/paid-transaction',
-  'sponsored-transaction': 'gelato-relay-provider/sponsored-transaction'
+  'paid-transaction': 'relay-kit/paid-transaction',
+  'sponsored-transaction': 'relay-kit/sponsored-transaction'
 }
 
 const path = playgroundPaths[playInput]

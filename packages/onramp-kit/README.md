@@ -47,10 +47,11 @@ Once the instance is created, you can call the `open(SafeOnRampOpenOptions)` met
 As an example, you can use the following code:
 
 ```typescript
-await safeOnRamp.open({
+const sessionData = await safeOnRamp.open({
   walletAddress,
   networks: ['polygon']
   element: '#stripe-root',
+  sessionId: 'cos_1Mei3cKSn9ArdBimJhkCt1XC', // Optional, if you want to use a specific created session
   events: {
     onLoaded: () => console.log('Loaded'),
     onPaymentSuccessful: () => console.log('Payment successful')

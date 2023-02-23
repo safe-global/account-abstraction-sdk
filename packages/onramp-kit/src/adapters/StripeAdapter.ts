@@ -13,15 +13,15 @@ const STRIPE_CRYPTO_JS_URL = 'https://crypto-js.stripe.com/crypto-onramp-outer.j
 
 /**
  * This class implements the SafeOnRampClient interface for the Stripe provider
- * @class StripeProvider
+ * @class StripeAdapter
  */
-export default class StripeProvider implements SafeOnRampClient {
+export default class StripeAdapter implements SafeOnRampClient {
   private stripeOnRamp: any
   private onRampSession?: StripeSession
   private config: StripeProviderConfig
 
   /**
-   * Initialize the StripeProvider
+   * Initialize the StripeAdapter
    * @constructor
    * @param config The configuration object for the Stripe provider
    */

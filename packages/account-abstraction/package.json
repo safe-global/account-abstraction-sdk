@@ -40,7 +40,7 @@
   "dependencies": {
     "@gnosis.pm/safe-contracts": "^1.3.0",
     "@gnosis.pm/safe-deployments": "^1.19.0",
-    "@safe-global/relay-provider": "^0.1.0",
+    "@safe-global/relay-kit": "^0.1.0",
     "ethereumjs-util": "^7.1.5",
     "ethers": "^5.7.2"
   }

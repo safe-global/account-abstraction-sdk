@@ -6,7 +6,7 @@ export enum OperationType {
 }
 
 export interface AccountAbstractionConfig {
-  relayProvider: RelayProvider
+  relayAdapter: RelayAdapter
 }
 
 export interface MetaTransactionData {
@@ -30,9 +30,9 @@ export interface SafeTransactionData extends MetaTransactionData {
 // {
 
 export interface MetaTransactionOptions {
-  isSponsored: boolean
   gasLimit: BigNumber
   gasToken?: string
+  isSponsored?: boolean
 }
 
 export interface RelayTransaction {
@@ -47,7 +47,7 @@ export interface RelayResponse {
   taskId: string
 }
 
-export interface RelayProvider {
+export interface RelayAdapter {
   getFeeCollector(): string
   getEstimateFee(chainId: number, gasLimit: BigNumber, gasToken?: string): Promise<BigNumber>
   relayTransaction(transaction: RelayTransaction): Promise<RelayResponse>

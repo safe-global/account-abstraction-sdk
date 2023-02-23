@@ -1,6 +1,6 @@
 # Safe Auth Kit
 
-This library provides a way to authenticate users using mails, social accounts or the traditional web3 wallets. When using web2 methods as your social account, a derived ethereum address will be provided.
+This library provides a way to authenticate users using mails, social accounts or traditional web3 wallets (Metamask ...). When using web2 methods as your social account, a derived ethereum address will be generated.
 
 # Quickstart
 
@@ -20,17 +20,18 @@ yarn add @safe-global/safe-auth-kit @web3auth/base @web3auth/modal @web3auth/ope
 
 ### How to use
 
-Create an instance of the SafeAuthKit class and pass the `SafeAuthProviderType` and the `SafeAuthConfig` object as parameters.
-Right now we only support the `Web3Auth` provider type.
+Create an instance of the [SafeAuthKit](https://github.com/safe-global/account-abstraction-sdk/blob/b8aab58cce5e985e29cfb03924c8b973f2ee8a37/packages/auth-kit/src/SafeAuthKit.ts) class providing the `SafeAuthProviderType` and `SafeAuthConfig` as parameters.
+
+Currently we only support the `Web3Auth` provider type but we plan to add more providers in the future.
 
 ```typescript
 const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, {
   chainId: '0x5',
   authProviderConfig: {
-    rpc: <Your rpc url>,
-    clientId: <Your client id>,
-    network: 'testnet' | 'mainnet' | 'cyan',
-    theme: 'light' | 'dark'
+    rpc: <Your rpc url>, // Add your RPC e.g. https://mainnet.infura.io/v3/<your project id>
+    clientId: <Your client id>, // Add your client id. Get it from the Web3Auth dashboard
+    network: 'testnet' | 'mainnet' | 'cyan', // The network to use for the Web3Auth modal
+    theme: 'light' | 'dark' // The theme to use for the Web3Auth modal
   }
 })
 ```
@@ -42,9 +43,12 @@ The `authProviderConfig` object is the specific configuration object for the Web
 - `network`: The network name to use for the Web3Auth modal (mainnet | testnet | cyan)
 - `theme`: The theme to use for the Web3Auth modal (dark | light)
 
-Once the instance is created, you can call the `signIn` method to start the authentication process showing the web3Auth modal.
+Once the instance is created, you can call the `signIn()` method to start the authentication process showing the web3Auth modal.
+While you sign in with the same mail or social account, the same ethereum address will be returned.
 
 ```typescript
+// The signIn method will return the user's ethereum address
+// The await will last until the user is authenticated so while the UI modal is showed
 await safeAuthKit.signIn()
 ```
 
@@ -60,7 +64,7 @@ You can get the ethereum provider instance by calling the `getProvider` method.
 safeAuthKit.getProvider()
 ```
 
-We expose to events to know when the user is authenticated or when the session is removed.
+We expose two events in order to know when the user is authenticated or when the session is removed.
 
 ```typescript
 safeAuthKit.subscribe(SafeAuthEvents.SIGN_IN, () => {
@@ -72,14 +76,14 @@ safeAuthKit.subscribe(SafeAuthEvents.SIGN_OUT, () => {
 })
 ```
 
-It's also possible to get the associated safes to a external owned account adding the transaction service url to the config.
+It's also possible to get the associated Safe addresses to a external owned account adding the transaction service url to the config. This could be useful depending on your workflow.
 
 ```typescript
 const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, {
   ...
-  txServiceUrl: 'https://safe-transaction-goerli.safe.global'
+  txServiceUrl: 'https://safe-transaction-goerli.safe.global' // Add the corresponding transaction service url depending on the network
   authProviderConfig: { ... }
 })
 ```
 
-When provided, the list of associated safes will be provided as part of the `signIn` method response.
+When `txServiceUrl` is provided, the list of associated Safe addresses will be returned as part of the `signIn()` method response.

@@ -28,7 +28,7 @@ const txConfig = {
 }
 
 async function main() {
-  console.log('Execute meta-transaction via Gelato Relay paid by the Safe')
+  console.log('Execute meta-transaction via Gelato Relay paid with balance in the Safe')
 
   const provider = new ethers.providers.JsonRpcProvider(config.RPC_URL)
   const signer = new ethers.Wallet(config.SAFE_SIGNER_PRIVATE_KEY, provider)

@@ -1,8 +1,9 @@
 {
   "files": [],
   "references": [
-    { "path": "account-abstraction" },
-    { "path": "relay-provider" },
+    { "path": "packages/account-abstraction" },
+    { "path": "packages/relay-provider" },
+    { "path": "packages/auth-provider" }
   ],
-  "include": ["contracts/abis/**/*.json"],
+  "include": ["contracts/abis/**/*.json"]
 }

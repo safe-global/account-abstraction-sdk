@@ -40,13 +40,13 @@ This project includes a [playground](https://github.com/safe-global/account-abst
 yarn play
 ```
 
-#### 1. Execute meta-transaction via Gelato Relay payed by the Safe
+#### 1. Execute meta-transaction via Gelato Relay paid with balance in the Safe
 
 ```bash
-yarn play payed-transaction
+yarn play paid-transaction
 ```
 
-#### 2. Execute meta-transaction via Gelato Relay payed by 1Balance
+#### 2. Execute meta-transaction via Gelato Relay paid by 1Balance deposit
 
 ```bash
 yarn play sponsored-transaction

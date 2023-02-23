@@ -4,8 +4,6 @@ This package is provided for testing purposes only. It's not ready for productio
 
 Once the Stripe pilot end the server will be removed and you should use your own keys and server in case you opt-in for the `StripeAdapter`.
 
-````typescript
-
 # Safe OnRamp Kit
 
 This library provides a way for buy cryptoassets using a credit card or other payment methods.
@@ -21,7 +19,7 @@ This library provides a way for buy cryptoassets using a credit card or other pa
 ```bash
 npm install @safe-global/safe-onramp-kit
 yarn add @safe-global/safe-onramp-kit
-````
+```
 
 ### How to use
 

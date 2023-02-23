@@ -76,6 +76,14 @@ const safeOnRamp = await SafeOnRampKit.init(SafeOnRampProviderType.Stripe, {
 })
 ```
 
+```
+const safeOnRamp = await SafeOnRampKit.init(new StripeAdapter({
+    stripePublicKey:
+      'pk_test_51MZbmZKSn9ArdBimSyl5i8DqfcnlhyhJHD8bF2wKrGkpvNWyPvBAYtE211oHda0X3Ea1n4e9J9nh2JkpC7Sxm5a200Ug9ijfoO', // Safe public key
+    onRampBackendUrl: 'https://safe-onramp-backend.5afe.dev' // Safe deployed server
+})
+```
+
 2. As we are working on stripe testmode, the purchases are being simulated. You can use the fake data in the [docs](https://stripe.com/docs/testing) and the [following test cards](https://stripe.com/docs/testing?testing-method=card-numbers#cards) to enter the required information in the embedded widget.
 
 3. When testing with testnets as Mumbai in Polygon, the crypto assets will be transferred so PLEASE DO TRY TO USE LOWER AMOUNTS to preserve testnets liquidity, but ESPECIALLY WITH USDC ON POLYGON.

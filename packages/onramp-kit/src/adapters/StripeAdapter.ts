@@ -1,9 +1,11 @@
 import {
   SafeOnRampClient,
-  StripeProviderConfig,
   StripeSession,
   SafeOnRampOpenOptions,
-  EventHandlers
+  StripeProviderConfig,
+  SafeOnRampEventHandlers,
+  SafeOnRampEvent,
+  OnrampSessionUpdatedEvent
 } from '../types'
 
 import { loadScript } from '../utils'
@@ -87,25 +89,49 @@ export default class StripeAdapter implements SafeOnRampClient {
    * @param events The event handlers to bind to the onramp widget
    */
   private bindEvents(events: EventHandlers) {
-    this.onRampSession?.addEventListener('onramp_ui_loaded', (e: any) => {
-      events?.onLoaded?.(e)
-      console.log('onramp_ui_loaded', e)
+    this.onRampSession?.addEventListener('onramp_ui_loaded', (e: OnrampSessionUpdatedEvent) => {
+      events?.onLoaded?.(this.stripeEventToSafeEvent(e))
     })
 
-    this.onRampSession?.addEventListener('onramp_session_updated', (e: any) => {
-      console.log('onramp_session_updated', e)
+    this.onRampSession?.addEventListener(
+      'onramp_session_updated',
+      (e: OnrampSessionUpdatedEvent) => {
+        const safeEvent = this.stripeEventToSafeEvent(e)
 
-      if (e.payload.session.status === 'fulfillment_complete') {
-        events?.onPaymentSuccessful?.(e)
-      }
+        if (e.payload.session.status === 'fulfillment_complete') {
+          events?.onPaymentSuccessful?.(safeEvent)
+        }
 
-      if (e.payload.session.status === 'fulfillment_processing') {
-        events?.onPaymentProcessing?.(e)
-      }
+        if (e.payload.session.status === 'fulfillment_processing') {
+          events?.onPaymentProcessing?.(safeEvent)
+        }
 
-      if (e.payload.session.status === 'rejected') {
-        events?.onPaymentError?.(e)
+        if (e.payload.session.status === 'rejected') {
+          events?.onPaymentError?.(safeEvent)
+        }
       }
-    })
+    )
+  }
+
+  private stripeEventToSafeEvent(stripeEvent: OnrampSessionUpdatedEvent): SafeOnRampEvent {
+    const { session } = stripeEvent.payload
+    const { quote } = session
+
+    return {
+      txId: quote.blockchain_tx_id,
+      walletAddress: session.wallet_address,
+      totalFee: quote.fees?.total_fee,
+      totalAmount: quote.total_amount,
+      destination: {
+        asset: quote.destination_currency?.asset_code,
+        amount: quote.destination_amount,
+        network: quote.destination_currency?.currency_network
+      },
+      source: {
+        asset: quote.source_currency?.asset_code,
+        amount: quote.source_amount,
+        network: quote.source_currency?.currency_network
+      }
+    }
   }
 }

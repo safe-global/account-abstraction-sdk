@@ -1,7 +1,7 @@
 import StripeAdapter from './adapters/StripeAdapter'
 import type { SafeOnRampConfig, SafeOnRampClient, SafeOnRampOpenOptions } from './types'
 
-import { SafeOnRampProviderType } from './types'
+import { SafeOnRampProviderType } from './types/onRamp'
 
 /**
  * This class allows to initialize the Safe OnRamp Kit for convert fiat to crypto

@@ -4,7 +4,7 @@ import { SafeOnRampKit } from '../../../src'
 import { Grid, TextField, Button } from '@mui/material'
 
 import AppBar from './AppBar'
-import { SafeOnRampProviderType } from '../../../src/types'
+import { SafeOnRampEvent, SafeOnRampProviderType } from '../../../src/types'
 
 function App() {
   const [walletAddress, setWalletAddress] = useState<string>('')
@@ -15,13 +15,15 @@ function App() {
 
     await onRampClient?.open({
       walletAddress,
-      networks: ['polygon'],
+      networks: ['ethereum'],
       element: '#stripe-root',
       events: {
-        onLoaded: () => console.log('Loaded'),
-        onPaymentSuccessful: () => console.log('Payment successful'),
-        onPaymentProcessing: () => console.log('Payment processing'),
-        onPaymentError: () => console.log('Payment failed')
+        onLoaded: () => console.log('onLoaded()'),
+        onPaymentSuccessful: (eventData: SafeOnRampEvent) =>
+          console.log('onPaymentSuccessful(): ', eventData),
+        onPaymentProcessing: (eventData: SafeOnRampEvent) =>
+          console.log('onPaymentProcessing(): ', eventData),
+        onPaymentError: (eventData: SafeOnRampEvent) => console.log('onPaymentError(): ', eventData)
       }
     })
   }

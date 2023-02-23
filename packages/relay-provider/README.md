@@ -32,9 +32,39 @@ npm build
 
 ## <a name="initialization">Initialization</a>
 
-Initialization TBD
+### Gelato relay
 
-```js
+#### Gelato sync balance
+
+Create an instance of GelatoNetworkRelay to execute transactions paid with balance in the Safe.
+
+```typescript
+const relayProvider = new GelatoNetworkRelay()
+
+relayProvider.relayTransaction({
+  target: '0x00000000000000000000', // the Safe address
+  encodedTransaction: '0x0', // Transaction data encoded
+  chainId: '0x5'
+})
+
+```
+
+#### Gelato 1Balance
+
+Create an instance of GelatoNetworkRelay to Execute transactions paid by 1Balance deposit.
+To to use Gelato 1Balance an API KEY is needed. Go to https://relay.gelato.network to get a testnet API key with 1Balance.
+
+```typescript
+const relayProvider = new GelatoNetworkRelay(GELATO_RELAY_API_KEY)
+
+relayProvider.relayTransaction({
+  target: '0x00000000000000000000', // the Safe address
+  encodedTransaction: '0x0', // Transaction data encoded
+  chainId: '0x5',
+  options: {
+    isSponsored: true // This parameter is mandatory to use the 1Balance method
+  }
+})
 
 ```
 

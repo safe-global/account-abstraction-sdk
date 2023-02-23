@@ -46,7 +46,7 @@ interface FixedTransactionDetails {
   wallet_addresses: any
 }
 
-interface Session {
+export interface Session {
   id: string
   object: string
   livemode: boolean

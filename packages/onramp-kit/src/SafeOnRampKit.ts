@@ -1,4 +1,4 @@
-import StripeAdapter from './adapters/StripeAdapter'
+import StripeAdapter from './adapters/stripe/StripeAdapter'
 import type { SafeOnRampConfig, SafeOnRampClient, SafeOnRampOpenOptions } from './types'
 
 import { SafeOnRampProviderType } from './types/onRamp'
@@ -46,8 +46,8 @@ export class SafeOnRampKit {
    * This method opens the onramp widget using the provided options
    * @param options The options to open the onramp widget
    */
-  async open(options: SafeOnRampOpenOptions): Promise<void> {
-    await this.client.open(options)
+  async open(options: SafeOnRampOpenOptions): Promise<unknown> {
+    return await this.client.open(options)
   }
 
   /**

@@ -3,7 +3,7 @@ import { StripeProviderConfig } from './stripe'
 
 export interface SafeOnRampClient {
   init(): Promise<void>
-  open(options: SafeOnRampOpenOptions): Promise<void>
+  open(options: SafeOnRampOpenOptions): Promise<unknown>
   close(): Promise<void>
 }
 
@@ -14,6 +14,7 @@ export interface SafeOnRampOpenOptions {
   walletAddress: string
   networks: Network[]
   events?: SafeOnRampEventHandlers
+  sessionId?: string
 }
 
 export enum SafeOnRampProviderType {

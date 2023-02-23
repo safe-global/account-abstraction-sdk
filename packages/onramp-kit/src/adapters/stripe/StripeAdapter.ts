@@ -6,9 +6,11 @@ import {
   SafeOnRampEventHandlers,
   SafeOnRampEvent,
   OnrampSessionUpdatedEvent
-} from '../types'
+} from '../../types'
 
-import { loadScript } from '../utils'
+import * as stripeApi from './stripeApi'
+
+import { loadScript } from './utils'
 
 const STRIPE_JS_URL = 'https://js.stripe.com/v3/'
 const STRIPE_CRYPTO_JS_URL = 'https://crypto-js.stripe.com/crypto-onramp-outer.js'
@@ -51,13 +53,16 @@ export default class StripeAdapter implements SafeOnRampClient {
    */
   async open(options: SafeOnRampOpenOptions) {
     try {
-      const response = await fetch(`${this.config.onRampBackendUrl}/api/v1/onramp/stripe/session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ walletAddress: options.walletAddress, networks: options.networks })
-      })
+      let response
+
+      if (options.sessionId) {
+        response = await stripeApi.getSession(this.config.onRampBackendUrl, options.sessionId)
+      } else {
+        response = await stripeApi.createSession(this.config.onRampBackendUrl, {
+          walletAddress: options.walletAddress,
+          networks: options.networks
+        })
+      }
 
       const data = await response.json()
 
@@ -72,6 +77,8 @@ export default class StripeAdapter implements SafeOnRampClient {
       if (options.events) this.bindEvents(options.events)
 
       onRampSession.mount(options.element)
+
+      return data
     } catch {
       throw new Error('Error trying to create a new Stripe session')
     }
@@ -81,7 +88,7 @@ export default class StripeAdapter implements SafeOnRampClient {
    * This method close the onramp widget
    */
   async close() {
-    this.stripeOnRamp?.close()
+    throw new Error('Method not implemented.')
   }
 
   /**

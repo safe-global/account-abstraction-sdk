@@ -102,6 +102,5 @@ export async function calculateChainSpecificProxyAddress(
     salt,
     ethers.utils.keccak256(deploymentCode)
   )
-  console.log({ derivedAddress })
   return derivedAddress
 }

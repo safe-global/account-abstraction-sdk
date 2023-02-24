@@ -1,7 +1,7 @@
 import type { SafeAuthClient, SafeAuthSignInData, Web3AuthProviderConfig } from './types'
 import { SafeAuthProviderType } from './types'
-import SafeAuth from './SafeAuth'
+import SafeAuthKit from './SafeAuthKit'
 
 export type { SafeAuthClient, SafeAuthSignInData, Web3AuthProviderConfig }
 
-export { SafeAuth, SafeAuthProviderType }
+export { SafeAuthKit, SafeAuthProviderType }

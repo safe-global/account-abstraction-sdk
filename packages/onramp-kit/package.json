@@ -1,14 +1,14 @@
 {
-  "name": "@safe-global/account-abstraction",
+  "name": "@safe-global/onramp-kit",
   "version": "0.1.0",
-  "description": "Safe Account Abstraction",
+  "description": "Payments library",
   "main": "dist/src/index.js",
-  "typings": "dist/src/index.d.ts",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "format:check": "prettier --check \"*/**/*.{js,json,md,ts}\"",
     "format": "prettier --write */**/*.{js,json,md,ts}",
-    "unbuild": "rm -rf dist typechain",
-    "build": "rm -rf dist && ts-node ./scripts/typechain && yarn tsc",
+    "unbuild": "rm -rf dist",
+    "build": "rm -rf dist && yarn tsc",
     "test": "echo \"Error: no test specified\""
   },
   "repository": {
@@ -19,7 +19,8 @@
     "Safe",
     "Ethereum",
     "Account Abstraction",
-    "SDK"
+    "SDK",
+    "Payments"
   ],
   "author": "Safe (https://safe.global)",
   "license": "MIT",
@@ -31,14 +32,11 @@
   ],
   "homepage": "https://github.com/safe-global/account-abstraction-sdk#readme",
   "devDependencies": {
-    "@typechain/ethers-v5": "^10.2.0",
-    "typechain": "^8.1.1"
+    "prettier": "^2.8.3",
+    "typescript": "^4.9.4"
   },
   "dependencies": {
-    "@gnosis.pm/safe-contracts": "^1.3.0",
-    "@safe-global/relay-kit": "^0.1.0",
-    "@safe-global/safe-deployments": "^1.20.2",
-    "ethereumjs-util": "^7.1.5",
-    "ethers": "^5.7.2"
+    "@ethersproject/address": "^5.7.0",
+    "@testing-library/jest-dom": "^5.16.5"
   }
 }

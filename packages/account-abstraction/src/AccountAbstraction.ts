@@ -3,7 +3,7 @@ import { GnosisSafe__factory } from '../typechain/factories'
 import { GnosisSafe } from '../typechain/GnosisSafe'
 import { MultiSendCallOnly } from '../typechain/libraries'
 import { GnosisSafeProxyFactory } from '../typechain/proxies'
-import { PREDETERMINED_SALT_NONCE, ZERO_ADDRESS } from './constants'
+import { ZERO_ADDRESS } from './constants'
 import {
   AccountAbstractionConfig,
   MetaTransactionData,
@@ -16,6 +16,7 @@ import {
 import { getMultiSendCallOnlyContract, getSafeContract, getSafeProxyFactoryContract } from './utils'
 import {
   calculateChainSpecificProxyAddress,
+  encodeCreateProxyWithNonce,
   encodeExecTransaction,
   encodeMultiSendData,
   getSafeInitializer
@@ -151,14 +152,15 @@ class AccountAbstraction {
         await this.getSignerAddress(),
         this.#chainId
       )
+
       const safeDeploymentTransaction: MetaTransactionData = {
         to: this.#safeProxyFactoryContract.address,
         value: BigNumber.from(0),
-        data: this.#safeProxyFactoryContract.interface.encodeFunctionData('createProxyWithNonce', [
+        data: encodeCreateProxyWithNonce(
+          this.#safeProxyFactoryContract,
           safeSingletonContract.address,
-          initializer,
-          PREDETERMINED_SALT_NONCE
-        ]),
+          initializer
+        ),
         operation: OperationType.Call
       }
       const safeTransaction: MetaTransactionData = {
@@ -167,6 +169,7 @@ class AccountAbstraction {
         data: transactionData,
         operation: OperationType.Call
       }
+
       const multiSendData = encodeMultiSendData([safeDeploymentTransaction, safeTransaction])
       encodedTransaction = this.#multiSendCallOnlyContract.interface.encodeFunctionData(
         'multiSend',

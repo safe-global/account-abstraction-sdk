@@ -31,7 +31,6 @@
   ],
   "homepage": "https://github.com/safe-global/account-abstraction-sdk#readme",
   "devDependencies": {
-    "@gnosis.pm/safe-deployments": "^1.19.0",
     "@typechain/ethers-v5": "^10.2.0",
     "prettier": "^2.8.3",
     "typechain": "^8.1.1",
@@ -39,7 +38,7 @@
   },
   "dependencies": {
     "@gnosis.pm/safe-contracts": "^1.3.0",
-    "@gnosis.pm/safe-deployments": "^1.19.0",
+    "@safe-global/safe-deployments": "^1.20.2",
     "@safe-global/relay-provider": "^0.1.0",
     "ethereumjs-util": "^7.1.5",
     "ethers": "^5.7.2"

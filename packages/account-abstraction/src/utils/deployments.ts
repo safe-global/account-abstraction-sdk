@@ -5,7 +5,7 @@ import {
   getProxyFactoryDeployment,
   getSafeL2SingletonDeployment,
   getSafeSingletonDeployment
-} from '@gnosis.pm/safe-deployments'
+} from '@safe-global/safe-deployments'
 import { ethers } from 'ethers'
 import { GnosisSafe__factory } from '../../typechain/factories'
 import { MultiSendCallOnly__factory } from '../../typechain/factories/libraries'

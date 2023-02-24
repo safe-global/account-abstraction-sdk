@@ -47,7 +47,6 @@ relayProvider.relayTransaction({
   encodedTransaction: '0x0', // Transaction data encoded
   chainId: '0x5'
 })
-
 ```
 
 #### Gelato 1Balance
@@ -66,7 +65,6 @@ relayProvider.relayTransaction({
     isSponsored: true // This parameter is mandatory to use the 1Balance method
   }
 })
-
 ```
 
 ## <a name="license">License</a>

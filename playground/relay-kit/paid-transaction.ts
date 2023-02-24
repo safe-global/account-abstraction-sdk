@@ -1,14 +1,11 @@
 import AccountAbstraction, {
+  AccountAbstractionConfig,
   MetaTransactionData,
   MetaTransactionOptions,
   OperationType
 } from '@safe-global/account-abstraction'
-import GelatoNetworkRelay from '@safe-global/relay-provider'
+import { GelatoRelayAdapter } from '@safe-global/relay-kit'
 import { BigNumber, ethers } from 'ethers'
-import { AccountAbstractionConfig } from './../../packages/account-abstraction/src/types/index'
-
-// Fund the 1Balance account that will sponsor the transaction and get the API key:
-// https://relay.gelato.network/
 
 // Check the status of a transaction after it is relayed:
 // https://relay.gelato.digital/tasks/status/<TASK_ID>
@@ -18,13 +15,12 @@ import { AccountAbstractionConfig } from './../../packages/account-abstraction/s
 
 const config = {
   SAFE_SIGNER_PRIVATE_KEY: '<SAFE_SIGNER_PRIVATE_KEY>',
-  RPC_URL: 'https://goerli.infura.io/v3/<INFURA_API_KEY>',
-  RELAY_API_KEY: '<GELATO_RELAY_API_KEY>'
+  RPC_URL: 'https://goerli.infura.io/v3/<INFURA_API_KEY>'
 }
 
 const mockOnRampConfig = {
-  ADDRESS: '0x4D39a545144D8e2F19E8009aB5F123FA1043cc98',
-  PRIVATE_KEY: '0x32ecaa3b2feb4051470c98b6d2f2da8861ae83b11ccc7123aee1c9efc4ef1933'
+  ADDRESS: '<ADDRESS>',
+  PRIVATE_KEY: '<PRIVATE_KEY>'
 }
 
 const txConfig = {
@@ -32,22 +28,23 @@ const txConfig = {
   DATA: '<DATA>',
   VALUE: BigNumber.from('<VALUE>'),
   // Options:
-  GAS_LIMIT: BigNumber.from('<GAS_LIMIT>')
+  GAS_LIMIT: BigNumber.from('<GAS_LIMIT>'),
+  GAS_TOKEN: ethers.constants.AddressZero
 }
 
 async function main() {
-  console.log('Execute meta-transaction via Gelato Relay paid by 1Balance')
+  console.log('Execute meta-transaction via Gelato Relay paid with balance in the Safe')
 
   // SDK Initialization
 
   const provider = new ethers.providers.JsonRpcProvider(config.RPC_URL)
   const signer = new ethers.Wallet(config.SAFE_SIGNER_PRIVATE_KEY, provider)
 
-  const relayProvider = new GelatoNetworkRelay(config.RELAY_API_KEY)
+  const relayAdapter = new GelatoRelayAdapter()
 
   const safeAccountAbstraction = new AccountAbstraction(signer)
   const sdkConfig: AccountAbstractionConfig = {
-    relayProvider
+    relayAdapter
   }
   await safeAccountAbstraction.init(sdkConfig)
 
@@ -59,18 +56,29 @@ async function main() {
   const isSafeDeployed = await safeAccountAbstraction.isSafeDeployed()
   console.log({ isSafeDeployed })
 
-  // Fake on-ramp to fund the Safe
+  // Fake on-ramp to transfer enough funds to the Safe address
 
+  const chainId = (await signer.provider.getNetwork()).chainId
+  const relayFee = await relayProvider.getEstimateFee(
+    chainId,
+    txConfig.GAS_LIMIT,
+    txConfig.GAS_TOKEN
+  )
   const safeBalance = await provider.getBalance(predictedSafeAddress)
+  console.log({ minSafeBalance: ethers.utils.formatEther(relayFee.toString()) })
   console.log({ safeBalance: ethers.utils.formatEther(safeBalance.toString()) })
-  if (safeBalance.lt(txConfig.VALUE)) {
+
+  if (safeBalance.lt(relayFee)) {
     const fakeOnRampSigner = new ethers.Wallet(mockOnRampConfig.PRIVATE_KEY, provider)
+    const fundingAmount = safeBalance.lt(relayFee)
+      ? relayFee.sub(safeBalance)
+      : safeBalance.sub(relayFee)
     const onRampResponse = await fakeOnRampSigner.sendTransaction({
       to: predictedSafeAddress,
-      value: txConfig.VALUE
+      value: fundingAmount
     })
     console.log(
-      `Funding the Safe with ${ethers.utils.formatEther(txConfig.VALUE.toString())} ETH`
+      `Funding the Safe with ${ethers.utils.formatEther(fundingAmount.toString())} ETH`
     )
     await onRampResponse.wait()
 
@@ -87,8 +95,8 @@ async function main() {
     operation: OperationType.Call
   }
   const options: MetaTransactionOptions = {
-    isSponsored: true,
-    gasLimit: txConfig.GAS_LIMIT
+    gasLimit: txConfig.GAS_LIMIT,
+    gasToken: txConfig.GAS_TOKEN
   }
 
   const response = await safeAccountAbstraction.relayTransaction(safeTransaction, options)

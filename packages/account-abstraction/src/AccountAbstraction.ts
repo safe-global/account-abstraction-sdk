@@ -9,7 +9,7 @@ import {
   MetaTransactionData,
   MetaTransactionOptions,
   OperationType,
-  RelayProvider,
+  RelayAdapter,
   RelayTransaction,
   SafeTransactionData
 } from './types'
@@ -29,7 +29,7 @@ class AccountAbstraction {
   #safeContract?: GnosisSafe
   #safeProxyFactoryContract?: GnosisSafeProxyFactory
   #multiSendCallOnlyContract?: MultiSendCallOnly
-  #relayProvider?: RelayProvider
+  #relayAdapter?: RelayAdapter
 
   constructor(signer: ethers.Signer) {
     this.#signer = signer
@@ -39,8 +39,8 @@ class AccountAbstraction {
     if (!this.#signer.provider) {
       throw new Error('Signer must be connected to a provider')
     }
-    const { relayProvider } = options
-    this.setRelayProvider(relayProvider)
+    const { relayAdapter } = options
+    this.setRelayAdapter(relayAdapter)
 
     this.#chainId = (await this.#signer.provider.getNetwork()).chainId
     this.#safeProxyFactoryContract = getSafeProxyFactoryContract(this.#chainId, this.#signer)
@@ -53,8 +53,8 @@ class AccountAbstraction {
     this.#safeContract = GnosisSafe__factory.connect(safeAddress, this.#signer)
   }
 
-  setRelayProvider(relayProvider: RelayProvider) {
-    this.#relayProvider = relayProvider
+  setRelayAdapter(relayAdapter: RelayAdapter) {
+    this.#relayAdapter = relayAdapter
   }
 
   async getSignerAddress(): Promise<string> {
@@ -90,11 +90,11 @@ class AccountAbstraction {
     transaction: MetaTransactionData,
     options: MetaTransactionOptions
   ): Promise<SafeTransactionData> {
-    if (!this.#relayProvider || !this.#chainId) {
+    if (!this.#relayAdapter || !this.#chainId) {
       throw new Error('SDK not initialized')
     }
-    const { isSponsored, gasLimit, gasToken } = options
-    const estimation = await this.#relayProvider.getEstimateFee(this.#chainId, gasLimit, gasToken)
+    const { gasLimit, gasToken, isSponsored } = options
+    const estimation = await this.#relayAdapter.getEstimateFee(this.#chainId, gasLimit, gasToken)
 
     const standardizedSafeTx: SafeTransactionData = {
       to: transaction.to,
@@ -105,7 +105,7 @@ class AccountAbstraction {
       baseGas: !isSponsored ? estimation : BigNumber.from(0),
       gasPrice: !isSponsored ? BigNumber.from(1) : BigNumber.from(0),
       gasToken: gasToken ?? ZERO_ADDRESS,
-      refundReceiver: !isSponsored ? this.#relayProvider.getFeeCollector() : ZERO_ADDRESS,
+      refundReceiver: !isSponsored ? this.#relayAdapter.getFeeCollector() : ZERO_ADDRESS,
       nonce: await this.getNonce()
     }
     return standardizedSafeTx
@@ -116,7 +116,7 @@ class AccountAbstraction {
     options: MetaTransactionOptions
   ): Promise<string> {
     if (
-      !this.#relayProvider ||
+      !this.#relayAdapter ||
       !this.#chainId ||
       !this.#safeContract ||
       !this.#multiSendCallOnlyContract ||
@@ -183,7 +183,7 @@ class AccountAbstraction {
       chainId: this.#chainId,
       options
     }
-    const response = await this.#relayProvider.relayTransaction(relayTransaction)
+    const response = await this.#relayAdapter.relayTransaction(relayTransaction)
     return response.taskId
   }
 }

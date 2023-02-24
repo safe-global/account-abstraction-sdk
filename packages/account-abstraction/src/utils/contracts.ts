@@ -12,6 +12,18 @@ import {
   getSafeProxyFactoryContract
 } from './deployments'
 
+export function encodeCreateProxyWithNonce(
+  safeProxyFactoryContract: GnosisSafeProxyFactory,
+  safeSingletonAddress: string,
+  initializer: string
+) {
+  return safeProxyFactoryContract.interface.encodeFunctionData('createProxyWithNonce', [
+    safeSingletonAddress,
+    initializer,
+    PREDETERMINED_SALT_NONCE
+  ])
+}
+
 export function encodeSetupCallData(
   safeContract: GnosisSafe,
   owners: string[],
@@ -87,14 +99,13 @@ export async function calculateChainSpecificProxyAddress(
     ]
   )
   const salt = ethers.utils.solidityKeccak256(
-    ['bytes32', 'uint256', 'uint256'],
+    ['bytes32', 'uint256'],
     [
       ethers.utils.solidityKeccak256(
         ['bytes'],
         [await getSafeInitializer(safeSingletonContract, signerAddress, chainId)]
       ),
-      PREDETERMINED_SALT_NONCE,
-      chainId
+      PREDETERMINED_SALT_NONCE
     ]
   )
   const derivedAddress = ethers.utils.getCreate2Address(

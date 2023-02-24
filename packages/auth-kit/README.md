@@ -11,11 +11,9 @@ This library provides a way to authenticate users using mails, social accounts o
 
 ### Install dependencies
 
-If you are using Web3Auth as the authentication provider, you need to install the peerDependencies `@web3auth/base`, `@web3auth/modal` and `@web3auth/openlogin-adapter` packages.
-
 ```bash
-npm install @safe-global/safe-auth-kit @web3auth/base @web3auth/modal @web3auth/openlogin-adapter
-yarn add @safe-global/safe-auth-kit @web3auth/base @web3auth/modal @web3auth/openlogin-adapter
+npm install @safe-global/safe-auth-kit
+yarn add @safe-global/safe-auth-kit
 ```
 
 ### How to use

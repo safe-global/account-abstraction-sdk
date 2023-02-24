@@ -18,6 +18,11 @@ const config = {
   RPC_URL: 'https://goerli.infura.io/v3/<INFURA_API_KEY>'
 }
 
+const mockOnRampConfig = {
+  ADDRESS: '<ADDRESS>',
+  PRIVATE_KEY: '<PRIVATE_KEY>'
+}
+
 const txConfig = {
   TO: '<TO>',
   DATA: '<DATA>',
@@ -30,6 +35,8 @@ const txConfig = {
 async function main() {
   console.log('Execute meta-transaction via Gelato Relay paid with balance in the Safe')
 
+  // SDK Initialization
+
   const provider = new ethers.providers.JsonRpcProvider(config.RPC_URL)
   const signer = new ethers.Wallet(config.SAFE_SIGNER_PRIVATE_KEY, provider)
 
@@ -40,6 +47,46 @@ async function main() {
     relayProvider
   }
   await safeAccountAbstraction.init(sdkConfig)
+
+  // Calculate Safe address
+
+  const predictedSafeAddress = safeAccountAbstraction.getSafeAddress()
+  console.log({ predictedSafeAddress })
+
+  const isSafeDeployed = await safeAccountAbstraction.isSafeDeployed()
+  console.log({ isSafeDeployed })
+
+  // Fake on-ramp to transfer enough funds to the Safe address
+
+  const chainId = (await signer.provider.getNetwork()).chainId
+  const relayFee = await relayProvider.getEstimateFee(
+    chainId,
+    txConfig.GAS_LIMIT,
+    txConfig.GAS_TOKEN
+  )
+  const safeBalance = await provider.getBalance(predictedSafeAddress)
+  console.log({ minSafeBalance: ethers.utils.formatEther(relayFee.toString()) })
+  console.log({ safeBalance: ethers.utils.formatEther(safeBalance.toString()) })
+
+  if (safeBalance.lt(relayFee)) {
+    const fakeOnRampSigner = new ethers.Wallet(mockOnRampConfig.PRIVATE_KEY, provider)
+    const fundingAmount = safeBalance.lt(relayFee)
+      ? relayFee.sub(safeBalance)
+      : safeBalance.sub(relayFee)
+    const onRampResponse = await fakeOnRampSigner.sendTransaction({
+      to: predictedSafeAddress,
+      value: fundingAmount
+    })
+    console.log(
+      `Funding the Safe with ${ethers.utils.formatEther(fundingAmount.toString())} ETH`
+    )
+    await onRampResponse.wait()
+
+    const safeBalanceAfter = await provider.getBalance(predictedSafeAddress)
+    console.log({ safeBalance: ethers.utils.formatEther(safeBalanceAfter.toString()) })
+  }
+
+  // Relay the transaction
 
   const safeTransaction: MetaTransactionData = {
     to: txConfig.TO,
@@ -54,7 +101,7 @@ async function main() {
   }
 
   const response = await safeAccountAbstraction.relayTransaction(safeTransaction, options)
-  console.log({ 'Gelato taskId': response })
+  console.log({ GelatoTaskId: response })
 }
 
 main()

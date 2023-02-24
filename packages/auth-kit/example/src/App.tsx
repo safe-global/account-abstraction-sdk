@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { SafeEventEmitterProvider } from '@web3auth/base'
 import { Box, Divider, Grid, Typography } from '@mui/material'
 import { EthHashInfo } from '@safe-global/safe-react-components'
-import { SafeAuth, SafeAuthProviderType, SafeAuthSignInData } from '../../src/index'
+import { SafeAuthKit, SafeAuthProviderType, SafeAuthSignInData } from '../../src/index'
 
 import AppBar from './AppBar'
 
@@ -10,19 +10,19 @@ function App() {
   const [safeAuthSignInResponse, setSafeAuthSignInResponse] = useState<SafeAuthSignInData | null>(
     null
   )
-  const [safeAuth, setSafeAuth] = useState<SafeAuth>()
+  const [safeAuth, setSafeAuth] = useState<SafeAuthKit>()
   const [provider, setProvider] = useState<SafeEventEmitterProvider | null>(null)
 
   useEffect(() => {
     ;(async () => {
       setSafeAuth(
-        await SafeAuth.initialize(SafeAuthProviderType.Web3Auth, {
+        await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, {
           chainId: '0x5',
           txServiceUrl: 'https://safe-transaction-goerli.safe.global', // Optional. Only if want to retrieve related safes
           authProviderConfig: {
             rpcTarget: `https://goerli.infura.io/v3/${import.meta.env.VITE_INFURA_KEY}`,
-            web3AuthClientId: import.meta.env.VITE_WEB3AUTH_CLIENT_ID || '',
-            web3AuthNetwork: 'testnet',
+            clientId: import.meta.env.VITE_WEB3AUTH_CLIENT_ID || '',
+            network: 'testnet',
             theme: 'dark'
           }
         })

@@ -23,7 +23,7 @@ export default class StripeAdapter implements SafeOnRampClient {
   private stripeOnRamp: any
   private onRampSession?: StripeSession
   private config: StripeProviderConfig
-  private currentSessionOptions: SafeOnRampOpenOptions
+  private currentSessionOptions?: SafeOnRampOpenOptions
 
   /**
    * Initialize the StripeAdapter
@@ -110,7 +110,7 @@ export default class StripeAdapter implements SafeOnRampClient {
         // TODO: Remove this check when not required
         // This is only in order to preserve testnets liquidity pools during the hackaton
         if (Number(e.payload.session.quote.source_monetary_amount) > 10) {
-          document.querySelector(this.currentSessionOptions.element as string)?.remove()
+          document.querySelector(this?.currentSessionOptions?.element as string)?.remove()
           throw new Error(
             "The amount you are trying to use for complete your purchase can't be greater than 10 in order to preserve testnets liquidity pools"
           )

@@ -2,7 +2,7 @@
 
 [![NPM Version](https://badge.fury.io/js/%40safe-global%2Faccount-abstraction.svg)](https://badge.fury.io/js/%40safe-global%2Faccount-abstraction)
 [![GitHub Release](https://img.shields.io/github/release/safe-global/account-abstraction-sdk.svg?style=flat)](https://github.com/safe-global/account-abstraction-sdk/releases)
-[![GitHub](https://img.shields.io/github/license/safe-global/account-abstraction-sdk)](https://github.com/safe-global/account-abstraction-sdk/blob/main/packages/account-abstraction/LICENSE.md)
+[![GitHub](https://img.shields.io/github/license/safe-global/account-abstraction-sdk)](https://github.com/safe-global/account-abstraction-sdk/blob/main/LICENSE.md)
 
 Description TBD
 
@@ -41,4 +41,4 @@ Initialization TBD
 
 ## <a name="license">License</a>
 
-This library is released under MIT.
+This library is [released under MIT](https://github.com/safe-global/account-abstraction-sdk/blob/main/LICENSE.md).

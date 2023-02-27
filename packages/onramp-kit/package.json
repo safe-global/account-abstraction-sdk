@@ -1,7 +1,7 @@
 {
   "name": "@safe-global/onramp-kit",
   "version": "0.1.0",
-  "description": "Payments library",
+  "description": "Onramp library",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
@@ -20,7 +20,7 @@
     "Ethereum",
     "Account Abstraction",
     "SDK",
-    "Payments"
+    "Onramp"
   ],
   "author": "Safe (https://safe.global)",
   "license": "MIT",

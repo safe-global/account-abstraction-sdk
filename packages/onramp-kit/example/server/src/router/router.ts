@@ -1,5 +1,5 @@
-import stripeRouter from "../router/stripe-router";
+import stripeRouter from '../router/stripe-router'
 
-const routes = [stripeRouter];
+const routes = [stripeRouter]
 
-export default routes;
+export default routes

@@ -1,7 +1,7 @@
 {
   "name": "@safe-global/relay-kit",
   "version": "0.1.0",
-  "description": "Relay",
+  "description": "Relay library to abstract transaction gas fees",
   "main": "dist/src/index.js",
   "typings": "dist/src/index.d.ts",
   "scripts": {
@@ -19,7 +19,8 @@
     "Safe",
     "Ethereum",
     "Account Abstraction",
-    "SDK"
+    "SDK",
+    "Relay"
   ],
   "author": "Safe (https://safe.global)",
   "license": "MIT",

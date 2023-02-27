@@ -1,7 +1,7 @@
 {
   "name": "@safe-global/onramp-kit",
   "version": "0.1.0",
-  "description": "Payments library",
+  "description": "Onramp library",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
@@ -20,7 +20,7 @@
     "Ethereum",
     "Account Abstraction",
     "SDK",
-    "Payments"
+    "Onramp"
   ],
   "author": "Safe (https://safe.global)",
   "license": "MIT",
@@ -32,11 +32,9 @@
   ],
   "homepage": "https://github.com/safe-global/account-abstraction-sdk#readme",
   "devDependencies": {
-    "prettier": "^2.8.3",
-    "typescript": "^4.9.4"
+    "@testing-library/jest-dom": "^5.16.5"
   },
   "dependencies": {
-    "@ethersproject/address": "^5.7.0",
-    "@testing-library/jest-dom": "^5.16.5"
+    "@ethersproject/address": "^5.7.0"
   }
 }

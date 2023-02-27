@@ -1,10 +1,15 @@
-# Relay Provider
+# Relay Kit
 
-[![NPM Version](https://badge.fury.io/js/%40safe-global%2Frelay-provider.svg)](https://badge.fury.io/js/%40safe-global%2Frelay-provider)
+[![NPM Version](https://badge.fury.io/js/%40safe-global%2Frelay-kit.svg)](https://badge.fury.io/js/%40safe-global%2Frelay-kit)
 [![GitHub Release](https://img.shields.io/github/release/safe-global/account-abstraction-sdk.svg?style=flat)](https://github.com/safe-global/account-abstraction-sdk/releases)
-[![GitHub](https://img.shields.io/github/license/safe-global/account-abstraction-sdk)](https://github.com/safe-global/account-abstraction-sdk/blob/main/packages/relay-provider/LICENSE.md)
+[![GitHub](https://img.shields.io/github/license/safe-global/account-abstraction-sdk)](https://github.com/safe-global/account-abstraction-sdk/blob/main/packages/relay-kit/LICENSE.md)
 
 Description TBD
+
+## Reference
+
+  - [Relay Kit docs](https://docs.gnosis-safe.io/learn/safe-core-account-abstraction-sdk/relay-kit)
+
 
 ## Table of contents
 

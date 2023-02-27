@@ -4,7 +4,7 @@
 [![GitHub Release](https://img.shields.io/github/release/safe-global/account-abstraction-sdk.svg?style=flat)](https://github.com/safe-global/account-abstraction-sdk/releases)
 [![GitHub](https://img.shields.io/github/license/safe-global/account-abstraction-sdk)](https://github.com/safe-global/account-abstraction-sdk/blob/main/LICENSE.md)
 
-The Relay Kit enables the Safe to allow users to pay for transaction fees (gas fees) using native or ERC-20 tokens.
+The Relay Kit allows to abstract users from the transaction fees payment (gas fees) allowing the use of native token or ERC-20 tokens. This will enable you to pay transaction fees directly from funding available in a Safe.
 
 ## Reference
 

@@ -1,10 +1,9 @@
 import { useEffect, useState, useRef } from 'react'
 import { isAddress } from '@ethersproject/address'
-import { SafeOnRampKit } from '../../../src'
+import { SafeOnRampKit, SafeOnRampEvent, SafeOnRampProviderType } from '../../../src'
 import { Grid, TextField, Button } from '@mui/material'
 
 import AppBar from './AppBar'
-import { SafeOnRampEvent, SafeOnRampProviderType } from '../../../src/types'
 
 const isSessionValid = (sessionId: string) => sessionId.length === 28
 

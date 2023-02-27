@@ -1,5 +1,5 @@
 {
-  "name": "@safe-global/relay-provider",
+  "name": "@safe-global/relay-kit",
   "version": "0.1.0",
   "description": "Relay",
   "main": "dist/src/index.js",

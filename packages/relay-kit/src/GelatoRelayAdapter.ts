@@ -1,26 +1,26 @@
-import fetch from 'node-fetch'
-import { MetaTransactionOptions, RelayProvider, RelayTransaction } from './types'
-import {
-  GelatoRelay,
-  CallWithSyncFeeRequest,
-  RelayRequestOptions,
-  SponsoredCallRequest,
-  RelayResponse
-} from '@gelatonetwork/relay-sdk'
 import { BigNumber } from '@ethersproject/bignumber'
+import {
+  CallWithSyncFeeRequest,
+  GelatoRelay as GelatoNetworkRelay,
+  RelayRequestOptions,
+  RelayResponse,
+  SponsoredCallRequest
+} from '@gelatonetwork/relay-sdk'
+import fetch from 'node-fetch'
 import {
   GELATO_FEE_COLLECTOR,
   GELATO_NATIVE_TOKEN_ADDRESS,
   GELATO_RELAY_URL,
   ZERO_ADDRESS
 } from './constants'
+import { MetaTransactionOptions, RelayAdapter, RelayTransaction } from './types'
 
-class GelatoNetworkRelay implements RelayProvider {
-  #gelatoRelay: GelatoRelay
+export class GelatoRelayAdapter implements RelayAdapter {
+  #gelatoRelay: GelatoNetworkRelay
   #apiKey?: string
 
   constructor(apiKey?: string) {
-    this.#gelatoRelay = new GelatoRelay()
+    this.#gelatoRelay = new GelatoNetworkRelay()
     this.#apiKey = apiKey
   }
 
@@ -100,5 +100,3 @@ class GelatoNetworkRelay implements RelayProvider {
     return responseJson
   }
 }
-
-export default GelatoNetworkRelay

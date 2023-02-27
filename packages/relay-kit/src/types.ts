@@ -2,10 +2,18 @@ import { RelayResponse } from '@gelatonetwork/relay-sdk'
 import { BigNumber } from 'ethers'
 
 // TO-DO: Duplicated. Remove local type and import from "types" package
+// {
+
 export interface MetaTransactionOptions {
-  isSponsored: boolean
   gasLimit: BigNumber
   gasToken?: string
+  isSponsored?: boolean
+}
+
+export interface RelayAdapter {
+  getFeeCollector(): string
+  getEstimateFee(chainId: number, gasLimit: BigNumber, gasToken?: string): Promise<BigNumber>
+  relayTransaction(transaction: RelayTransaction): Promise<RelayResponse>
 }
 
 export interface RelayTransaction {
@@ -15,8 +23,5 @@ export interface RelayTransaction {
   options: MetaTransactionOptions
 }
 
-export interface RelayProvider {
-  getFeeCollector(): string
-  getEstimateFee(chainId: number, gasLimit: BigNumber, gasToken?: string): Promise<BigNumber>
-  relayTransaction(transaction: RelayTransaction): Promise<RelayResponse>
-}
+// }
+// TO-DO: Duplicated. Remove local type and import from "types" package

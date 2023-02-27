@@ -1,4 +1,4 @@
-import { runTypeChain, glob } from 'typechain'
+import { glob, runTypeChain } from 'typechain'
 
 const safeContractsRoute = '../../node_modules/@gnosis.pm/safe-contracts/build/artifacts/contracts'
 
@@ -7,7 +7,8 @@ async function main() {
   // find all files matching the glob
   const allFiles = glob(cwd, [
     `${safeContractsRoute}/GnosisSafe.sol/GnosisSafe.json`,
-    `${safeContractsRoute}/proxies/GnosisSafeProxy.sol/GnosisSafeProxy.json`
+    `${safeContractsRoute}/proxies/GnosisSafeProxyFactory.sol/GnosisSafeProxyFactory.json`,
+    `${safeContractsRoute}/libraries/MultiSendCallOnly.sol/MultiSendCallOnly.json`
   ])
   const result = await runTypeChain({
     cwd,

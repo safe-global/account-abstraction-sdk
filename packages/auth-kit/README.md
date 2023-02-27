@@ -2,7 +2,7 @@
 
 [![NPM Version](https://badge.fury.io/js/%40safe-global%2Fauth-kit.svg)](https://badge.fury.io/js/%40safe-global%2Fauth-kit)
 [![GitHub Release](https://img.shields.io/github/release/safe-global/account-abstraction-sdk.svg?style=flat)](https://github.com/safe-global/account-abstraction-sdk/releases)
-[![GitHub](https://img.shields.io/github/license/safe-global/account-abstraction-sdk)](https://github.com/safe-global/account-abstraction-sdk/blob/main/packages/auth-kit/LICENSE.md)
+[![GitHub](https://img.shields.io/github/license/safe-global/account-abstraction-sdk)](https://github.com/safe-global/account-abstraction-sdk/blob/main/LICENSE.md)
 
 This library provides a way to authenticate blockchain accounts using email addresses, social accounts or traditional web3 wallets (ex. Metamask). When using web2 methods as your email or social account, a derived Ethereum address will be generated.
 

@@ -1,5 +1,6 @@
 {
   "name": "@safe-global/account-abstraction",
+  "private": "true",
   "version": "0.1.0",
   "description": "Safe Account Abstraction",
   "main": "dist/src/index.js",
@@ -36,7 +37,7 @@
   },
   "dependencies": {
     "@gnosis.pm/safe-contracts": "^1.3.0",
-    "@safe-global/relay-kit": "^0.1.0",
+    "@safe-global/relay-kit": "^0.0.0",
     "@safe-global/safe-deployments": "^1.20.2",
     "ethereumjs-util": "^7.1.5",
     "ethers": "^5.7.2"

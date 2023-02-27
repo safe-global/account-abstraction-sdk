@@ -112,7 +112,7 @@ export default class StripeAdapter implements SafeOnRampClient {
         if (Number(e.payload.session.quote.source_monetary_amount?.replace(',', '.')) > 10) {
           document.querySelector(this?.currentSessionOptions?.element as string)?.remove()
           throw new Error(
-            "The amount you are trying to use for complete your purchase can't be greater than 10 in order to preserve testnets liquidity pools"
+            "The amount you are trying to use to complete your purchase can't be greater than 10 in order to preserve testnets liquidity pools"
           )
         }
 

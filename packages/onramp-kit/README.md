@@ -10,7 +10,7 @@ Once the hackaton and Stripe pilot ends the server will be removed and you shoul
 [![GitHub Release](https://img.shields.io/github/release/safe-global/account-abstraction-sdk.svg?style=flat)](https://github.com/safe-global/account-abstraction-sdk/releases)
 [![GitHub](https://img.shields.io/github/license/safe-global/account-abstraction-sdk)](https://github.com/safe-global/account-abstraction-sdk/blob/main/LICENSE.md)
 
-The [Onramp kit](https://github.com/safe-global/account-abstraction-sdk/tree/dev/packages/onramp-kit) allows users to buy cryptocurrencies using a credit card and other payment options.
+The Onramp Kit allows users to buy cryptocurrencies using a credit card and other payment options.
 
 ## Reference
 

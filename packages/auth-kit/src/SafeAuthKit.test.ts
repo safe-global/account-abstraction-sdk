@@ -1,4 +1,4 @@
-import SafeAuthKit from './SafeAuthKit'
+import { SafeAuthKit } from './index'
 
 describe('SafeAuthKit', () => {
   it('should be defined', () => {

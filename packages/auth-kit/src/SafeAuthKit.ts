@@ -15,7 +15,7 @@ import {
 /**
  * SafeAuthKit provides a simple interface for web2 logins
  */
-export default class SafeAuthKit extends EventEmitter {
+export class SafeAuthKit extends EventEmitter {
   safeAuthData?: SafeAuthSignInData
   #client: SafeAuthClient
   #config: SafeAuthConfig

@@ -7,7 +7,7 @@ import { SafeOnRampProviderType } from './types/onRamp'
  * This class allows to initialize the Safe OnRamp Kit for convert fiat to crypto
  * @class SafeOnRampKit
  */
-export default class SafeOnRampKit {
+export class SafeOnRampKit {
   #client: SafeOnRampClient
 
   /**

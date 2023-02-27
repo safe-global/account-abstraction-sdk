@@ -125,14 +125,14 @@ class AccountAbstraction {
       throw new Error('SDK not initialized')
     }
 
-    let standardizedSafeTx = await this._standardizeSafeTransactionData(transaction, options)
-    let signature = await getSignature(
+    const standardizedSafeTx = await this._standardizeSafeTransactionData(transaction, options)
+    const signature = await getSignature(
       this.#signer,
       this.getSafeAddress(),
       standardizedSafeTx,
       this.#chainId
     )
-    let transactionData = await encodeExecTransaction(
+    const transactionData = await encodeExecTransaction(
       this.#safeContract,
       standardizedSafeTx,
       signature

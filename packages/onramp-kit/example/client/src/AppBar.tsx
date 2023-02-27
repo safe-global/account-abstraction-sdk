@@ -1,4 +1,4 @@
-import { AppBar as MuiAppBar, Typography, styled, Box, Button } from '@mui/material'
+import { AppBar as MuiAppBar, Typography, styled } from '@mui/material'
 
 type AppBarProps = {}
 

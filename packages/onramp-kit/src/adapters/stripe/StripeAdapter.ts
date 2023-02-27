@@ -20,10 +20,10 @@ const STRIPE_CRYPTO_JS_URL = 'https://crypto-js.stripe.com/crypto-onramp-outer.j
  * @class StripeAdapter
  */
 export default class StripeAdapter implements SafeOnRampClient {
-  private stripeOnRamp: any
-  private onRampSession?: StripeSession
-  private config: StripeProviderConfig
-  private currentSessionOptions?: SafeOnRampOpenOptions
+  #stripeOnRamp: any
+  #onRampSession?: StripeSession
+  #config: StripeProviderConfig
+  #currentSessionOptions?: SafeOnRampOpenOptions
 
   /**
    * Initialize the StripeAdapter
@@ -31,7 +31,7 @@ export default class StripeAdapter implements SafeOnRampClient {
    * @param config The configuration object for the Stripe provider
    */
   constructor(config: StripeProviderConfig) {
-    this.config = config
+    this.#config = config
   }
 
   /**
@@ -42,7 +42,7 @@ export default class StripeAdapter implements SafeOnRampClient {
       await loadScript(STRIPE_JS_URL)
       await loadScript(STRIPE_CRYPTO_JS_URL)
 
-      this.stripeOnRamp = StripeOnramp(this.config.stripePublicKey)
+      this.#stripeOnRamp = StripeOnramp(this.#config.stripePublicKey)
     } catch {
       throw new Error("Couldn't load Stripe's JS files")
     }
@@ -57,9 +57,9 @@ export default class StripeAdapter implements SafeOnRampClient {
       let response
 
       if (options.sessionId) {
-        response = await stripeApi.getSession(this.config.onRampBackendUrl, options.sessionId)
+        response = await stripeApi.getSession(this.#config.onRampBackendUrl, options.sessionId)
       } else {
-        response = await stripeApi.createSession(this.config.onRampBackendUrl, {
+        response = await stripeApi.createSession(this.#config.onRampBackendUrl, {
           walletAddress: options.walletAddress,
           networks: options.networks
         })
@@ -69,14 +69,14 @@ export default class StripeAdapter implements SafeOnRampClient {
 
       if (!response.ok) throw new Error()
 
-      const onRampSession = await this.stripeOnRamp.createSession({
+      const onRampSession = await this.#stripeOnRamp.createSession({
         clientSecret: data.client_secret
       })
 
-      this.onRampSession = onRampSession
-      this.currentSessionOptions = options
+      this.#onRampSession = onRampSession
+      this.#currentSessionOptions = options
 
-      if (options.events) this.bindEvents(options.events)
+      if (options.events) this.#bindEvents(options.events)
 
       onRampSession.mount(options.element)
 
@@ -97,12 +97,12 @@ export default class StripeAdapter implements SafeOnRampClient {
    * This method binds the event handlers to the onramp widget
    * @param events The event handlers to bind to the onramp widget
    */
-  private bindEvents(events: SafeOnRampEventHandlers) {
-    this.onRampSession?.addEventListener('onramp_ui_loaded', () => {
+  #bindEvents(events: SafeOnRampEventHandlers) {
+    this.#onRampSession?.addEventListener('onramp_ui_loaded', () => {
       events?.onLoaded?.()
     })
 
-    this.onRampSession?.addEventListener(
+    this.#onRampSession?.addEventListener(
       'onramp_session_updated',
       (e: OnrampSessionUpdatedEvent) => {
         const safeEvent = this.stripeEventToSafeEvent(e)
@@ -110,7 +110,7 @@ export default class StripeAdapter implements SafeOnRampClient {
         // TODO: Remove this check when not required
         // This is only in order to preserve testnets liquidity pools during the hackaton
         if (Number(e.payload.session.quote.source_monetary_amount?.replace(',', '.')) > 10) {
-          document.querySelector(this?.currentSessionOptions?.element as string)?.remove()
+          document.querySelector(this.#currentSessionOptions?.element as string)?.remove()
           throw new Error(
             "The amount you are trying to use to complete your purchase can't be greater than 10 in order to preserve testnets liquidity pools"
           )

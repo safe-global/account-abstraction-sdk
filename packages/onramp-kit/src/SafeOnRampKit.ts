@@ -8,7 +8,7 @@ import { SafeOnRampProviderType } from './types/onRamp'
  * @class SafeOnRampKit
  */
 export class SafeOnRampKit {
-  private client: SafeOnRampClient
+  #client: SafeOnRampClient
 
   /**
    * Initialize the SafeOnRampKit
@@ -16,7 +16,7 @@ export class SafeOnRampKit {
    * @param client - The client implementing the SafeOnRampClient interface
    */
   constructor(client: SafeOnRampClient) {
-    this.client = client
+    this.#client = client
   }
 
   /**
@@ -47,13 +47,13 @@ export class SafeOnRampKit {
    * @param options The options to open the onramp widget
    */
   async open(options: SafeOnRampOpenOptions): Promise<unknown> {
-    return await this.client.open(options)
+    return await this.#client.open(options)
   }
 
   /**
    * This method destroys the onramp widget
    */
   async close() {
-    await this.client.close()
+    await this.#client.close()
   }
 }

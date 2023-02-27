@@ -14,7 +14,7 @@ The Onramp Kit allows users to buy cryptocurrencies using a credit card and othe
 
 ## Reference
 
-  - [OnRamp Kit docs](https://docs.gnosis-safe.io/learn/safe-core-account-abstraction-sdk/onramp-kit)
+  - [OnRamp Kit docs](https://docs.safe.global/learn/safe-core-account-abstraction-sdk/onramp-kit)
 
 ## Example
 

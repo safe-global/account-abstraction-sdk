@@ -8,7 +8,7 @@ The Relay Kit allows to abstract users from the transaction fees payment (gas fe
 
 ## Reference
 
-  - [Relay Kit docs](https://docs.gnosis-safe.io/learn/safe-core-account-abstraction-sdk/relay-kit)
+  - [Relay Kit docs](https://docs.safe.global/learn/safe-core-account-abstraction-sdk/relay-kit)
 
 
 ## License

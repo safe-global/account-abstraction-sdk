@@ -8,7 +8,7 @@ The Auth Kit provides a way to authenticate blockchain accounts using email addr
 
 ## Reference
 
-  - [Auth Kit docs](https://docs.gnosis-safe.io/learn/safe-core-account-abstraction-sdk/auth-kit)
+  - [Auth Kit docs](https://docs.safe.global/learn/safe-core-account-abstraction-sdk/auth-kit)
 
 ## Example
 

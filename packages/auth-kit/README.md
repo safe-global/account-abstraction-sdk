@@ -13,3 +13,7 @@ This library provides a way to authenticate blockchain accounts using email addr
 ## Example
 
 [Check a functional demo](https://github.com/safe-global/account-abstraction-sdk/tree/dev/packages/auth-kit/example) using the `auth-kit`
+
+## License
+
+This library is [released under MIT](https://github.com/safe-global/account-abstraction-sdk/blob/main/LICENSE.md).

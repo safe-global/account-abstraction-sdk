@@ -19,3 +19,7 @@ The [Onramp kit](https://github.com/safe-global/account-abstraction-sdk/tree/dev
 ## Example
 
 [Check a functional demo](https://github.com/safe-global/account-abstraction-sdk/tree/195588a4388b15f06b05d2027ffd43185781be34/packages/onramp-kit/example) using the `onramp-kit` 
+
+## License
+
+This library is [released under MIT](https://github.com/safe-global/account-abstraction-sdk/blob/main/LICENSE.md).

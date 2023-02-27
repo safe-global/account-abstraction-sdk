@@ -17,8 +17,8 @@ import {
  */
 export default class SafeAuthKit extends EventEmitter {
   safeAuthData?: SafeAuthSignInData
-  private client: SafeAuthClient
-  private config: SafeAuthConfig
+  #client: SafeAuthClient
+  #config: SafeAuthConfig
 
   /**
    * Initialize the SafeAuthKit
@@ -29,8 +29,8 @@ export default class SafeAuthKit extends EventEmitter {
   constructor(client: SafeAuthClient, config: SafeAuthConfig) {
     super()
 
-    this.client = client
-    this.config = config
+    this.#client = client
+    this.#config = config
   }
 
   /**
@@ -66,22 +66,22 @@ export default class SafeAuthKit extends EventEmitter {
    * @throws Error if there was an error while trying to get the safes for the current user using the provided txServiceUrl
    */
   async signIn(): Promise<SafeAuthSignInData> {
-    await this.client.signIn()
+    await this.#client.signIn()
 
-    if (!this.client.provider) {
+    if (!this.#client.provider) {
       throw new Error('Provider is not defined')
     }
 
-    const ethersProvider = new ethers.providers.Web3Provider(this.client.provider)
+    const ethersProvider = new ethers.providers.Web3Provider(this.#client.provider)
     const signer = ethersProvider.getSigner()
     const address = await signer.getAddress()
 
     let safes: string[] | undefined
 
     // Retrieve safes if txServiceUrl is provided
-    if (this.config.txServiceUrl) {
+    if (this.#config.txServiceUrl) {
       try {
-        const safesByOwner = await this.getSafeCoreClient().getSafesByOwner(address)
+        const safesByOwner = await this.#getSafeCoreClient().getSafesByOwner(address)
         safes = safesByOwner.safes
       } catch (e) {
         throw new Error('There was an error while trying to get the safes for the current user')
@@ -91,7 +91,7 @@ export default class SafeAuthKit extends EventEmitter {
     this.emit(SafeAuthEvents.SIGNED_IN)
 
     this.safeAuthData = {
-      chainId: this.config.chainId,
+      chainId: this.#config.chainId,
       eoa: address,
       safes
     }
@@ -103,7 +103,7 @@ export default class SafeAuthKit extends EventEmitter {
    * Sign out the user
    */
   async signOut(): Promise<void> {
-    await this.client?.signOut()
+    await this.#client?.signOut()
 
     this.safeAuthData = undefined
     this.emit(SafeAuthEvents.SIGNED_OUT)
@@ -114,9 +114,9 @@ export default class SafeAuthKit extends EventEmitter {
    * @returns The Ethereum provider
    */
   getProvider() {
-    if (!this.client) return null
+    if (!this.#client) return null
 
-    return this.client?.provider
+    return this.#client?.provider
   }
 
   /**
@@ -141,16 +141,16 @@ export default class SafeAuthKit extends EventEmitter {
    * Get the SafeServiceClient instance
    * @returns A SafeServiceClient instance
    */
-  private getSafeCoreClient(): SafeServiceClient {
-    if (!this.client?.provider) {
+  #getSafeCoreClient(): SafeServiceClient {
+    if (!this.#client?.provider) {
       throw new Error('Provider is not defined')
     }
 
-    if (!this.config.txServiceUrl) {
+    if (!this.#config.txServiceUrl) {
       throw new Error('txServiceUrl is not defined')
     }
 
-    const provider = new ethers.providers.Web3Provider(this.client?.provider)
+    const provider = new ethers.providers.Web3Provider(this.#client?.provider)
     const safeOwner = provider.getSigner(0)
 
     const adapter = new EthersAdapter({
@@ -159,7 +159,7 @@ export default class SafeAuthKit extends EventEmitter {
     })
 
     return new SafeServiceClient({
-      txServiceUrl: this.config.txServiceUrl,
+      txServiceUrl: this.#config.txServiceUrl,
       ethAdapter: adapter
     })
   }

@@ -4,7 +4,7 @@
   "scripts": {
     "clean": "lerna clean && rm -rf ./node_modules",
     "format:check": "lerna run format:check",
-    "format": "lerna run format",
+    "format": "prettier --write */**/*.{js,json,md,ts}",
     "unbuild": "lerna run unbuild",
     "build": "lerna run build --stream",
     "test": "FORCE_COLOR=1 lerna run test --stream",

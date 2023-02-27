@@ -9,7 +9,7 @@ about: Suggest an idea or feature request for the Safe Account Abstraction SDK
 - Support questions are better asked in our Discord chat: https://chat.safe.global/
 - Please ensure the issue isn't already reported.
 
-*Please delete the above section and the instructions in the sections below before submitting*
+_Please delete the above section and the instructions in the sections below before submitting_
 
 ## Context / issue
 

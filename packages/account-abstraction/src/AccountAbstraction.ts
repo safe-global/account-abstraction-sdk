@@ -1,110 +1,112 @@
-import { RelayProvider, RelayTransaction } from '@safe-global/relay-provider'
-import ethers, { BigNumber } from 'ethers'
-import { EIP712_SAFE_TX_TYPES, ZERO_ADDRESS } from './constants'
-import { GnosisSafe__factory } from '../typechain/factories/GnosisSafe__factory'
+import { BigNumber, ethers } from 'ethers'
+import { GnosisSafe__factory } from '../typechain/factories'
+import { GnosisSafe } from '../typechain/GnosisSafe'
+import { MultiSendCallOnly } from '../typechain/libraries'
+import { GnosisSafeProxyFactory } from '../typechain/proxies'
+import { ZERO_ADDRESS } from './constants'
 import {
+  AccountAbstractionConfig,
   MetaTransactionData,
   MetaTransactionOptions,
   OperationType,
-  SafeTransactionData,
-  SafeTxTypedData
+  RelayAdapter,
+  RelayTransaction,
+  SafeTransactionData
 } from './types'
-import { isTypedDataSigner } from './utils'
-import { GnosisSafe } from '../typechain/GnosisSafe'
+import { getMultiSendCallOnlyContract, getSafeContract, getSafeProxyFactoryContract } from './utils'
+import {
+  calculateChainSpecificProxyAddress,
+  encodeCreateProxyWithNonce,
+  encodeExecTransaction,
+  encodeMultiSendData,
+  getSafeInitializer
+} from './utils/contracts'
+import { getSignature } from './utils/signatures'
 
 class AccountAbstraction {
-  #safeAddress: string
-  #safeContract: GnosisSafe
-  #chainId: number
   #signer: ethers.Signer
-  #relayProvider?: RelayProvider
+  #chainId?: number
+  #safeContract?: GnosisSafe
+  #safeProxyFactoryContract?: GnosisSafeProxyFactory
+  #multiSendCallOnlyContract?: MultiSendCallOnly
+  #relayAdapter?: RelayAdapter
 
-  constructor(signer: ethers.Signer, safeAddress: string, chainId: number) {
-    this.#safeAddress = safeAddress
+  constructor(signer: ethers.Signer) {
     this.#signer = signer
-    this.#chainId = chainId
-    this.#safeContract = GnosisSafe__factory.connect(safeAddress, signer)
   }
 
-  setRelayProvider(relayProvider: RelayProvider) {
-    this.#relayProvider = relayProvider
-  }
-
-  private async _getExecTransactionData(transaction: SafeTransactionData) {
-    const signature = await this._getSignature(transaction)
-    return (this.#safeContract as any).interface.encodeFunctionData('execTransaction', [
-      transaction.to,
-      transaction.value,
-      transaction.data,
-      transaction.operation,
-      transaction.safeTxGas,
-      transaction.baseGas,
-      transaction.gasPrice,
-      transaction.gasToken,
-      transaction.refundReceiver,
-      signature
-    ])
-  }
-
-  private async _getSignature(transaction: SafeTransactionData) {
-    const typedData = this._getSignTypedData(transaction)
-    let signature
-    if (isTypedDataSigner(this.#signer)) {
-      signature = await this.#signer._signTypedData(
-        typedData.domain,
-        { SafeTx: typedData.types.SafeTx },
-        typedData.message
-      )
+  async init(options: AccountAbstractionConfig) {
+    if (!this.#signer.provider) {
+      throw new Error('Signer must be connected to a provider')
     }
-    return signature
+    const { relayAdapter } = options
+    this.setRelayAdapter(relayAdapter)
+
+    this.#chainId = (await this.#signer.provider.getNetwork()).chainId
+    this.#safeProxyFactoryContract = getSafeProxyFactoryContract(this.#chainId, this.#signer)
+    this.#multiSendCallOnlyContract = getMultiSendCallOnlyContract(this.#chainId, this.#signer)
+    const safeAddress = await calculateChainSpecificProxyAddress(
+      this.#safeProxyFactoryContract,
+      this.#signer,
+      this.#chainId
+    )
+    this.#safeContract = GnosisSafe__factory.connect(safeAddress, this.#signer)
   }
 
-  private _getSignTypedData = (transaction: SafeTransactionData): SafeTxTypedData => {
-    return {
-      types: EIP712_SAFE_TX_TYPES,
-      domain: {
-        chainId: this.#chainId,
-        verifyingContract: this.#safeAddress
-      },
-      primaryType: 'SafeTx',
-      message: {
-        to: transaction.to,
-        value: transaction.value.toString(),
-        data: transaction.data,
-        operation: transaction.operation,
-        safeTxGas: transaction.safeTxGas.toString(),
-        baseGas: transaction.baseGas.toString(),
-        gasPrice: transaction.gasPrice.toString(),
-        gasToken: transaction.gasToken,
-        refundReceiver: transaction.refundReceiver,
-        nonce: transaction.nonce.toString()
-      }
+  setRelayAdapter(relayAdapter: RelayAdapter) {
+    this.#relayAdapter = relayAdapter
+  }
+
+  async getSignerAddress(): Promise<string> {
+    const signerAddress = await this.#signer.getAddress()
+    return signerAddress
+  }
+
+  async getNonce(): Promise<number> {
+    if (!this.#safeContract) {
+      throw new Error('SDK not initialized')
     }
+    return (await this.isSafeDeployed()) ? (await this.#safeContract.nonce()).toNumber() : 0
+  }
+
+  getSafeAddress(): string {
+    if (!this.#safeContract) {
+      throw new Error('SDK not initialized')
+    }
+    return this.#safeContract.address
+  }
+
+  async isSafeDeployed(): Promise<boolean> {
+    if (!this.#signer.provider) {
+      throw new Error('SDK not initialized')
+    }
+    const address = this.getSafeAddress()
+    const codeAtAddress = await this.#signer.provider.getCode(address)
+    const isDeployed = codeAtAddress !== '0x'
+    return isDeployed
   }
 
   private async _standardizeSafeTransactionData(
     transaction: MetaTransactionData,
     options: MetaTransactionOptions
   ): Promise<SafeTransactionData> {
-    if (!this.#relayProvider) {
-      throw new Error('Relay Provider is not set')
+    if (!this.#relayAdapter || !this.#chainId) {
+      throw new Error('SDK not initialized')
     }
-    const estimation = await this.#relayProvider.getEstimateFee(
-      this.#chainId,
-      options.gasLimit,
-      options.gasToken
-    )
+    const { gasLimit, gasToken, isSponsored } = options
+    const estimation = await this.#relayAdapter.getEstimateFee(this.#chainId, gasLimit, gasToken)
+
     const standardizedSafeTx: SafeTransactionData = {
       to: transaction.to,
       value: transaction.value,
       data: transaction.data,
       operation: transaction.operation ?? OperationType.Call,
-      safeTxGas: BigNumber.from(0), // Only Safe V1.3 supported so far
-      baseGas: estimation ?? BigNumber.from(0),
-      gasPrice: !options.isSponsored ? BigNumber.from(1) : BigNumber.from(0),
-      gasToken: options.gasToken ?? ZERO_ADDRESS,
-      refundReceiver: !options.isSponsored ? this.#relayProvider.getFeeCollector() : ZERO_ADDRESS,
-      nonce: await this.#safeContract.nonce()
+      safeTxGas: BigNumber.from(0), // Only Safe v1.3.0 supported so far
+      baseGas: !isSponsored ? estimation : BigNumber.from(0),
+      gasPrice: !isSponsored ? BigNumber.from(1) : BigNumber.from(0),
+      gasToken: gasToken ?? ZERO_ADDRESS,
+      refundReceiver: !isSponsored ? this.#relayAdapter.getFeeCollector() : ZERO_ADDRESS,
+      nonce: await this.getNonce()
     }
     return standardizedSafeTx
   }
@@ -113,18 +115,75 @@ class AccountAbstraction {
     transaction: MetaTransactionData,
     options: MetaTransactionOptions
   ): Promise<string> {
-    if (!this.#relayProvider) {
-      throw new Error('Relay Provider is not set')
+    if (
+      !this.#relayAdapter ||
+      !this.#chainId ||
+      !this.#safeContract ||
+      !this.#multiSendCallOnlyContract ||
+      !this.#safeProxyFactoryContract
+    ) {
+      throw new Error('SDK not initialized')
     }
-    const standardizedSafeTx = await this._standardizeSafeTransactionData(transaction, options)
-    const encodedTransaction = await this._getExecTransactionData(standardizedSafeTx)
+
+    let standardizedSafeTx = await this._standardizeSafeTransactionData(transaction, options)
+    let signature = await getSignature(
+      this.#signer,
+      this.getSafeAddress(),
+      standardizedSafeTx,
+      this.#chainId
+    )
+    let transactionData = await encodeExecTransaction(
+      this.#safeContract,
+      standardizedSafeTx,
+      signature
+    )
+
+    let relayTransactionTarget = ''
+    let encodedTransaction = ''
+    const isSafeDeployed = await this.isSafeDeployed()
+    if (isSafeDeployed) {
+      relayTransactionTarget = this.#safeContract.address
+      encodedTransaction = transactionData
+    } else {
+      relayTransactionTarget = this.#multiSendCallOnlyContract.address
+      const safeSingletonContract = getSafeContract(this.#chainId, this.#signer)
+      const initializer = await getSafeInitializer(
+        this.#safeContract,
+        await this.getSignerAddress(),
+        this.#chainId
+      )
+
+      const safeDeploymentTransaction: MetaTransactionData = {
+        to: this.#safeProxyFactoryContract.address,
+        value: BigNumber.from(0),
+        data: encodeCreateProxyWithNonce(
+          this.#safeProxyFactoryContract,
+          safeSingletonContract.address,
+          initializer
+        ),
+        operation: OperationType.Call
+      }
+      const safeTransaction: MetaTransactionData = {
+        to: this.#safeContract.address,
+        value: BigNumber.from(0),
+        data: transactionData,
+        operation: OperationType.Call
+      }
+
+      const multiSendData = encodeMultiSendData([safeDeploymentTransaction, safeTransaction])
+      encodedTransaction = this.#multiSendCallOnlyContract.interface.encodeFunctionData(
+        'multiSend',
+        [multiSendData]
+      )
+    }
+
     const relayTransaction: RelayTransaction = {
-      target: this.#safeAddress,
+      target: relayTransactionTarget,
       encodedTransaction: encodedTransaction,
       chainId: this.#chainId,
       options
     }
-    const response = await this.#relayProvider.relayTransaction(relayTransaction)
+    const response = await this.#relayAdapter.relayTransaction(relayTransaction)
     return response.taskId
   }
 }

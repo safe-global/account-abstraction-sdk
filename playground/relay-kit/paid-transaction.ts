@@ -3,7 +3,7 @@ import AccountAbstraction, {
   MetaTransactionData,
   MetaTransactionOptions,
   OperationType
-} from '@safe-global/account-abstraction'
+} from '@safe-global/account-abstraction-kit-poc'
 import { GelatoRelayAdapter } from '@safe-global/relay-kit'
 import { BigNumber, ethers } from 'ethers'
 

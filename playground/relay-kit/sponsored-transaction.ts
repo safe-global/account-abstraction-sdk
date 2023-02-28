@@ -2,10 +2,10 @@ import AccountAbstraction, {
   MetaTransactionData,
   MetaTransactionOptions,
   OperationType
-} from '@safe-global/account-abstraction'
+} from '@safe-global/account-abstraction-kit-poc'
 import { GelatoRelayAdapter } from '@safe-global/relay-kit'
 import { BigNumber, ethers } from 'ethers'
-import { AccountAbstractionConfig } from './../../packages/account-abstraction/src/types/index'
+import { AccountAbstractionConfig } from './../../packages/account-abstraction-kit/src/types/index'
 
 // Fund the 1Balance account that will sponsor the transaction and get the API key:
 // https://relay.gelato.network/

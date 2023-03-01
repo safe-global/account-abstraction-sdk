@@ -2,19 +2,19 @@ import * as web3AuthModal from '@web3auth/modal'
 import { generateTestingUtils } from 'eth-testing'
 import EventEmitter from 'events'
 
-import { SafeAuthConfig, SafeAuthProviderType } from './types'
+import { SafeAuthConfig, SafeAuthEvents, SafeAuthProviderType } from './types'
 import { SafeAuthKit } from './SafeAuthKit'
 
 const testingUtils = generateTestingUtils({ providerType: 'MetaMask' })
-
+const mockProvider = testingUtils.getProvider()
 const mockInitModal = jest.fn()
-const mockConnect = jest.fn().mockResolvedValue(testingUtils.getProvider())
+const mockConnect = jest.fn().mockResolvedValue(mockProvider)
 
 jest.mock('@web3auth/modal', () => {
   return {
     Web3Auth: jest.fn().mockImplementation(() => {
       return {
-        provider: {},
+        provider: mockProvider,
         initModal: mockInitModal,
         connect: mockConnect,
         configureAdapter: jest.fn()
@@ -35,7 +35,85 @@ const config = {
 } as SafeAuthConfig
 
 describe('SafeAuthKit', () => {
-  describe('Web3AuthAdapter', () => {
+  it('should create a SafeAuthKit instance', async () => {
+    const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, config)
+
+    expect(safeAuthKit).toBeInstanceOf(SafeAuthKit)
+    expect(safeAuthKit).toBeInstanceOf(EventEmitter)
+    expect(safeAuthKit?.safeAuthData).toBeUndefined()
+  })
+
+  it('should throw an error if the provider type is not supported', async () => {
+    //@ts-expect-error
+    await expect(SafeAuthKit.init('unsupported' as SafeAuthProviderType, config)).rejects.toThrow(
+      'Provider type not supported'
+    )
+  })
+
+  it('should clean the auth data when signing out', async () => {
+    const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, config)
+
+    testingUtils.lowLevel.mockRequest('eth_accounts', [
+      '0xf61B443A155b07D2b2cAeA2d99715dC84E839EEf'
+    ])
+
+    await safeAuthKit?.signIn()
+    await safeAuthKit?.signOut()
+
+    expect(safeAuthKit?.safeAuthData).toBeUndefined()
+  })
+
+  it('should allow to get the provider', async () => {
+    const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, config)
+    console.log(safeAuthKit)
+    expect(safeAuthKit?.getProvider()).toBe(mockProvider)
+  })
+
+  it('should allow to listen for events (SIGNED_IN / SIGNED_OUT)', async () => {
+    const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, config)
+    const signedIn = jest.fn()
+    const signedOut = jest.fn()
+
+    safeAuthKit?.subscribe(SafeAuthEvents.SIGNED_IN, signedIn)
+    safeAuthKit?.subscribe(SafeAuthEvents.SIGNED_OUT, signedOut)
+
+    testingUtils.lowLevel.mockRequest('eth_accounts', [
+      '0xf61B443A155b07D2b2cAeA2d99715dC84E839EEf'
+    ])
+
+    await safeAuthKit?.signIn()
+
+    expect(signedIn).toHaveBeenCalled()
+
+    await safeAuthKit?.signOut()
+
+    expect(signedOut).toHaveBeenCalled()
+  })
+
+  it('should allow to unsubscribe for events (SIGNED_IN / SIGNED_OUT)', async () => {
+    const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, config)
+    const signedIn = jest.fn()
+    const signedOut = jest.fn()
+
+    safeAuthKit?.subscribe(SafeAuthEvents.SIGNED_IN, signedIn)
+    safeAuthKit?.subscribe(SafeAuthEvents.SIGNED_OUT, signedOut)
+    safeAuthKit?.unsubscribe(SafeAuthEvents.SIGNED_IN, signedIn)
+    safeAuthKit?.unsubscribe(SafeAuthEvents.SIGNED_OUT, signedOut)
+
+    testingUtils.lowLevel.mockRequest('eth_accounts', [
+      '0xf61B443A155b07D2b2cAeA2d99715dC84E839EEf'
+    ])
+
+    await safeAuthKit?.signIn()
+
+    expect(signedIn).toHaveBeenCalledTimes(0)
+
+    await safeAuthKit?.signOut()
+
+    expect(signedOut).toHaveBeenCalledTimes(0)
+  })
+
+  describe('using the Web3AuthAdapter', () => {
     const MockedWeb3Auth = jest.mocked(web3AuthModal.Web3Auth)
 
     beforeEach(() => {
@@ -43,14 +121,6 @@ describe('SafeAuthKit', () => {
       testingUtils.clearAllMocks()
       mockInitModal.mockClear()
       mockConnect.mockClear()
-    })
-
-    it('should create a SafeAuthKit instance', async () => {
-      const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, config)
-
-      expect(safeAuthKit).toBeInstanceOf(SafeAuthKit)
-      expect(safeAuthKit).toBeInstanceOf(EventEmitter)
-      expect(safeAuthKit?.safeAuthData).toBeUndefined()
     })
 
     it('should call the initModal method after create a Web3Auth instance', async () => {
@@ -86,19 +156,6 @@ describe('SafeAuthKit', () => {
         eoa: '0xf61B443A155b07D2b2cAeA2d99715dC84E839EEf',
         safes: undefined
       })
-    })
-
-    it('should ', async () => {
-      const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, config)
-
-      testingUtils.lowLevel.mockRequest('eth_accounts', [
-        '0xf61B443A155b07D2b2cAeA2d99715dC84E839EEf'
-      ])
-
-      await safeAuthKit?.signIn()
-      await safeAuthKit?.signOut()
-
-      expect(safeAuthKit?.safeAuthData).toBeUndefined()
     })
   })
 })

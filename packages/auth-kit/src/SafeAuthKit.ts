@@ -9,7 +9,8 @@ import {
   SafeAuthConfig,
   SafeAuthProviderType,
   SafeAuthSignInData,
-  SafeAuthEvents
+  SafeAuthEvents,
+  SafeAuthEventType
 } from './types'
 
 /**
@@ -126,7 +127,7 @@ export class SafeAuthKit extends EventEmitter {
    * @param eventName The event name to subscribe to. Choose from SafeAuthEvents type
    * @param listener The callback function to be called when the event is emitted
    */
-  subscribe(eventName: typeof SafeAuthEvents, listener: (...args: any[]) => void) {
+  subscribe(eventName: SafeAuthEventType, listener: (...args: any[]) => void) {
     this.on(eventName.toString(), listener)
   }
 
@@ -135,7 +136,7 @@ export class SafeAuthKit extends EventEmitter {
    * @param eventName The event name to unsubscribe from. Choose from SafeAuthEvents type
    * @param listener The callback function to unsubscribe
    */
-  unsubscribe(eventName: typeof SafeAuthEvents, listener: (...args: any[]) => void) {
+  unsubscribe(eventName: SafeAuthEventType, listener: (...args: any[]) => void) {
     this.off(eventName.toString(), listener)
   }
 

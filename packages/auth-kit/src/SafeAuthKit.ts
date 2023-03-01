@@ -73,7 +73,9 @@ export class SafeAuthKit extends EventEmitter {
     }
 
     const ethersProvider = new ethers.providers.Web3Provider(this.#client.provider)
+
     const signer = ethersProvider.getSigner()
+
     const address = await signer.getAddress()
 
     let safes: string[] | undefined

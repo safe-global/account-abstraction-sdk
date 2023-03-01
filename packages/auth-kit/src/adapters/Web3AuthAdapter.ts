@@ -63,6 +63,7 @@ export default class Web3AuthAdapter implements SafeAuthClient {
       await web3auth.initModal()
 
       this.provider = web3auth.provider
+
       this.web3authInstance = web3auth
     } catch {
       throw new Error('There was an error initializing Web3Auth')
@@ -84,7 +85,5 @@ export default class Web3AuthAdapter implements SafeAuthClient {
    */
   async signOut(): Promise<void> {
     if (!this.web3authInstance) return
-
-    return await this.web3authInstance?.logout()
   }
 }

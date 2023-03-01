@@ -35,11 +35,12 @@
     "access": "public"
   },
   "devDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "@web3auth/base": "^4.3.0",
     "@web3auth/modal": "^4.3.1",
-    "@web3auth/openlogin-adapter": "^4.3.0"
+    "@web3auth/openlogin-adapter": "^4.3.0",
+    "eth-testing": "^1.13.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "dependencies": {
     "@safe-global/safe-ethers-lib": "^1.9.1",

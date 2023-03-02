@@ -10,7 +10,7 @@ export const loadScript = (
   type = 'text/javascript'
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
-    let scriptElement = document.createElement('script')
+    const scriptElement = document.createElement('script')
 
     scriptElement.setAttribute('src', url)
     scriptElement.setAttribute('type', type)

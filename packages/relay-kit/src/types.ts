@@ -1,4 +1,4 @@
-import { RelayResponse } from '@gelatonetwork/relay-sdk'
+import { RelayResponse, TransactionStatusResponse } from '@gelatonetwork/relay-sdk'
 import { BigNumber } from 'ethers'
 
 // TO-DO: Duplicated. Remove local type and import from "types" package
@@ -13,6 +13,7 @@ export interface MetaTransactionOptions {
 export interface RelayAdapter {
   getFeeCollector(): string
   getEstimateFee(chainId: number, gasLimit: BigNumber, gasToken?: string): Promise<BigNumber>
+  getTaskStatus(taskId: string): Promise<TransactionStatusResponse | undefined>
   relayTransaction(transaction: RelayTransaction): Promise<RelayResponse>
 }
 

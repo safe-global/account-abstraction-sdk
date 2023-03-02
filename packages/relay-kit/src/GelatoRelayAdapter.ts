@@ -4,15 +4,10 @@ import {
   GelatoRelay as GelatoNetworkRelay,
   RelayRequestOptions,
   RelayResponse,
-  SponsoredCallRequest
+  SponsoredCallRequest,
+  TransactionStatusResponse
 } from '@gelatonetwork/relay-sdk'
-import fetch from 'node-fetch'
-import {
-  GELATO_FEE_COLLECTOR,
-  GELATO_NATIVE_TOKEN_ADDRESS,
-  GELATO_RELAY_URL,
-  ZERO_ADDRESS
-} from './constants'
+import { GELATO_FEE_COLLECTOR, GELATO_NATIVE_TOKEN_ADDRESS, ZERO_ADDRESS } from './constants'
 import { MetaTransactionOptions, RelayAdapter, RelayTransaction } from './types'
 
 export class GelatoRelayAdapter implements RelayAdapter {
@@ -40,6 +35,10 @@ export class GelatoRelayAdapter implements RelayAdapter {
     const feeToken = this._getFeeToken(gasToken)
     const estimation = await this.#gelatoRelay.getEstimatedFee(chainId, feeToken, gasLimit, true)
     return estimation
+  }
+
+  async getTaskStatus(taskId: string): Promise<TransactionStatusResponse | undefined> {
+    return await this.#gelatoRelay.getTaskStatus(taskId)
   }
 
   async sponsorTransaction(
@@ -91,12 +90,5 @@ export class GelatoRelayAdapter implements RelayAdapter {
       ? this.sponsorTransaction(target, encodedTransaction, chainId)
       : this.payTransaction(target, encodedTransaction, chainId, options)
     return response
-  }
-
-  async checkTask(taskId: string) {
-    const url = `${GELATO_RELAY_URL}/tasks/status/${taskId}`
-    const apiCallResponse = await fetch(url)
-    const responseJson = await apiCallResponse.json()
-    return responseJson
   }
 }

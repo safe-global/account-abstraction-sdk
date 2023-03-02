@@ -31,19 +31,21 @@ interface Quote {
   total_amount: string
 }
 
-interface FixedTransactionDetails {
-  destination_amount: string | null
-  destination_crypto_amount: string | null
-  destination_currency: string | null
-  destination_network: string | null
-  lock_wallet_address: boolean
-  source_amount: string | null
-  source_currency: string | null
-  source_monetary_amount: string | null
-  supported_destination_currencies: string[]
-  supported_destination_networks: string[]
-  wallet_address: string
-  wallet_addresses: any
+interface TransactionDetails {
+  transaction_id?: string | null
+  destination_amount?: string | null
+  destination_crypto_amount?: string | null
+  destination_currency?: string | null
+  destination_network?: string | null
+  lock_wallet_address?: boolean
+  source_amount?: string | null
+  source_exchange_amount?: string | null
+  source_currency?: string | null
+  source_monetary_amount?: string | null
+  supported_destination_currencies?: string[]
+  supported_destination_networks?: string[]
+  wallet_address?: string
+  wallet_addresses?: any
 }
 
 export interface Session {
@@ -51,9 +53,10 @@ export interface Session {
   object: string
   livemode: boolean
   client_secret: string
-  quote: Quote
-  wallet_address: string
-  fixed_transaction_details: FixedTransactionDetails
+  quote?: Quote
+  wallet_address?: string
+  fixed_transaction_details?: TransactionDetails
+  transaction_details?: TransactionDetails
   status: string
 }
 

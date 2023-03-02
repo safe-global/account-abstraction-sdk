@@ -1,9 +1,13 @@
-import { generateTestingUtils } from 'eth-testing'
-import { SafeOnRampConfig, SafeOnRampProviderType } from './types'
+import { SafeOnRampConfig, SafeOnRampOpenOptions, SafeOnRampProviderType } from './types'
 
 import { SafeOnRampKit } from './SafeOnRampKit'
+import * as stripeAdapter from './adapters/stripe/StripeAdapter'
 
-const testingUtils = generateTestingUtils({ providerType: 'MetaMask' })
+const openOptions: SafeOnRampOpenOptions = {
+  element: '#root',
+  walletAddress: '0x',
+  networks: ['ethereum']
+}
 
 const config = {
   onRampProviderConfig: {
@@ -12,26 +16,45 @@ const config = {
   }
 } as SafeOnRampConfig
 
-jest.mock('./adapters/stripe/utils', () => {
-  return {
-    loadScript: jest.fn().mockResolvedValue(true)
-  }
-})
-
-global.StripeOnramp = jest.fn().mockImplementation(() => {
-  return {
-    createSession: jest.fn().mockResolvedValue({
-      mount: jest.fn(),
-      addEventListener: jest.fn()
-    })
-  }
-})
+jest.mock('./adapters/stripe/StripeAdapter')
 
 describe('SafeOnRampKit', () => {
-  it('should create a SafeOnRampKit instance', async () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    jest.restoreAllMocks()
+  })
+
+  it('should create a SafeOnRampKit instance when using the init() method', async () => {
     const safeOnRampKit = await SafeOnRampKit.init(SafeOnRampProviderType.Stripe, config)
 
     expect(safeOnRampKit).toBeInstanceOf(SafeOnRampKit)
+  })
+
+  it('should create a XXXAdapter instance using the provider config and call the init() method in the instance', async () => {
+    await SafeOnRampKit.init(SafeOnRampProviderType.Stripe, config)
+
+    expect(stripeAdapter.StripeAdapter).toHaveBeenCalledWith(
+      expect.objectContaining(config.onRampProviderConfig)
+    )
+    expect(stripeAdapter.StripeAdapter.prototype.init).toHaveBeenCalledWith()
+  })
+
+  it('should call the open method in the XXXAdapter with the corresponding options', async () => {
+    const safeOnRampKit = await SafeOnRampKit.init(SafeOnRampProviderType.Stripe, config)
+
+    safeOnRampKit.open(openOptions)
+
+    expect(stripeAdapter.StripeAdapter.prototype.open).toHaveBeenCalledWith(
+      expect.objectContaining(openOptions)
+    )
+  })
+
+  it('should call the close method in the XXXAdapter', async () => {
+    const safeOnRampKit = await SafeOnRampKit.init(SafeOnRampProviderType.Stripe, config)
+
+    safeOnRampKit.close()
+
+    expect(stripeAdapter.StripeAdapter.prototype.close).toHaveBeenCalled()
   })
 
   it('should throw an error if the provider type is not supported', async () => {
@@ -39,12 +62,5 @@ describe('SafeOnRampKit', () => {
     await expect(SafeOnRampKit.init('unsupported' as SafeAuthProviderType, config)).rejects.toThrow(
       'Provider type not supported'
     )
-  })
-
-  describe('using the StripeAdapter', () => {
-    // beforeEach(() => {
-    //   jest.clearAllMocks()
-    //   testingUtils.clearAllMocks()
-    // })
   })
 })

@@ -85,5 +85,7 @@ export default class Web3AuthAdapter implements SafeAuthClient {
    */
   async signOut(): Promise<void> {
     if (!this.web3authInstance) return
+
+    this.provider = null
   }
 }

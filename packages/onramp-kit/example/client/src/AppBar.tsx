@@ -1,8 +1,6 @@
 import { AppBar as MuiAppBar, Typography, styled } from '@mui/material'
 
-type AppBarProps = {}
-
-const AppBar = (props: AppBarProps) => {
+const AppBar = () => {
   return (
     <StyledAppBar position="static" color="default">
       <Typography variant="h3" pl={4} fontWeight={700}>

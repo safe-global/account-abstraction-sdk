@@ -1,4 +1,4 @@
-import { CHAIN_NAMESPACES, WALLET_ADAPTERS } from '@web3auth/base'
+import { CHAIN_NAMESPACES } from '@web3auth/base'
 import { Web3Auth } from '@web3auth/modal'
 import { OpenloginAdapter } from '@web3auth/openlogin-adapter'
 import { ExternalProvider } from '@ethersproject/providers'

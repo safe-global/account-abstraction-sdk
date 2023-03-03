@@ -23,9 +23,18 @@ jest.mock('@web3auth/modal', () => {
   }
 })
 
+jest.mock('@safe-global/safe-service-client', () => {
+  return jest.fn().mockImplementation(() => {
+    return {
+      getSafesByOwner: jest.fn().mockImplementation(() => {
+        return Promise.resolve({ safes: ['0x123', '0x456'] })
+      })
+    }
+  })
+})
+
 const config = {
   chainId: '0x1',
-  // txServiceUrl: 'https://safe-transaction.safe.global',
   authProviderConfig: {
     rpcTarget: 'https://rpc.mainnet.dev',
     clientId: 'web3auth-client-id',
@@ -65,7 +74,7 @@ describe('SafeAuthKit', () => {
 
   it('should allow to get the provider', async () => {
     const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, config)
-    console.log(safeAuthKit)
+
     expect(safeAuthKit?.getProvider()).toBe(mockProvider)
   })
 
@@ -155,6 +164,27 @@ describe('SafeAuthKit', () => {
         chainId: '0x1',
         eoa: '0xf61B443A155b07D2b2cAeA2d99715dC84E839EEf',
         safes: undefined
+      })
+    })
+  })
+
+  describe('when adding the txServiceUrl to the config', () => {
+    it('should return the associated eoa and safes when the user is signed in', async () => {
+      const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, {
+        ...config,
+        txServiceUrl: 'https://safe-transaction.safe.global'
+      })
+
+      testingUtils.lowLevel.mockRequest('eth_accounts', [
+        '0xf61B443A155b07D2b2cAeA2d99715dC84E839EEf'
+      ])
+
+      const data = await safeAuthKit?.signIn()
+
+      expect(data).toEqual({
+        chainId: '0x1',
+        eoa: '0xf61B443A155b07D2b2cAeA2d99715dC84E839EEf',
+        safes: ['0x123', '0x456']
       })
     })
   })

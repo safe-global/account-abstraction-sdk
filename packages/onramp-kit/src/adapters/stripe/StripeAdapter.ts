@@ -78,7 +78,6 @@ export class StripeAdapter implements SafeOnRampClient {
 
       return session
     } catch (e) {
-      console.error(e)
       throw new Error('Error trying to create a new Stripe session')
     }
   }

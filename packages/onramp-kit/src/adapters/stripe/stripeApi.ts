@@ -12,7 +12,7 @@ export const createSession = async (
       },
       body: JSON.stringify({ walletAddress, networks })
     })
-
+    console.log(response)
     if (!response.ok) throw new Error("Couldn't create a new Stripe session")
 
     return response.json()

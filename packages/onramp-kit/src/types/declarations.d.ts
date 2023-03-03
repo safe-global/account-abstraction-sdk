@@ -1,1 +1,1 @@
-declare var StripeOnramp: any
+declare const StripeOnramp: any

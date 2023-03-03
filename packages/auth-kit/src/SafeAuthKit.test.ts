@@ -53,7 +53,7 @@ describe('SafeAuthKit', () => {
   })
 
   it('should throw an error if the provider type is not supported', async () => {
-    //@ts-expect-error
+    //@ts-expect-error - Testing unsupported provider type
     await expect(SafeAuthKit.init('unsupported' as SafeAuthProviderType, config)).rejects.toThrow(
       'Provider type not supported'
     )

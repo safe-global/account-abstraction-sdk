@@ -21,7 +21,7 @@ export const safeDeploymentsL1ChainIds: number[] = [
 export function getSafeContract(
   chainId: number,
   signer: ethers.Signer,
-  isL1SafeMasterCopy: boolean = false
+  isL1SafeMasterCopy = false
 ): GnosisSafe {
   const filters: DeploymentFilter = {
     version: '1.3.0', // Only Safe v1.3.0 supported so far

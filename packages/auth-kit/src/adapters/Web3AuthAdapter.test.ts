@@ -41,13 +41,11 @@ describe('Web3AuthAdapter', () => {
   it('should initialize Web3Auth on init', async () => {
     await adapter.init()
     expect(adapter.provider).not.toBeNull()
-    // expect(adapter.provider.constructor.name).toBe('JsonRpcProvider')
   })
 
   it('should connect to Web3Auth on signIn', async () => {
     await adapter.signIn()
     expect(adapter.provider).not.toBeNull()
-    // expect(adapter.provider.constructor.name).toBe('JsonRpcSigner')
   })
 
   it('should disconnect from Web3Auth on signOut', async () => {

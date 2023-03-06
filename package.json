@@ -7,7 +7,7 @@
     "format": "prettier --write */**/*.{js,json,md,ts}",
     "unbuild": "lerna run unbuild",
     "build": "lerna run build --stream",
-    "test": "FORCE_COLOR=1 lerna run test --stream",
+    "test": "FORCE_COLOR=1 lerna run test --stream -- --coverage",
     "play": "ts-node ./playground/config/run.ts",
     "lint:check": "eslint './packages/**/*.{js,jsx,ts,tsx}'"
   },

@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionStatusResponse } from '@gelatonetwork/relay-sdk'
-import { GELATO_NATIVE_TOKEN_ADDRESS } from './constants'
+import { GELATO_FEE_COLLECTOR, GELATO_NATIVE_TOKEN_ADDRESS } from './constants'
 import { GelatoRelayAdapter } from './GelatoRelayAdapter'
 
 enum TaskState {
@@ -80,6 +80,13 @@ describe('GelatoRelayAdapter', () => {
     )
   })
 
+  it('should throw an error when trying to do a sponsored transaction without an api key', async () => {
+    const relayAdapter = new GelatoRelayAdapter()
+    await expect(
+      relayAdapter.sponsorTransaction(SAFE_ADDRESS, '0x', CHAIN_ID)
+    ).rejects.toThrowError('API key not defined')
+  })
+
   it('should allow to make a payed transaction', async () => {
     const response = await gelatoRelayAdapter.payTransaction(SAFE_ADDRESS, '0x', CHAIN_ID, {
       gasLimit: BigNumber.from(100000)
@@ -144,5 +151,9 @@ describe('GelatoRelayAdapter', () => {
         gasLimit: '100000'
       }
     )
+  })
+
+  it('should allow to retrieve the fee collector address', () => {
+    expect(gelatoRelayAdapter.getFeeCollector()).toBe(GELATO_FEE_COLLECTOR)
   })
 })

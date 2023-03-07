@@ -1,11 +1,11 @@
 import * as web3AuthModal from '@web3auth/modal'
 import { generateTestingUtils } from 'eth-testing'
 import EventEmitter from 'events'
-
 import { SafeAuthConfig, SafeAuthEvents, SafeAuthProviderType } from './types'
 import { SafeAuthKit } from './SafeAuthKit'
 
 const testingUtils = generateTestingUtils({ providerType: 'MetaMask' })
+
 const mockProvider = testingUtils.getProvider()
 const mockInitModal = jest.fn()
 const mockConnect = jest.fn().mockResolvedValue(mockProvider)

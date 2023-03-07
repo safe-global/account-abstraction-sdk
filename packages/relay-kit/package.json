@@ -9,7 +9,7 @@
     "format": "prettier --write */**/*.{js,json,md,ts}",
     "unbuild": "rm -rf dist",
     "build": "rm -rf dist && yarn tsc",
-    "test": "echo \"Error: no test specified\""
+    "test": "jest src"
   },
   "repository": {
     "type": "git",
@@ -34,8 +34,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {
     "@gelatonetwork/relay-sdk": "^3.1.0",
     "ethers": "^5.7.2"

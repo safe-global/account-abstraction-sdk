@@ -1,6 +1,7 @@
 import * as stripeApi from './stripeApi'
 
 const baseUrl = 'https://api.stripe.com/v1'
+
 const config = {
   walletAddress: '0x',
   networks: ['ethereum']

@@ -1,6 +1,6 @@
 {
   "name": "@safe-global/relay-kit",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Relay library to abstract transaction gas fees",
   "main": "dist/src/index.js",
   "typings": "dist/src/index.d.ts",
@@ -34,7 +34,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "devDependencies": {},
   "dependencies": {
     "@gelatonetwork/relay-sdk": "^3.1.0",
     "ethers": "^5.7.2"

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { SafeEventEmitterProvider } from '@web3auth/base'
+import { SafeEventEmitterProvider, WALLET_ADAPTERS } from '@web3auth/base'
 import { Box, Divider, Grid, Typography } from '@mui/material'
 import { EthHashInfo } from '@safe-global/safe-react-components'
 import { SafeAuthKit, SafeAuthProviderType, SafeAuthSignInData } from '../../src/index'
@@ -23,7 +23,18 @@ function App() {
             rpcTarget: `https://goerli.infura.io/v3/${import.meta.env.VITE_INFURA_KEY}`,
             clientId: import.meta.env.VITE_WEB3AUTH_CLIENT_ID || '',
             network: 'testnet',
-            theme: 'dark'
+            theme: 'dark',
+            modalConfig: {
+              [WALLET_ADAPTERS.TORUS_EVM]: {
+                label: 'metamask',
+                showOnModal: false
+              },
+              [WALLET_ADAPTERS.METAMASK]: {
+                label: 'metamask',
+                showOnDesktop: true,
+                showOnMobile: false
+              }
+            }
           }
         })
       )

@@ -1,4 +1,6 @@
 import { ExternalProvider } from '@ethersproject/providers'
+import { WALLET_ADAPTER_TYPE } from '@web3auth/base'
+import { ModalConfig } from '@web3auth/modal'
 
 export interface SafeAuthSignInData {
   chainId: string
@@ -23,6 +25,7 @@ export interface Web3AuthProviderConfig {
   network: 'mainnet' | 'aqua' | 'celeste' | 'cyan' | 'testnet'
   theme: 'light' | 'dark' | 'auto'
   appLogo?: string
+  modalConfig?: Record<WALLET_ADAPTER_TYPE, ModalConfig>
 }
 
 export interface SafeAuthConfig {

@@ -4,6 +4,7 @@ import { OpenloginAdapter } from '@web3auth/openlogin-adapter'
 import { ExternalProvider } from '@ethersproject/providers'
 
 import type { SafeAuthClient, Web3AuthProviderConfig } from '../types'
+import { getErrorMessage } from '../lib/errors'
 
 /**
  * Web3AuthAdapter implements the SafeAuthClient interface for adapting the Web3Auth service provider
@@ -32,7 +33,7 @@ export default class Web3AuthAdapter implements SafeAuthClient {
    */
   async init() {
     try {
-      const web3auth = new Web3Auth({
+      this.web3authInstance = new Web3Auth({
         clientId: this.config.clientId,
         web3AuthNetwork: this.config.network,
         chainConfig: {
@@ -58,15 +59,12 @@ export default class Web3AuthAdapter implements SafeAuthClient {
         }
       })
 
-      web3auth.configureAdapter(openloginAdapter)
+      this.web3authInstance.configureAdapter(openloginAdapter)
+      this.provider = this.web3authInstance.provider
 
-      await web3auth.initModal()
-
-      this.provider = web3auth.provider
-
-      this.web3authInstance = web3auth
-    } catch {
-      throw new Error('There was an error initializing Web3Auth')
+      await this.web3authInstance.initModal({ modalConfig: this.config.modalConfig })
+    } catch (e) {
+      throw new Error(getErrorMessage(e))
     }
   }
 

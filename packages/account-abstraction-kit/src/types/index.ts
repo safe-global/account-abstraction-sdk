@@ -1,4 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
+import { RelayAdapter } from '@safe-global/relay-kit'
 
 export enum OperationType {
   Call,
@@ -11,16 +12,16 @@ export interface AccountAbstractionConfig {
 
 export interface MetaTransactionData {
   to: string
-  value: BigNumber
+  value: string
   data: string
   operation?: OperationType
 }
 
 export interface SafeTransactionData extends MetaTransactionData {
   operation: OperationType
-  safeTxGas: BigNumber
-  baseGas: BigNumber
-  gasPrice: BigNumber
+  safeTxGas: number
+  baseGas: number
+  gasPrice: number
   gasToken: string
   refundReceiver: string
   nonce: number
@@ -45,12 +46,6 @@ export interface RelayTransaction {
 // import { RelayResponse } from '@gelatonetwork/relay-sdk'
 export interface RelayResponse {
   taskId: string
-}
-
-export interface RelayAdapter {
-  getFeeCollector(): string
-  getEstimateFee(chainId: number, gasLimit: BigNumber, gasToken?: string): Promise<BigNumber>
-  relayTransaction(transaction: RelayTransaction): Promise<RelayResponse>
 }
 
 // }

@@ -11,6 +11,7 @@ import {
 import * as stripeApi from './stripeApi'
 
 import { loadScript } from './utils'
+import { getErrorMessage } from '../../lib/errors'
 
 const STRIPE_JS_URL = 'https://js.stripe.com/v3/'
 const STRIPE_CRYPTO_JS_URL = 'https://crypto-js.stripe.com/crypto-onramp-outer.js'
@@ -43,8 +44,8 @@ export default class StripeAdapter implements SafeOnRampClient {
       await loadScript(STRIPE_CRYPTO_JS_URL)
 
       this.#stripeOnRamp = StripeOnramp(this.#config.stripePublicKey)
-    } catch {
-      throw new Error("Couldn't load Stripe's JS files")
+    } catch (e) {
+      throw new Error(getErrorMessage(e))
     }
   }
 
@@ -81,8 +82,8 @@ export default class StripeAdapter implements SafeOnRampClient {
       onRampSession.mount(options.element)
 
       return data
-    } catch {
-      throw new Error('Error trying to create a new Stripe session')
+    } catch (e) {
+      throw new Error(getErrorMessage(e))
     }
   }
 

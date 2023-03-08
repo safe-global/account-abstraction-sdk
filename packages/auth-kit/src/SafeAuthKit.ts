@@ -11,6 +11,7 @@ import {
   SafeAuthSignInData,
   SafeAuthEvents
 } from './types'
+import { getErrorMessage } from './lib/errors'
 
 /**
  * SafeAuthKit provides a simple interface for web2 logins
@@ -84,7 +85,7 @@ export default class SafeAuthKit extends EventEmitter {
         const safesByOwner = await this.#getSafeCoreClient().getSafesByOwner(address)
         safes = safesByOwner.safes
       } catch (e) {
-        throw new Error('There was an error while trying to get the safes for the current user')
+        throw new Error(getErrorMessage(e))
       }
     }
 

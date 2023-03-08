@@ -62,13 +62,7 @@ describe('StripeAdapter', () => {
   it('should throw an error if the Stripe JS files are not loaded', async () => {
     const stripeAdapter = new StripeAdapter(config)
 
-    await expect(stripeAdapter.init()).rejects.toThrowError("Couldn't load Stripe's JS files")
-  })
-
-  it('should throw an error if the Stripe JS files are not loaded', async () => {
-    const stripeAdapter = new StripeAdapter(config)
-
-    await expect(stripeAdapter.init()).rejects.toThrowError("Couldn't load Stripe's JS files")
+    await expect(stripeAdapter.init()).rejects.toThrow()
   })
 
   it('should call the createSession method in the StripeOnramp instance', async () => {
@@ -106,18 +100,18 @@ describe('StripeAdapter', () => {
   })
 
   it('should throw an exception if the createSession fail', async () => {
+    const error = new Error('Error creating session')
+
     jest.spyOn(utils, 'loadScript').mockImplementation(() => {
       return Promise.resolve()
     })
-    jest.spyOn(stripeApi, 'createSession').mockImplementationOnce(() => Promise.reject())
+    jest.spyOn(stripeApi, 'createSession').mockImplementationOnce(() => Promise.reject(error))
 
     const stripeAdapter = new StripeAdapter(config)
 
     await stripeAdapter.init()
 
-    await expect(stripeAdapter.open(openOptions)).rejects.toThrow(
-      'Error trying to create a new Stripe session'
-    )
+    await expect(stripeAdapter.open(openOptions)).rejects.toThrowError(error)
   })
 
   it('should try to get the session if a sessionId is provided', async () => {

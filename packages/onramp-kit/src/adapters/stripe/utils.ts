@@ -23,7 +23,7 @@ export const loadScript = (
     })
 
     scriptElement.addEventListener('error', () => {
-      reject()
+      reject(`There was an error trying to load the script: ${url}`)
     })
   })
 }

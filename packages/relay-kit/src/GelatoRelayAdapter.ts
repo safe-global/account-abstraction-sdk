@@ -1,4 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
+import Safe, { standardizeSafeTransactionData } from '@safe-global/safe-core-sdk'
 import {
   CallWithSyncFeeRequest,
   GelatoRelay as GelatoNetworkRelay,
@@ -7,6 +8,7 @@ import {
   SponsoredCallRequest,
   TransactionStatusResponse
 } from '@gelatonetwork/relay-sdk'
+import { SafeTransactionData, MetaTransactionData } from '@safe-global/safe-core-sdk-types'
 import { GELATO_FEE_COLLECTOR, GELATO_NATIVE_TOKEN_ADDRESS, ZERO_ADDRESS } from './constants'
 import { MetaTransactionOptions, RelayAdapter, RelayTransaction } from './types'
 
@@ -21,6 +23,15 @@ export class GelatoRelayAdapter implements RelayAdapter {
 
   private _getFeeToken(gasToken?: string): string {
     return !gasToken || gasToken === ZERO_ADDRESS ? GELATO_NATIVE_TOKEN_ADDRESS : gasToken
+  }
+
+  // TODO: Should be moved to the protocol-kit
+  private async _getSafeNonce(safe: Safe): Promise<number> {
+    try {
+      return await safe.getNonce()
+    } catch {
+      return 0
+    }
   }
 
   getFeeCollector(): string {
@@ -39,6 +50,33 @@ export class GelatoRelayAdapter implements RelayAdapter {
 
   async getTaskStatus(taskId: string): Promise<TransactionStatusResponse | undefined> {
     return await this.#gelatoRelay.getTaskStatus(taskId)
+  }
+
+  async createRelayedTransaction(
+    transaction: MetaTransactionData,
+    safe: Safe,
+    options: MetaTransactionOptions
+  ): Promise<SafeTransactionData> {
+    const { gasLimit, gasToken, isSponsored } = options
+    const chainId = await safe.getChainId()
+    const estimation = await this.getEstimateFee(chainId, gasLimit, gasToken)
+
+    const nonce = await this._getSafeNonce(safe)
+
+    const standardizedSafeTx = await standardizeSafeTransactionData(
+      safe.getContractManager().safeContract,
+      safe.getEthAdapter(),
+      {
+        ...transaction,
+        baseGas: !isSponsored ? estimation.toNumber() : 0,
+        gasPrice: !isSponsored ? 1 : 0,
+        gasToken: gasToken ?? ZERO_ADDRESS,
+        refundReceiver: !isSponsored ? this.getFeeCollector() : ZERO_ADDRESS,
+        nonce
+      }
+    )
+
+    return standardizedSafeTx
   }
 
   async sponsorTransaction(

@@ -1,17 +1,17 @@
+import Safe from '@safe-global/safe-core-sdk'
 import { BigNumber, ethers } from 'ethers'
 import { GnosisSafe__factory } from '../typechain/factories'
 import { GnosisSafe } from '../typechain/GnosisSafe'
 import { MultiSendCallOnly } from '../typechain/libraries'
 import { GnosisSafeProxyFactory } from '../typechain/proxies'
-import { ZERO_ADDRESS } from './constants'
+import { RelayAdapter } from '@safe-global/relay-kit'
+import EthersAdapter from '@safe-global/safe-ethers-lib'
 import {
   AccountAbstractionConfig,
   MetaTransactionData,
   MetaTransactionOptions,
   OperationType,
-  RelayAdapter,
-  RelayTransaction,
-  SafeTransactionData
+  RelayTransaction
 } from './types'
 import { getMultiSendCallOnlyContract, getSafeContract, getSafeProxyFactoryContract } from './utils'
 import {
@@ -86,31 +86,6 @@ class AccountAbstraction {
     return isDeployed
   }
 
-  private async _standardizeSafeTransactionData(
-    transaction: MetaTransactionData,
-    options: MetaTransactionOptions
-  ): Promise<SafeTransactionData> {
-    if (!this.#relayAdapter || !this.#chainId) {
-      throw new Error('SDK not initialized')
-    }
-    const { gasLimit, gasToken, isSponsored } = options
-    const estimation = await this.#relayAdapter.getEstimateFee(this.#chainId, gasLimit, gasToken)
-
-    const standardizedSafeTx: SafeTransactionData = {
-      to: transaction.to,
-      value: transaction.value,
-      data: transaction.data,
-      operation: transaction.operation ?? OperationType.Call,
-      safeTxGas: BigNumber.from(0), // Only Safe v1.3.0 supported so far
-      baseGas: !isSponsored ? estimation : BigNumber.from(0),
-      gasPrice: !isSponsored ? BigNumber.from(1) : BigNumber.from(0),
-      gasToken: gasToken ?? ZERO_ADDRESS,
-      refundReceiver: !isSponsored ? this.#relayAdapter.getFeeCollector() : ZERO_ADDRESS,
-      nonce: await this.getNonce()
-    }
-    return standardizedSafeTx
-  }
-
   async relayTransaction(
     transaction: MetaTransactionData,
     options: MetaTransactionOptions
@@ -125,7 +100,22 @@ class AccountAbstraction {
       throw new Error('SDK not initialized')
     }
 
-    const standardizedSafeTx = await this._standardizeSafeTransactionData(transaction, options)
+    const ethAdapter = new EthersAdapter({
+      ethers,
+      signerOrProvider: this.#signer
+    })
+
+    const safe = await Safe.create({
+      ethAdapter,
+      safeAddress: this.getSafeAddress()
+    })
+
+    const standardizedSafeTx = await this.#relayAdapter.createRelayedTransaction(
+      transaction,
+      safe,
+      options
+    )
+
     const signature = await getSignature(
       this.#signer,
       this.getSafeAddress(),
@@ -155,7 +145,7 @@ class AccountAbstraction {
 
       const safeDeploymentTransaction: MetaTransactionData = {
         to: this.#safeProxyFactoryContract.address,
-        value: BigNumber.from(0),
+        value: '0',
         data: encodeCreateProxyWithNonce(
           this.#safeProxyFactoryContract,
           safeSingletonContract.address,
@@ -165,7 +155,7 @@ class AccountAbstraction {
       }
       const safeTransaction: MetaTransactionData = {
         to: this.#safeContract.address,
-        value: BigNumber.from(0),
+        value: '0',
         data: transactionData,
         operation: OperationType.Call
       }

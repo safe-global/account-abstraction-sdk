@@ -1,5 +1,3 @@
 export * from './types'
 
-import { SafeOnRampKit } from './SafeOnRampKit'
-
-export { SafeOnRampKit }
+export { SafeOnRampKit } from './SafeOnRampKit'

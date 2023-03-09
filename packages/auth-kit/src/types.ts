@@ -34,7 +34,9 @@ export interface SafeAuthConfig {
   authProviderConfig: Web3AuthProviderConfig
 }
 
-export const SafeAuthEvents = {
+export type SafeAuthEventType = 'SIGNED_IN' | 'SIGNED_OUT'
+
+export const SafeAuthEvents: { [key: string]: SafeAuthEventType } = {
   SIGNED_IN: 'SIGNED_IN',
   SIGNED_OUT: 'SIGNED_OUT'
 }

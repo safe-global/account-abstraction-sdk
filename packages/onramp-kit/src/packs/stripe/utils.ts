@@ -13,8 +13,8 @@ export const loadScript = (
     const scriptElement = document.createElement('script')
 
     scriptElement.setAttribute('src', url)
-    scriptElement.setAttribute('type', type)
     scriptElement.setAttribute('async', async)
+    scriptElement.setAttribute('type', type)
 
     document.body.appendChild(scriptElement)
 
@@ -23,7 +23,7 @@ export const loadScript = (
     })
 
     scriptElement.addEventListener('error', () => {
-      reject()
+      reject(`There was an error trying to load the script: ${url}`)
     })
   })
 }

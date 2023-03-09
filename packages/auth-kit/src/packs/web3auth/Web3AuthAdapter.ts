@@ -3,8 +3,8 @@ import { Web3Auth } from '@web3auth/modal'
 import { OpenloginAdapter } from '@web3auth/openlogin-adapter'
 import { ExternalProvider } from '@ethersproject/providers'
 
-import type { SafeAuthClient, Web3AuthProviderConfig } from '../types'
-import { getErrorMessage } from '../lib/errors'
+import type { SafeAuthClient, Web3AuthProviderConfig } from '../../types'
+import { getErrorMessage } from '../../lib/errors'
 
 /**
  * Web3AuthAdapter implements the SafeAuthClient interface for adapting the Web3Auth service provider
@@ -84,6 +84,7 @@ export default class Web3AuthAdapter implements SafeAuthClient {
   async signOut(): Promise<void> {
     if (!this.web3authInstance) return
 
-    return await this.web3authInstance?.logout()
+    this.provider = null
+    await this.web3authInstance.logout()
   }
 }

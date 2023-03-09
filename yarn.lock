@@ -90,7 +90,7 @@
   resolved "https://registry.yarnpkg.com/@ethereumjs/rlp/-/rlp-4.0.1.tgz#626fabfd9081baab3d0a3074b0c7ecaf674aaa41"
   integrity sha512-tqsQiBQDQdmPWE1xkkBq4rlSW5QZpLOUJ5RJh2/9fug+q9tnUhuZoVLk7s0scUIKTOzEtR72DFBXI4WiZcMpvw==
 
-"@ethereumjs/tx@4.0.2", "@ethereumjs/tx@^4.0.2":
+"@ethereumjs/tx@^4.0.2":
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/@ethereumjs/tx/-/tx-4.0.2.tgz#082b0f95fe9a61c70277ee1bfeb65d6f27a723bb"
   integrity sha512-6GoKVK3MVcAFFn4qSLIIDZ1vrKSLn7W5L80Pvae1BJFgchu+11R2iOqQyVGUSGbaXllh4xliUy/7+x5pYwRY8Q==
@@ -1130,6 +1130,16 @@
     node-fetch "^2.6.7"
     rpc-websockets "^7.5.1"
     superstruct "^0.14.2"
+
+"@stripe/crypto@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@stripe/crypto/-/crypto-0.0.2.tgz#03534b1b83b356a7a783533f7b62bc3c69cfbbc3"
+  integrity sha512-kYi3yjMyzwZNtXbJMtx2WDcuolLSRLaqw7izVr4Mi0h8RKEZy3vIPqSWT41HVGNZ2vUUoQTUghjZAX48TQ7EiA==
+
+"@stripe/stripe-js@^1.48.0":
+  version "1.48.0"
+  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.48.0.tgz#53d07ebc32da03ee3d76eb6aebf4447c160807fd"
+  integrity sha512-Kw2BRXk6z/wnTU9m2IJOhxJNrx9xzmpFSbk6D/Z0x6LJntMafiHeHFag2PvSF30O2quMb1UUdWsnZqGVDruZww==
 
 "@testing-library/jest-dom@^5.16.5":
   version "5.16.5"

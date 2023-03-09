@@ -38,6 +38,8 @@
     "@testing-library/jest-dom": "^5.16.5"
   },
   "dependencies": {
-    "@ethersproject/address": "^5.7.0"
+    "@ethersproject/address": "^5.7.0",
+    "@stripe/crypto": "^0.0.2",
+    "@stripe/stripe-js": "^1.48.0"
   }
 }

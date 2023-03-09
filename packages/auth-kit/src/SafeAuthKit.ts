@@ -2,8 +2,8 @@ import { ethers } from 'ethers'
 import EventEmitter from 'events'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
 import SafeServiceClient from '@safe-global/safe-service-client'
-import Web3AuthAdapter from './adapters/Web3AuthAdapter'
 
+import Web3AuthAdapter from './packs/web3auth/Web3AuthAdapter'
 import {
   SafeAuthClient,
   SafeAuthConfig,

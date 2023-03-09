@@ -3,8 +3,8 @@ import { Web3Auth } from '@web3auth/modal'
 import { OpenloginAdapter } from '@web3auth/openlogin-adapter'
 import { ExternalProvider } from '@ethersproject/providers'
 
-import type { SafeAuthClient, Web3AuthProviderConfig } from '../types'
-import { getErrorMessage } from '../lib/errors'
+import type { SafeAuthClient, Web3AuthProviderConfig } from '../../types'
+import { getErrorMessage } from '../../lib/errors'
 
 /**
  * Web3AuthAdapter implements the SafeAuthClient interface for adapting the Web3Auth service provider

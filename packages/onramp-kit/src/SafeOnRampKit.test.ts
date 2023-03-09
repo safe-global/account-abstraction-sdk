@@ -1,7 +1,7 @@
 import { SafeOnRampConfig, SafeOnRampOpenOptions, SafeOnRampProviderType } from './types'
 
 import { SafeOnRampKit } from './SafeOnRampKit'
-import * as stripeAdapter from './adapters/stripe/StripeAdapter'
+import * as stripeAdapter from './packs/stripe/StripeAdapter'
 
 const openOptions: SafeOnRampOpenOptions = {
   element: '#root',
@@ -16,7 +16,7 @@ const config = {
   }
 } as SafeOnRampConfig
 
-jest.mock('./adapters/stripe/StripeAdapter')
+jest.mock('./packs/stripe/StripeAdapter')
 
 describe('SafeOnRampKit', () => {
   beforeEach(() => {

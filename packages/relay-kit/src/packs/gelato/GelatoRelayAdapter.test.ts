@@ -1,10 +1,11 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionStatusResponse } from '@gelatonetwork/relay-sdk'
-import { GELATO_FEE_COLLECTOR, GELATO_NATIVE_TOKEN_ADDRESS, ZERO_ADDRESS } from './constants'
-import { GelatoRelayAdapter } from './GelatoRelayAdapter'
 import Safe from '@safe-global/safe-core-sdk'
 import * as safeCoreSdk from '@safe-global/safe-core-sdk'
 import { OperationType } from '@safe-global/safe-core-sdk-types'
+
+import { GelatoRelayAdapter } from './GelatoRelayAdapter'
+import { GELATO_FEE_COLLECTOR, GELATO_NATIVE_TOKEN_ADDRESS, ZERO_ADDRESS } from '../../constants'
 
 enum TaskState {
   CheckPending = 'CheckPending'

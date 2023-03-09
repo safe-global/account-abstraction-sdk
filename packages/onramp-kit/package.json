@@ -35,9 +35,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@stripe/crypto": "^0.0.2",
-    "@stripe/stripe-js": "^1.48.0"
-    "@ethersproject/address": "^5.7.0"
+    "@ethersproject/address": "^5.7.0",
     "@stripe/crypto": "^0.0.2",
     "@stripe/stripe-js": "^1.48.0"
   },

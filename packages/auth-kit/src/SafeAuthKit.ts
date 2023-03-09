@@ -2,21 +2,22 @@ import { ethers } from 'ethers'
 import EventEmitter from 'events'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
 import SafeServiceClient from '@safe-global/safe-service-client'
-import Web3AuthAdapter from './adapters/Web3AuthAdapter'
 
+import Web3AuthAdapter from './packs/web3auth/Web3AuthAdapter'
 import {
   SafeAuthClient,
   SafeAuthConfig,
   SafeAuthProviderType,
   SafeAuthSignInData,
-  SafeAuthEvents
+  SafeAuthEvents,
+  SafeAuthEventType
 } from './types'
 import { getErrorMessage } from './lib/errors'
 
 /**
  * SafeAuthKit provides a simple interface for web2 logins
  */
-export default class SafeAuthKit extends EventEmitter {
+export class SafeAuthKit extends EventEmitter {
   safeAuthData?: SafeAuthSignInData
   #client: SafeAuthClient
   #config: SafeAuthConfig
@@ -74,7 +75,9 @@ export default class SafeAuthKit extends EventEmitter {
     }
 
     const ethersProvider = new ethers.providers.Web3Provider(this.#client.provider)
+
     const signer = ethersProvider.getSigner()
+
     const address = await signer.getAddress()
 
     let safes: string[] | undefined
@@ -125,7 +128,7 @@ export default class SafeAuthKit extends EventEmitter {
    * @param eventName The event name to subscribe to. Choose from SafeAuthEvents type
    * @param listener The callback function to be called when the event is emitted
    */
-  subscribe(eventName: typeof SafeAuthEvents, listener: (...args: any[]) => void) {
+  subscribe(eventName: SafeAuthEventType, listener: (...args: any[]) => void) {
     this.on(eventName.toString(), listener)
   }
 
@@ -134,7 +137,7 @@ export default class SafeAuthKit extends EventEmitter {
    * @param eventName The event name to unsubscribe from. Choose from SafeAuthEvents type
    * @param listener The callback function to unsubscribe
    */
-  unsubscribe(eventName: typeof SafeAuthEvents, listener: (...args: any[]) => void) {
+  unsubscribe(eventName: SafeAuthEventType, listener: (...args: any[]) => void) {
     this.off(eventName.toString(), listener)
   }
 

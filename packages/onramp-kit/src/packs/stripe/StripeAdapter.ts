@@ -17,7 +17,7 @@ import { getErrorMessage } from '../../lib/errors'
  * This class implements the SafeOnRampClient interface for the Stripe provider
  * @class StripeAdapter
  */
-export default class StripeAdapter implements SafeOnRampClient {
+export class StripeAdapter implements SafeOnRampClient {
   #stripeOnRamp?: StripeOnramp
   #onRampSession?: StripeSession
   #config: StripeProviderConfig
@@ -51,23 +51,19 @@ export default class StripeAdapter implements SafeOnRampClient {
     if (!this.#stripeOnRamp) throw new Error('StripeOnRamp is not initialized')
 
     try {
-      let response
+      let session
 
       if (options.sessionId) {
-        response = await stripeApi.getSession(this.#config.onRampBackendUrl, options.sessionId)
+        session = await stripeApi.getSession(this.#config.onRampBackendUrl, options.sessionId)
       } else {
-        response = await stripeApi.createSession(this.#config.onRampBackendUrl, {
+        session = await stripeApi.createSession(this.#config.onRampBackendUrl, {
           walletAddress: options.walletAddress,
           networks: options.networks
         })
       }
 
-      const data = await response.json()
-
-      if (!response.ok) throw new Error()
-
       const onRampSession = await this.#stripeOnRamp.createSession({
-        clientSecret: data.client_secret
+        clientSecret: session.client_secret
       })
 
       this.#onRampSession = onRampSession
@@ -77,7 +73,7 @@ export default class StripeAdapter implements SafeOnRampClient {
 
       onRampSession.mount(options.element)
 
-      return data
+      return session
     } catch (e) {
       throw new Error(getErrorMessage(e))
     }
@@ -106,7 +102,10 @@ export default class StripeAdapter implements SafeOnRampClient {
 
         // TODO: Remove this check when not required
         // This is only in order to preserve testnets liquidity pools during the hackaton
-        if (Number(e.payload.session.quote.source_monetary_amount?.replace(',', '.')) > 10) {
+        if (
+          e.payload.session.quote &&
+          Number(e.payload.session.quote.source_monetary_amount?.replace(',', '.')) > 10
+        ) {
           document.querySelector(this.#currentSessionOptions?.element as string)?.remove()
           throw new Error(
             "The amount you are trying to use to complete your purchase can't be greater than 10 in order to preserve testnets liquidity pools"
@@ -132,9 +131,11 @@ export default class StripeAdapter implements SafeOnRampClient {
     const { session } = stripeEvent.payload
     const { quote } = session
 
+    if (!quote) throw new Error("Couldn't find quote in the session")
+
     return {
       txId: quote.blockchain_tx_id,
-      walletAddress: session.wallet_address,
+      walletAddress: session.wallet_address || '',
       totalFee: quote.fees?.total_fee,
       totalAmount: quote.total_amount,
       destination: {

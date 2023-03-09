@@ -9,7 +9,7 @@
     "format": "prettier --write */**/*.{js,json,md,ts}",
     "unbuild": "rm -rf dist",
     "build": "rm -rf dist && yarn tsc",
-    "test": "echo \"Error: no test specified\""
+    "test": "jest src"
   },
   "repository": {
     "type": "git",
@@ -34,12 +34,15 @@
   "publishConfig": {
     "access": "public"
   },
-  "devDependencies": {
-    "@testing-library/jest-dom": "^5.16.5"
-  },
   "dependencies": {
-    "@ethersproject/address": "^5.7.0",
     "@stripe/crypto": "^0.0.2",
     "@stripe/stripe-js": "^1.48.0"
+    "@ethersproject/address": "^5.7.0"
+    "@stripe/crypto": "^0.0.2",
+    "@stripe/stripe-js": "^1.48.0"
+  },
+  "devDependencies": {
+    "events": "^3.3.0",
+    "jest-environment-jsdom": "^29.4.3"
   }
 }

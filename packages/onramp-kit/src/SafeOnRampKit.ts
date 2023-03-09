@@ -1,4 +1,4 @@
-import StripeAdapter from './adapters/stripe/StripeAdapter'
+import { StripeAdapter } from './packs/stripe/StripeAdapter'
 import type { SafeOnRampConfig, SafeOnRampClient, SafeOnRampOpenOptions } from './types'
 
 import { SafeOnRampProviderType } from './types/onRamp'

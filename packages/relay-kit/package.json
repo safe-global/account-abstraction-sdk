@@ -9,7 +9,7 @@
     "format": "prettier --write */**/*.{js,json,md,ts}",
     "unbuild": "rm -rf dist",
     "build": "rm -rf dist && yarn tsc",
-    "test": "echo \"Error: no test specified\""
+    "test": "jest src"
   },
   "repository": {
     "type": "git",

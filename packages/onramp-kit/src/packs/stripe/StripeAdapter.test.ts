@@ -41,12 +41,16 @@ const mockAddEventListener = jest
   .mockImplementation((event, listener) => eventEmitter.on(event, listener))
 const mockDispatch = jest.fn().mockImplementation((event, data) => eventEmitter.emit(event, data))
 
-global.StripeOnramp = jest.fn().mockImplementation(() => {
+jest.mock('@stripe/crypto', () => {
   return {
-    createSession: jest.fn().mockResolvedValue({
-      mount: mockMount,
-      addEventListener: mockAddEventListener,
-      dispatchEvent: mockDispatch
+    loadStripeOnramp: jest.fn().mockImplementation(() => {
+      return Promise.resolve({
+        createSession: jest.fn().mockResolvedValue({
+          mount: mockMount,
+          addEventListener: mockAddEventListener,
+          dispatchEvent: mockDispatch
+        })
+      })
     })
   }
 })
@@ -58,13 +62,7 @@ describe('StripeAdapter', () => {
     expect(stripeAdapter).toBeInstanceOf(StripeAdapter)
   })
 
-  it('should throw an error if the Stripe JS files are not loaded', async () => {
-    const stripeAdapter = new StripeAdapter(config)
-
-    await expect(stripeAdapter.init()).rejects.toThrow()
-  })
-
-  it.only('should try to mount the node specified in the config when open() is called', async () => {
+  it('should try to mount the node specified in the config when open() is called', async () => {
     const createSessionSpy = jest
       .spyOn(stripeApi, 'createSession')
       .mockImplementationOnce(() => Promise.resolve(session))

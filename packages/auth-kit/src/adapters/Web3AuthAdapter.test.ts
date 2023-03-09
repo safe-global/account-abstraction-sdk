@@ -13,7 +13,8 @@ jest.mock('@web3auth/modal', () => {
         provider: mockProvider,
         initModal: mockInitModal,
         connect: mockConnect,
-        configureAdapter: jest.fn()
+        configureAdapter: jest.fn(),
+        logout: jest.fn()
       }
     })
   }

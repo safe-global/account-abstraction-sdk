@@ -1,3 +1,4 @@
+import { loadStripeOnramp, StripeOnramp } from '@stripe/crypto'
 import {
   SafeOnRampClient,
   StripeSession,
@@ -10,18 +11,14 @@ import {
 
 import * as stripeApi from './stripeApi'
 
-import { loadScript } from './utils'
 import { getErrorMessage } from '../../lib/errors'
-
-const STRIPE_JS_URL = 'https://js.stripe.com/v3/'
-const STRIPE_CRYPTO_JS_URL = 'https://crypto-js.stripe.com/crypto-onramp-outer.js'
 
 /**
  * This class implements the SafeOnRampClient interface for the Stripe provider
  * @class StripeAdapter
  */
 export class StripeAdapter implements SafeOnRampClient {
-  #stripeOnRamp: any
+  #stripeOnRamp?: StripeOnramp
   #onRampSession?: StripeSession
   #config: StripeProviderConfig
   #currentSessionOptions?: SafeOnRampOpenOptions
@@ -40,10 +37,7 @@ export class StripeAdapter implements SafeOnRampClient {
    */
   async init() {
     try {
-      await loadScript(STRIPE_JS_URL)
-      await loadScript(STRIPE_CRYPTO_JS_URL)
-
-      this.#stripeOnRamp = StripeOnramp(this.#config.stripePublicKey)
+      this.#stripeOnRamp = (await loadStripeOnramp(this.#config.stripePublicKey)) || undefined
     } catch (e) {
       throw new Error(getErrorMessage(e))
     }
@@ -54,6 +48,8 @@ export class StripeAdapter implements SafeOnRampClient {
    * @param options The options to open the onramp widget
    */
   async open(options: SafeOnRampOpenOptions) {
+    if (!this.#stripeOnRamp) throw new Error('StripeOnRamp is not initialized')
+
     try {
       let session
 

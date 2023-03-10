@@ -1628,6 +1628,16 @@
     rpc-websockets "^7.5.1"
     superstruct "^0.14.2"
 
+"@stripe/crypto@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@stripe/crypto/-/crypto-0.0.2.tgz#03534b1b83b356a7a783533f7b62bc3c69cfbbc3"
+  integrity sha512-kYi3yjMyzwZNtXbJMtx2WDcuolLSRLaqw7izVr4Mi0h8RKEZy3vIPqSWT41HVGNZ2vUUoQTUghjZAX48TQ7EiA==
+
+"@stripe/stripe-js@^1.48.0":
+  version "1.48.0"
+  resolved "https://registry.yarnpkg.com/@stripe/stripe-js/-/stripe-js-1.48.0.tgz#53d07ebc32da03ee3d76eb6aebf4447c160807fd"
+  integrity sha512-Kw2BRXk6z/wnTU9m2IJOhxJNrx9xzmpFSbk6D/Z0x6LJntMafiHeHFag2PvSF30O2quMb1UUdWsnZqGVDruZww==
+
 "@tootallnate/once@2":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-2.0.0.tgz#f544a148d3ab35801c1f633a7441fd87c2e484bf"

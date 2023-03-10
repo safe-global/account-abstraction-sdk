@@ -2,7 +2,6 @@ import EventEmitter from 'events'
 import { SafeOnRampOpenOptions, Session } from '../../types'
 import { StripeAdapter } from './StripeAdapter'
 import * as stripeApi from './stripeApi'
-import * as utils from './utils'
 
 const openOptions: SafeOnRampOpenOptions = {
   element: '#root',
@@ -42,12 +41,16 @@ const mockAddEventListener = jest
   .mockImplementation((event, listener) => eventEmitter.on(event, listener))
 const mockDispatch = jest.fn().mockImplementation((event, data) => eventEmitter.emit(event, data))
 
-global.StripeOnramp = jest.fn().mockImplementation(() => {
+jest.mock('@stripe/crypto', () => {
   return {
-    createSession: jest.fn().mockResolvedValue({
-      mount: mockMount,
-      addEventListener: mockAddEventListener,
-      dispatchEvent: mockDispatch
+    loadStripeOnramp: jest.fn().mockImplementation(() => {
+      return Promise.resolve({
+        createSession: jest.fn().mockResolvedValue({
+          mount: mockMount,
+          addEventListener: mockAddEventListener,
+          dispatchEvent: mockDispatch
+        })
+      })
     })
   }
 })
@@ -59,28 +62,7 @@ describe('StripeAdapter', () => {
     expect(stripeAdapter).toBeInstanceOf(StripeAdapter)
   })
 
-  it('should throw an error if the Stripe JS files are not loaded', async () => {
-    const stripeAdapter = new StripeAdapter(config)
-
-    await expect(stripeAdapter.init()).rejects.toThrow()
-  })
-
-  it('should call the createSession method in the StripeOnramp instance', async () => {
-    const utilsSpy = jest.spyOn(utils, 'loadScript').mockImplementation(() => {
-      return Promise.resolve()
-    })
-
-    const stripeAdapter = new StripeAdapter(config)
-
-    await stripeAdapter.init()
-
-    expect(utilsSpy).toHaveBeenCalledTimes(2)
-  })
-
   it('should try to mount the node specified in the config when open() is called', async () => {
-    jest.spyOn(utils, 'loadScript').mockImplementation(() => {
-      return Promise.resolve()
-    })
     const createSessionSpy = jest
       .spyOn(stripeApi, 'createSession')
       .mockImplementationOnce(() => Promise.resolve(session))
@@ -102,9 +84,6 @@ describe('StripeAdapter', () => {
   it('should throw an exception if the createSession fail', async () => {
     const error = new Error('Error creating session')
 
-    jest.spyOn(utils, 'loadScript').mockImplementation(() => {
-      return Promise.resolve()
-    })
     jest.spyOn(stripeApi, 'createSession').mockImplementationOnce(() => Promise.reject(error))
 
     const stripeAdapter = new StripeAdapter(config)
@@ -115,9 +94,6 @@ describe('StripeAdapter', () => {
   })
 
   it('should try to get the session if a sessionId is provided', async () => {
-    jest.spyOn(utils, 'loadScript').mockImplementation(() => {
-      return Promise.resolve()
-    })
     const getSessionSpy = jest
       .spyOn(stripeApi, 'getSession')
       .mockImplementationOnce(() => Promise.resolve(session))
@@ -139,9 +115,6 @@ describe('StripeAdapter', () => {
     const mockOnPaymentProcessing = jest.fn()
     const mockOnPaymentError = jest.fn()
 
-    jest.spyOn(utils, 'loadScript').mockImplementation(() => {
-      return Promise.resolve()
-    })
     jest.spyOn(stripeApi, 'createSession').mockImplementationOnce(() => Promise.resolve(session))
 
     const stripeAdapter = new StripeAdapter(config)

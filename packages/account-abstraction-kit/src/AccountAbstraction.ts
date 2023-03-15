@@ -21,7 +21,6 @@ import {
   encodeMultiSendData,
   getSafeInitializer
 } from './utils/contracts'
-import { getSignature } from './utils/signatures'
 
 class AccountAbstraction {
   #signer: ethers.Signer
@@ -117,16 +116,12 @@ class AccountAbstraction {
       options
     )
 
-    const signature = await getSignature(
-      this.#signer,
-      safeAddress,
-      standardizedSafeTx.data,
-      this.#chainId
-    )
+    const signedSafeTx = await safe.signTransaction(standardizedSafeTx)
+
     const transactionData = await encodeExecTransaction(
       this.#safeContract,
-      standardizedSafeTx.data,
-      signature
+      signedSafeTx.data,
+      signedSafeTx.encodedSignatures()
     )
 
     let relayTransactionTarget = ''

@@ -1,5 +1,4 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import Safe, { standardizeSafeTransactionData } from '@safe-global/safe-core-sdk'
 import {
   CallWithSyncFeeRequest,
   GelatoRelay as GelatoNetworkRelay,
@@ -8,7 +7,8 @@ import {
   SponsoredCallRequest,
   TransactionStatusResponse
 } from '@gelatonetwork/relay-sdk'
-import { SafeTransactionData, MetaTransactionData } from '@safe-global/safe-core-sdk-types'
+import Safe from '@safe-global/safe-core-sdk'
+import { MetaTransactionData, SafeTransaction } from '@safe-global/safe-core-sdk-types'
 import { GELATO_FEE_COLLECTOR, GELATO_NATIVE_TOKEN_ADDRESS, ZERO_ADDRESS } from '../../constants'
 import { MetaTransactionOptions, RelayAdapter, RelayTransaction } from '../../types'
 
@@ -53,30 +53,26 @@ export class GelatoRelayAdapter implements RelayAdapter {
   }
 
   async createRelayedTransaction(
-    transaction: MetaTransactionData,
     safe: Safe,
+    transactions: MetaTransactionData[],
     options: MetaTransactionOptions
-  ): Promise<SafeTransactionData> {
+  ): Promise<SafeTransaction> {
     const { gasLimit, gasToken, isSponsored } = options
     const chainId = await safe.getChainId()
     const estimation = await this.getEstimateFee(chainId, gasLimit, gasToken)
-
     const nonce = await this._getSafeNonce(safe)
 
-    const standardizedSafeTx = await standardizeSafeTransactionData(
-      safe.getContractManager().safeContract,
-      safe.getEthAdapter(),
-      {
-        ...transaction,
+    const relayedSafeTransaction = await safe.createTransaction({
+      safeTransactionData: transactions,
+      options: {
         baseGas: !isSponsored ? estimation.toNumber() : 0,
         gasPrice: !isSponsored ? 1 : 0,
         gasToken: gasToken ?? ZERO_ADDRESS,
         refundReceiver: !isSponsored ? this.getFeeCollector() : ZERO_ADDRESS,
         nonce
       }
-    )
-
-    return standardizedSafeTx
+    })
+    return relayedSafeTransaction
   }
 
   async sponsorTransaction(

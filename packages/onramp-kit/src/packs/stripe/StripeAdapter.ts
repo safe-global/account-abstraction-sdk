@@ -6,7 +6,8 @@ import type {
   StripeProviderConfig,
   StripeEvent,
   StripeEventListener,
-  StripeOpenOptions
+  StripeOpenOptions,
+  StripeSession
 } from './types'
 import type { SafeOnRampAdapter } from '../../types'
 
@@ -43,7 +44,12 @@ export class StripeAdapter implements SafeOnRampAdapter<StripeAdapter> {
    * This method open the onramp widget with the provided options
    * @param options The options to open the onramp widget
    */
-  async open({ element, theme = 'light', sessionId, defaultOptions }: StripeOpenOptions) {
+  async open({
+    element,
+    theme = 'light',
+    sessionId,
+    defaultOptions
+  }: StripeOpenOptions): Promise<StripeSession> {
     if (!this.#stripeOnRamp) throw new Error('StripeOnRamp is not initialized')
 
     try {

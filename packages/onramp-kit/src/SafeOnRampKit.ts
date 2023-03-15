@@ -24,14 +24,11 @@ export class SafeOnRampKit<TAdapter extends SafeOnRampAdapter<TAdapter>> {
 
   /**
    *
-   * @param providerType The provider service to use. Currently only Stripe is supported
    * @param config The configuration object including the specific provider options
    * @returns A SafeOnRampKit instance
-   * @throws Error if the provider type is not supported
+   * @throws Error if the adapter is not provided
    */
-  static async init<TAdapter extends SafeOnRampAdapter<TAdapter>>(
-    adapter: TAdapter
-  ): Promise<SafeOnRampKit<TAdapter>> {
+  static async init<T extends SafeOnRampAdapter<T>>(adapter: T): Promise<SafeOnRampKit<T>> {
     if (!adapter) {
       throw new Error('The adapter is not defined')
     }

@@ -1,4 +1,4 @@
-import { OnrampSession, OnrampUIEventListener, OnrampUIEventMap } from '@stripe/crypto'
+import { OnrampUIEventListener, OnrampUIEventMap } from '@stripe/crypto'
 
 interface QuoteCurrency {
   id: string
@@ -51,7 +51,7 @@ interface TransactionDetails {
   wallet_addresses?: any
 }
 
-export interface Session {
+export interface StripeSession {
   id: string
   object: string
   livemode: boolean
@@ -63,23 +63,12 @@ export interface Session {
   status: string
 }
 
-interface Payload {
-  session: Session
-}
-
-export interface OnrampSessionUpdatedEvent {
-  type: string
-  payload: Payload
-}
-
 export interface StripeProviderConfig {
   stripePublicKey: string
   onRampBackendUrl: string
 }
 
-export type StripeSession = OnrampSession
-
-export type TransactionDetailsOptions = Pick<
+export type StripeTransactionOptions = Pick<
   TransactionDetails,
   | 'wallet_address'
   | 'wallet_addresses'
@@ -93,16 +82,16 @@ export type TransactionDetailsOptions = Pick<
   | 'supported_destination_networks'
 >
 
-type CustomerInformation = {
+type StripeCustomerInformation = {
   email?: string
   first_name?: string
   last_name?: string
-  dob: {
+  dob?: {
     year?: string
     month?: string
     day?: string
   }
-  address: {
+  address?: {
     country?: string
     line1?: string
     line2?: string
@@ -112,9 +101,9 @@ type CustomerInformation = {
   }
 }
 
-export type DefaultOpenOptions = {
-  transaction_details?: TransactionDetailsOptions
-  customer_information?: CustomerInformation
+export type StripeDefaultOpenOptions = {
+  transaction_details?: StripeTransactionOptions
+  customer_information?: StripeCustomerInformation
   customer_ip_address?: string
   customer_wallet_address?: string
 }
@@ -123,7 +112,7 @@ export type StripeOpenOptions = {
   element: string
   sessionId?: string
   theme?: 'light' | 'dark'
-  defaultOptions: DefaultOpenOptions
+  defaultOptions: StripeDefaultOpenOptions
 }
 
 export type StripeEvent = '*' | keyof OnrampUIEventMap

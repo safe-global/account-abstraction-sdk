@@ -1,10 +1,13 @@
 import * as stripeApi from './stripeApi'
+import { StripeDefaultOpenOptions } from './types'
 
 const baseUrl = 'https://api.stripe.com/v1'
 
-const config = {
-  walletAddress: '0x',
-  networks: ['ethereum']
+const config: StripeDefaultOpenOptions = {
+  transaction_details: {
+    wallet_address: '0x',
+    supported_destination_currencies: ['ethereum']
+  }
 }
 const session = {
   id: 'cos_1MhDe5KSn9ArdBimmQzf4vzc',

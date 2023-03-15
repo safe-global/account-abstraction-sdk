@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { isAddress } from '@ethersproject/address'
-import { SafeOnRampKit, Session, StripeAdapter } from '../../../src'
+import { SafeOnRampKit, StripeSession, StripeAdapter } from '../../../src'
 import { Grid, TextField, Button } from '@mui/material'
 
 import AppBar from './AppBar'
@@ -23,13 +23,19 @@ function App() {
     const sessionData = (await onRampClient?.open({
       element: '#stripe-root',
       sessionId: sessionId,
+      theme: 'light',
       defaultOptions: {
         transaction_details: {
           wallet_address: walletAddress,
-          supported_destination_networks: ['ethereum', 'polygon']
+          supported_destination_networks: ['ethereum', 'polygon'],
+          supported_destination_currencies: ['usdc'],
+          lock_wallet_address: true
+        },
+        customer_information: {
+          email: 'john@doe.com'
         }
       }
-    })) as Session
+    })) as StripeSession
 
     onRampClient?.subscribe('onramp_ui_loaded', () => {
       console.log('UI loaded')

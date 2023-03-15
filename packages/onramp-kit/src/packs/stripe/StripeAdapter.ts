@@ -1,16 +1,14 @@
-import { loadStripeOnramp, StripeOnramp } from '@stripe/crypto'
-import {
-  StripeSession,
+import { loadStripeOnramp, OnrampSession, StripeOnramp } from '@stripe/crypto'
+import * as stripeApi from './stripeApi'
+import { getErrorMessage } from '../../lib/errors'
+
+import type {
   StripeProviderConfig,
   StripeEvent,
   StripeEventListener,
-  SafeOnRampAdapter,
   StripeOpenOptions
-} from '../../types'
-
-import * as stripeApi from './stripeApi'
-
-import { getErrorMessage } from '../../lib/errors'
+} from './types'
+import type { SafeOnRampAdapter } from '../../types'
 
 /**
  * This class implements the SafeOnRampClient interface for the Stripe provider
@@ -18,7 +16,7 @@ import { getErrorMessage } from '../../lib/errors'
  */
 export class StripeAdapter implements SafeOnRampAdapter<StripeAdapter> {
   #stripeOnRamp?: StripeOnramp
-  #onRampSession?: StripeSession
+  #onRampSession?: OnrampSession
   #config: StripeProviderConfig
 
   /**

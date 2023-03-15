@@ -1,4 +1,5 @@
-export * from './types'
-
 export * from './packs/stripe/StripeAdapter'
-export { SafeOnRampKit } from './SafeOnRampKit'
+export * from './packs/stripe/types'
+
+export * from './SafeOnRampKit'
+export * from './types'

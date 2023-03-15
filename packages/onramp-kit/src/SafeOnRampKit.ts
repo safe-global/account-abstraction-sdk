@@ -2,8 +2,9 @@ import {
   SafeOnRampAdapter,
   SafeOnRampEvent,
   SafeOnRampEventListener,
-  SafeOnRampOpenOptions
-} from './types/onRamp'
+  SafeOnRampOpenOptions,
+  SafeOnRampOpenResponse
+} from './types'
 
 /**
  * This class allows to initialize the Safe OnRamp Kit for convert fiat to crypto
@@ -31,6 +32,10 @@ export class SafeOnRampKit<TAdapter extends SafeOnRampAdapter<TAdapter>> {
   static async init<TAdapter extends SafeOnRampAdapter<TAdapter>>(
     adapter: TAdapter
   ): Promise<SafeOnRampKit<TAdapter>> {
+    if (!adapter) {
+      throw new Error('The adapter is not defined')
+    }
+
     await adapter.init()
     return new this(adapter)
   }
@@ -39,7 +44,7 @@ export class SafeOnRampKit<TAdapter extends SafeOnRampAdapter<TAdapter>> {
    * This method opens the onramp widget using the provided options
    * @param options The options to open the onramp widget
    */
-  async open(options?: SafeOnRampOpenOptions<TAdapter>): Promise<unknown> {
+  async open(options?: SafeOnRampOpenOptions<TAdapter>): Promise<SafeOnRampOpenResponse<TAdapter>> {
     return await this.#adapter.open(options)
   }
 
@@ -50,11 +55,11 @@ export class SafeOnRampKit<TAdapter extends SafeOnRampAdapter<TAdapter>> {
     await this.#adapter.close()
   }
 
-  subscribe(event: SafeOnRampEvent, handler: SafeOnRampEventListener) {
+  subscribe(event: SafeOnRampEvent<TAdapter>, handler: SafeOnRampEventListener<TAdapter>) {
     this.#adapter.subscribe(event, handler)
   }
 
-  unsubscribe(event: SafeOnRampEvent, handler: SafeOnRampEventListener) {
+  unsubscribe(event: SafeOnRampEvent<TAdapter>, handler: SafeOnRampEventListener<TAdapter>) {
     this.#adapter.unsubscribe(event, handler)
   }
 }

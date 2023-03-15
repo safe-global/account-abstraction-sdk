@@ -1,9 +1,9 @@
-import { DefaultOpenOptions, Session } from '../../types'
+import { StripeDefaultOpenOptions, StripeSession } from './types'
 
 export const createSession = async (
   baseUrl: string,
-  defaultOptions: DefaultOpenOptions
-): Promise<Session> => {
+  defaultOptions: StripeDefaultOpenOptions
+): Promise<StripeSession> => {
   try {
     const response = await fetch(`${baseUrl}/api/v1/onramp/stripe/session`, {
       method: 'POST',

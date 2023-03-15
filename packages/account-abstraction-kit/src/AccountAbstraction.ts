@@ -1,11 +1,11 @@
+import { RelayAdapter } from '@safe-global/relay-kit'
 import Safe from '@safe-global/safe-core-sdk'
-import { BigNumber, ethers } from 'ethers'
+import EthersAdapter from '@safe-global/safe-ethers-lib'
+import { ethers } from 'ethers'
 import { GnosisSafe__factory } from '../typechain/factories'
 import { GnosisSafe } from '../typechain/GnosisSafe'
 import { MultiSendCallOnly } from '../typechain/libraries'
 import { GnosisSafeProxyFactory } from '../typechain/proxies'
-import { RelayAdapter } from '@safe-global/relay-kit'
-import EthersAdapter from '@safe-global/safe-ethers-lib'
 import {
   AccountAbstractionConfig,
   MetaTransactionData,
@@ -87,7 +87,7 @@ class AccountAbstraction {
   }
 
   async relayTransaction(
-    transaction: MetaTransactionData,
+    transactions: MetaTransactionData[],
     options: MetaTransactionOptions
   ): Promise<string> {
     if (
@@ -100,25 +100,26 @@ class AccountAbstraction {
       throw new Error('SDK not initialized')
     }
 
+    const safeAddress = this.getSafeAddress()
+
     const ethAdapter = new EthersAdapter({
       ethers,
       signerOrProvider: this.#signer
     })
-
     const safe = await Safe.create({
       ethAdapter,
-      safeAddress: this.getSafeAddress()
+      safeAddress
     })
 
     const standardizedSafeTx = await this.#relayAdapter.createRelayedTransaction(
-      transaction,
       safe,
+      transactions,
       options
     )
 
     const signature = await getSignature(
       this.#signer,
-      this.getSafeAddress(),
+      safeAddress,
       standardizedSafeTx,
       this.#chainId
     )

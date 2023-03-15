@@ -26,7 +26,7 @@ const mockOnRampConfig = {
 const txConfig = {
   TO: '<TO>',
   DATA: '<DATA>',
-  VALUE: BigNumber.from('<VALUE>'),
+  VALUE: '<VALUE>',
   // Options:
   GAS_LIMIT: BigNumber.from('<GAS_LIMIT>'),
   GAS_TOKEN: ethers.constants.AddressZero
@@ -77,9 +77,7 @@ async function main() {
       to: predictedSafeAddress,
       value: fundingAmount
     })
-    console.log(
-      `Funding the Safe with ${ethers.utils.formatEther(fundingAmount.toString())} ETH`
-    )
+    console.log(`Funding the Safe with ${ethers.utils.formatEther(fundingAmount.toString())} ETH`)
     await onRampResponse.wait()
 
     const safeBalanceAfter = await provider.getBalance(predictedSafeAddress)
@@ -88,18 +86,20 @@ async function main() {
 
   // Relay the transaction
 
-  const safeTransaction: MetaTransactionData = {
-    to: txConfig.TO,
-    data: txConfig.DATA,
-    value: txConfig.VALUE,
-    operation: OperationType.Call
-  }
+  const safeTransactions: MetaTransactionData[] = [
+    {
+      to: txConfig.TO,
+      data: txConfig.DATA,
+      value: txConfig.VALUE,
+      operation: OperationType.Call
+    }
+  ]
   const options: MetaTransactionOptions = {
     gasLimit: txConfig.GAS_LIMIT,
     gasToken: txConfig.GAS_TOKEN
   }
 
-  const response = await safeAccountAbstraction.relayTransaction(safeTransaction, options)
+  const response = await safeAccountAbstraction.relayTransaction(safeTransactions, options)
   console.log({ GelatoTaskId: response })
 }
 

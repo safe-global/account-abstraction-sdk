@@ -1,11 +1,10 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionStatusResponse } from '@gelatonetwork/relay-sdk'
 import Safe from '@safe-global/safe-core-sdk'
-import * as safeCoreSdk from '@safe-global/safe-core-sdk'
 import { OperationType } from '@safe-global/safe-core-sdk-types'
 
-import { GelatoRelayAdapter } from './GelatoRelayAdapter'
 import { GELATO_FEE_COLLECTOR, GELATO_NATIVE_TOKEN_ADDRESS, ZERO_ADDRESS } from '../../constants'
+import { GelatoRelayAdapter } from './GelatoRelayAdapter'
 
 enum TaskState {
   CheckPending = 'CheckPending'
@@ -27,16 +26,18 @@ const RELAY_RESPONSE = {
   taskId: TASK_ID
 }
 const SAFE_TRANSACTION = {
-  operation: OperationType.Call,
-  safeTxGas: 0,
-  baseGas: 0,
-  gasPrice: 0,
-  nonce: 0,
-  gasToken: '0x',
-  refundReceiver: '0x',
-  to: ADDRESS,
-  value: '0',
-  data: '0x'
+  data: {
+    operation: OperationType.Call,
+    safeTxGas: 0,
+    baseGas: 0,
+    gasPrice: 0,
+    nonce: 0,
+    gasToken: '0x',
+    refundReceiver: '0x',
+    to: ADDRESS,
+    value: '0',
+    data: '0x'
+  }
 }
 
 const mockGetEstimateFee = jest.fn().mockResolvedValue(FEE_ESTIMATION)
@@ -115,12 +116,12 @@ describe('GelatoRelayAdapter', () => {
     let relayAdapter: GelatoRelayAdapter
     const safe: Safe = new Safe()
     const args: any = [
+      safe,
       {
         to: ADDRESS,
         data: '0x',
         value: '0'
       },
-      safe,
       {
         gasLimit: BigNumber.from(100),
         isSponsored: true
@@ -132,38 +133,36 @@ describe('GelatoRelayAdapter', () => {
       relayAdapter = new GelatoRelayAdapter()
       safe.getNonce = jest.fn().mockResolvedValue(0)
       safe.getContractManager = jest.fn().mockReturnValue({ safeContract: {} })
-      jest.spyOn(safeCoreSdk, 'standardizeSafeTransactionData').mockResolvedValue(SAFE_TRANSACTION)
+      safe.createTransaction = jest.fn().mockResolvedValue(SAFE_TRANSACTION)
     })
 
     it('should allow you to create an sponsored one', async () => {
       await relayAdapter.createRelayedTransaction(args[0], args[1], args[2])
 
-      expect(safeCoreSdk.standardizeSafeTransactionData).toHaveBeenCalledWith(
-        {},
-        undefined,
-        expect.objectContaining({
+      expect(safe.createTransaction).toHaveBeenCalledWith({
+        safeTransactionData: args[1],
+        options: expect.objectContaining({
           baseGas: 0,
           gasPrice: 0,
           refundReceiver: ZERO_ADDRESS
         })
-      )
+      })
     })
 
-    it('should allow to create a payed one', async () => {
+    it('should allow to create a paid one', async () => {
       await relayAdapter.createRelayedTransaction(args[0], args[1], {
         ...args[2],
         isSponsored: false
       })
 
-      expect(safeCoreSdk.standardizeSafeTransactionData).toHaveBeenCalledWith(
-        {},
-        undefined,
-        expect.objectContaining({
+      expect(safe.createTransaction).toHaveBeenCalledWith({
+        safeTransactionData: args[1],
+        options: expect.objectContaining({
           baseGas: 100000,
           gasPrice: 1,
           refundReceiver: GELATO_FEE_COLLECTOR
         })
-      )
+      })
     })
 
     it('should return the correct gasToken when being sent through the options', async () => {
@@ -174,17 +173,16 @@ describe('GelatoRelayAdapter', () => {
         gasToken: GAS_TOKEN
       })
 
-      expect(safeCoreSdk.standardizeSafeTransactionData).toHaveBeenCalledWith(
-        {},
-        undefined,
-        expect.objectContaining({
+      expect(safe.createTransaction).toHaveBeenCalledWith({
+        safeTransactionData: args[1],
+        options: expect.objectContaining({
           gasToken: GAS_TOKEN
         })
-      )
+      })
     })
   })
 
-  it('should allow to make a payed transaction', async () => {
+  it('should allow to make a paid transaction', async () => {
     const response = await gelatoRelayAdapter.payTransaction(SAFE_ADDRESS, '0x', CHAIN_ID, {
       gasLimit: BigNumber.from(100000)
     })
@@ -204,7 +202,7 @@ describe('GelatoRelayAdapter', () => {
     )
   })
 
-  it('should expose a relayTransaction doing an sponsored or payed transaction depending on an option parameter', async () => {
+  it('should expose a relayTransaction doing an sponsored or paid transaction depending on an option parameter', async () => {
     const sponsoredResponse = await gelatoRelayAdapter.relayTransaction({
       target: SAFE_ADDRESS,
       encodedTransaction: '0x',
@@ -225,7 +223,7 @@ describe('GelatoRelayAdapter', () => {
       API_KEY
     )
 
-    const payedResponse = await gelatoRelayAdapter.relayTransaction({
+    const paidResponse = await gelatoRelayAdapter.relayTransaction({
       target: SAFE_ADDRESS,
       encodedTransaction: '0x',
       chainId: CHAIN_ID,
@@ -235,7 +233,7 @@ describe('GelatoRelayAdapter', () => {
       }
     })
 
-    expect(payedResponse).toBe(RELAY_RESPONSE)
+    expect(paidResponse).toBe(RELAY_RESPONSE)
     expect(mockCallWithSyncFee).toHaveBeenCalledWith(
       {
         chainId: CHAIN_ID,

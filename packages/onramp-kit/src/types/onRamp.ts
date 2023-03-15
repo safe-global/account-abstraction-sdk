@@ -1,26 +1,20 @@
-import { SafeOnRampEventHandlers } from './events'
-import { StripeProviderConfig } from './stripe'
+import { StripeAdapter } from 'packs/stripe/StripeAdapter'
+import { StripeEvent, StripeEventListener, StripeOpenOptions, StripeProviderConfig } from './stripe'
 
-export interface SafeOnRampClient {
+export interface SafeOnRampAdapter<TAdapter> {
   init(): Promise<void>
-  open(options: SafeOnRampOpenOptions): Promise<unknown>
+  open(options?: SafeOnRampOpenOptions<TAdapter>): Promise<unknown>
   close(): Promise<void>
+  subscribe(event: string, handler: (data: unknown) => void): void
+  unsubscribe(event: string, handler: (data: unknown) => void): void
 }
 
-type Network = 'ethereum' | 'polygon'
-
-export interface SafeOnRampOpenOptions {
-  element: HTMLElement | string
-  walletAddress: string
-  networks: Network[]
-  events?: SafeOnRampEventHandlers
-  sessionId?: string
-}
-
-export enum SafeOnRampProviderType {
-  Stripe
-}
+export type SafeOnRampAdapterType = StripeAdapter
 
 export interface SafeOnRampConfig {
-  onRampProviderConfig: StripeProviderConfig // Add other providers here when adapters are created
+  onRampProviderConfig: StripeProviderConfig
 }
+export type SafeOnRampOpenOptions<T> = T extends StripeAdapter ? StripeOpenOptions : never
+
+export type SafeOnRampEvent = StripeEvent
+export type SafeOnRampEventListener = StripeEventListener

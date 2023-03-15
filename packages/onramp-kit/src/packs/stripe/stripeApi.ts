@@ -1,8 +1,8 @@
-import { Session } from '../../types'
+import { DefaultOpenOptions, Session } from '../../types'
 
 export const createSession = async (
   baseUrl: string,
-  { walletAddress, networks }: { walletAddress: string; networks: string[] }
+  defaultOptions: DefaultOpenOptions
 ): Promise<Session> => {
   try {
     const response = await fetch(`${baseUrl}/api/v1/onramp/stripe/session`, {
@@ -10,7 +10,7 @@ export const createSession = async (
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ walletAddress, networks })
+      body: JSON.stringify(defaultOptions)
     })
 
     if (!response.ok) throw new Error("Couldn't create a new Stripe session")

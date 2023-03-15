@@ -1,22 +1,24 @@
-import { StripeAdapter } from './packs/stripe/StripeAdapter'
-import type { SafeOnRampConfig, SafeOnRampClient, SafeOnRampOpenOptions } from './types'
-
-import { SafeOnRampProviderType } from './types/onRamp'
+import {
+  SafeOnRampAdapter,
+  SafeOnRampEvent,
+  SafeOnRampEventListener,
+  SafeOnRampOpenOptions
+} from './types/onRamp'
 
 /**
  * This class allows to initialize the Safe OnRamp Kit for convert fiat to crypto
  * @class SafeOnRampKit
  */
-export class SafeOnRampKit {
-  #client: SafeOnRampClient
+export class SafeOnRampKit<TAdapter extends SafeOnRampAdapter<TAdapter>> {
+  #adapter: TAdapter
 
   /**
    * Initialize the SafeOnRampKit
    * @constructor
    * @param client - The client implementing the SafeOnRampClient interface
    */
-  constructor(client: SafeOnRampClient) {
-    this.#client = client
+  constructor(adapter: TAdapter) {
+    this.#adapter = adapter
   }
 
   /**
@@ -26,34 +28,33 @@ export class SafeOnRampKit {
    * @returns A SafeOnRampKit instance
    * @throws Error if the provider type is not supported
    */
-  static async init(providerType: SafeOnRampProviderType, config: SafeOnRampConfig) {
-    let client
-
-    switch (providerType) {
-      case SafeOnRampProviderType.Stripe:
-        client = new StripeAdapter(config.onRampProviderConfig)
-        break
-      default:
-        throw new Error('Provider type not supported')
-    }
-
-    await client.init()
-
-    return new SafeOnRampKit(client)
+  static async init<TAdapter extends SafeOnRampAdapter<TAdapter>>(
+    adapter: TAdapter
+  ): Promise<SafeOnRampKit<TAdapter>> {
+    await adapter.init()
+    return new this(adapter)
   }
 
   /**
    * This method opens the onramp widget using the provided options
    * @param options The options to open the onramp widget
    */
-  async open(options: SafeOnRampOpenOptions): Promise<unknown> {
-    return await this.#client.open(options)
+  async open(options?: SafeOnRampOpenOptions<TAdapter>): Promise<unknown> {
+    return await this.#adapter.open(options)
   }
 
   /**
    * This method destroys the onramp widget
    */
   async close() {
-    await this.#client.close()
+    await this.#adapter.close()
+  }
+
+  subscribe(event: SafeOnRampEvent, handler: SafeOnRampEventListener) {
+    this.#adapter.subscribe(event, handler)
+  }
+
+  unsubscribe(event: SafeOnRampEvent, handler: SafeOnRampEventListener) {
+    this.#adapter.unsubscribe(event, handler)
   }
 }

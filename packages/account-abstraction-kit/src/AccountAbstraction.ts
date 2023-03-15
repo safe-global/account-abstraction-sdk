@@ -120,12 +120,12 @@ class AccountAbstraction {
     const signature = await getSignature(
       this.#signer,
       safeAddress,
-      standardizedSafeTx,
+      standardizedSafeTx.data,
       this.#chainId
     )
     const transactionData = await encodeExecTransaction(
       this.#safeContract,
-      standardizedSafeTx,
+      standardizedSafeTx.data,
       signature
     )
 

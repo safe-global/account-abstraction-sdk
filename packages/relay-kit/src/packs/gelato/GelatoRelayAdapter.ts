@@ -8,7 +8,7 @@ import {
   TransactionStatusResponse
 } from '@gelatonetwork/relay-sdk'
 import Safe from '@safe-global/safe-core-sdk'
-import { MetaTransactionData, SafeTransactionData } from '@safe-global/safe-core-sdk-types'
+import { MetaTransactionData, SafeTransaction } from '@safe-global/safe-core-sdk-types'
 import { GELATO_FEE_COLLECTOR, GELATO_NATIVE_TOKEN_ADDRESS, ZERO_ADDRESS } from '../../constants'
 import { MetaTransactionOptions, RelayAdapter, RelayTransaction } from '../../types'
 
@@ -56,7 +56,7 @@ export class GelatoRelayAdapter implements RelayAdapter {
     safe: Safe,
     transactions: MetaTransactionData[],
     options: MetaTransactionOptions
-  ): Promise<SafeTransactionData> {
+  ): Promise<SafeTransaction> {
     const { gasLimit, gasToken, isSponsored } = options
     const chainId = await safe.getChainId()
     const estimation = await this.getEstimateFee(chainId, gasLimit, gasToken)
@@ -72,7 +72,7 @@ export class GelatoRelayAdapter implements RelayAdapter {
         nonce
       }
     })
-    return relayedSafeTransaction.data
+    return relayedSafeTransaction
   }
 
   async sponsorTransaction(

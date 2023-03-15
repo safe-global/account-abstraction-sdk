@@ -1,6 +1,6 @@
 import { RelayResponse, TransactionStatusResponse } from '@gelatonetwork/relay-sdk'
 import Safe from '@safe-global/safe-core-sdk'
-import { MetaTransactionData, SafeTransactionData } from '@safe-global/safe-core-sdk-types'
+import { MetaTransactionData, SafeTransaction } from '@safe-global/safe-core-sdk-types'
 import { BigNumber } from 'ethers'
 
 // TO-DO: Duplicated. Remove local type and import from "types" package
@@ -20,7 +20,7 @@ export interface RelayAdapter {
     safe: Safe,
     transactions: MetaTransactionData[],
     options: MetaTransactionOptions
-  ): Promise<SafeTransactionData>
+  ): Promise<SafeTransaction>
   relayTransaction(transaction: RelayTransaction): Promise<RelayResponse>
 }
 

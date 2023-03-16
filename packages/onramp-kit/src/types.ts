@@ -6,6 +6,7 @@ import {
   StripeOpenOptions
 } from './packs/stripe/types'
 
+// The new adapters must implement this interface
 export interface SafeOnRampAdapter<TAdapter> {
   init(): Promise<void>
   open(options?: SafeOnRampOpenOptions<TAdapter>): Promise<SafeOnRampOpenResponse<TAdapter>>
@@ -14,7 +15,13 @@ export interface SafeOnRampAdapter<TAdapter> {
   unsubscribe(event: SafeOnRampEvent<TAdapter>, handler: SafeOnRampEventListener<TAdapter>): void
 }
 
-export type SafeOnRampAdapterType = StripeAdapter
+// When creating new adapters these types should be updated:
+// e.g.:
+// export type SafeOnRampOpenOptions<T> =
+//    T extends StripeAdapter ? StripeOpenOptions :
+//    T extends FooAdapter ? FooOpenOptions :
+//    T extends BarAdapter ? BarOpenOptions :
+//    never
 export type SafeOnRampOpenOptions<T> = T extends StripeAdapter ? StripeOpenOptions : never
 export type SafeOnRampOpenResponse<T> = T extends StripeAdapter ? StripeSession : never
 export type SafeOnRampEvent<T> = T extends StripeAdapter ? StripeEvent : never

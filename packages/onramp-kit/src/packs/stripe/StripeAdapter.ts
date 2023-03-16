@@ -1,4 +1,4 @@
-import { loadStripeOnramp, OnrampSession, StripeOnramp } from '@stripe/crypto'
+import { loadStripeOnramp, OnrampSession, OnrampUIEventMap, StripeOnramp } from '@stripe/crypto'
 import * as stripeApi from './stripeApi'
 import { getErrorMessage } from '../../lib/errors'
 
@@ -16,6 +16,7 @@ import type { SafeOnRampAdapter } from '../../types'
  * @class StripeAdapter
  */
 export class StripeAdapter implements SafeOnRampAdapter<StripeAdapter> {
+  #element?: string
   #stripeOnRamp?: StripeOnramp
   #onRampSession?: OnrampSession
   #config: StripeProviderConfig
@@ -23,7 +24,7 @@ export class StripeAdapter implements SafeOnRampAdapter<StripeAdapter> {
   /**
    * Initialize the StripeAdapter
    * @constructor
-   * @param config The configuration object for the Stripe provider
+   * @param config The configuration object for the Stripe provider. Ideally we will put here things like api keys, secrets, urls, etc.
    */
   constructor(config: StripeProviderConfig) {
     this.#config = config
@@ -41,7 +42,7 @@ export class StripeAdapter implements SafeOnRampAdapter<StripeAdapter> {
   }
 
   /**
-   * This method open the onramp widget with the provided options
+   * This method open the onramp widget with the provided Stripe options
    * @param options The options to open the onramp widget
    */
   async open({
@@ -69,8 +70,17 @@ export class StripeAdapter implements SafeOnRampAdapter<StripeAdapter> {
       })
 
       this.#onRampSession = onRampSession
+      this.#element = element
 
       onRampSession.mount(element)
+
+      // TODO: Remove this check when not required
+      this.subscribe(
+        'onramp_session_updated',
+        (stripeEvent: OnrampUIEventMap['onramp_session_updated']) => {
+          this.checkAmount(stripeEvent)
+        }
+      )
 
       return session
     } catch (e) {
@@ -103,68 +113,16 @@ export class StripeAdapter implements SafeOnRampAdapter<StripeAdapter> {
     this.#onRampSession?.removeEventListener(event as '*', handler)
   }
 
-  /**
-   * This method binds the event handlers to the onramp widget
-   * @param events The event handlers to bind to the onramp widget
-   */
-  // #bindEvents(events: SafeOnRampEventHandlers) {
-  //   this.#onRampSession?.addEventListener('onramp_ui_loaded', () => {
-  //     events?.onLoaded?.()
-  //   })
-
-  //   this.#onRampSession?.addEventListener(
-  //     'onramp_session_updated',
-  //     (e: OnrampSessionUpdatedEvent) => {
-  //       const safeEvent = this.stripeEventToSafeEvent(e)
-
-  //       // TODO: Remove this check when not required
-  //       // This is only in order to preserve testnets liquidity pools during the hackaton
-  //       if (
-  //         e.payload.session.quote &&
-  //         Number(e.payload.session.quote.source_monetary_amount?.replace(',', '.')) > 10
-  //       ) {
-  //         document.querySelector(this.#currentSessionOptions?.element as string)?.remove()
-  //         throw new Error(
-  //           "The amount you are trying to use to complete your purchase can't be greater than 10 in order to preserve testnets liquidity pools"
-  //         )
-  //       }
-
-  //       if (e.payload.session.status === 'fulfillment_complete') {
-  //         events?.onPaymentSuccessful?.(safeEvent)
-  //       }
-
-  //       if (e.payload.session.status === 'fulfillment_processing') {
-  //         events?.onPaymentProcessing?.(safeEvent)
-  //       }
-
-  //       if (e.payload.session.status === 'rejected') {
-  //         events?.onPaymentError?.(safeEvent)
-  //       }
-  //     }
-  //   )
-  // }
-
-  // private stripeEventToSafeEvent(stripeEvent: OnrampSessionUpdatedEvent): SafeOnRampEvent {
-  //   const { session } = stripeEvent.payload
-  //   const { quote } = session
-
-  //   if (!quote) throw new Error("Couldn't find quote in the session")
-
-  //   return {
-  //     txId: quote.blockchain_tx_id,
-  //     walletAddress: session.wallet_address || '',
-  //     totalFee: quote.fees?.total_fee,
-  //     totalAmount: quote.total_amount,
-  //     destination: {
-  //       asset: quote.destination_currency?.asset_code,
-  //       amount: quote.destination_amount,
-  //       network: quote.destination_currency?.currency_network
-  //     },
-  //     source: {
-  //       asset: quote.source_currency?.asset_code,
-  //       amount: quote.source_amount,
-  //       network: quote.source_currency?.currency_network
-  //     }
-  //   }
-  // }
+  // This is only in order to preserve testnets liquidity pools during the hackaton
+  private checkAmount(stripeEvent: any): void {
+    if (
+      stripeEvent.payload.session.quote &&
+      Number(stripeEvent.payload.session.quote.source_monetary_amount?.replace(',', '.')) > 10
+    ) {
+      document.querySelector(this.#element as string)?.remove()
+      throw new Error(
+        "The amount you are trying to use to complete your purchase can't be greater than 10 in order to preserve testnets liquidity pools"
+      )
+    }
+  }
 }

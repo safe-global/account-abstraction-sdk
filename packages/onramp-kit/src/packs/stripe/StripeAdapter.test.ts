@@ -62,6 +62,10 @@ jest.mock('@stripe/crypto', () => {
 })
 
 describe('StripeAdapter', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
   it('should create a StripeAdapter instance', () => {
     const stripeAdapter = new StripeAdapter(config)
 
@@ -134,7 +138,9 @@ describe('StripeAdapter', () => {
     stripeAdapter.subscribe('onramp_ui_loaded', mockOnLoaded)
     stripeAdapter.subscribe('onramp_session_updated', mockOnSessionUpdated)
 
-    expect(mockAddEventListener).toHaveBeenCalledTimes(2)
+    // TODO: Change to 2 when the hack for not allowing more than 10$ is removed
+    // https://github.com/safe-global/account-abstraction-sdk/blob/7d61804147fabab63eef518425fcf66c3c536e86/packages/onramp-kit/src/packs/stripe/StripeAdapter.ts#L77
+    expect(mockAddEventListener).toHaveBeenCalledTimes(3)
     mockDispatch('onramp_ui_loaded', 'sessionData')
     expect(mockOnLoaded).toHaveBeenCalled()
 

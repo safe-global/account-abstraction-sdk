@@ -1,41 +1,65 @@
 import { useEffect, useState } from 'react'
-import { SafeEventEmitterProvider, WALLET_ADAPTERS } from '@web3auth/base'
+import { CHAIN_NAMESPACES, SafeEventEmitterProvider, WALLET_ADAPTERS } from '@web3auth/base'
 import { Box, Divider, Grid, Typography } from '@mui/material'
+import { OpenloginAdapter } from '@web3auth/openlogin-adapter'
+import { Web3AuthOptions } from '@web3auth/modal'
 import { EthHashInfo } from '@safe-global/safe-react-components'
-import { SafeAuthKit, SafeAuthProviderType, SafeAuthSignInData } from '../../src/index'
 
 import AppBar from './AppBar'
+import { SafeAuthKit, SafeAuthSignInData, Web3AuthAdapter } from '../../src/index'
 
 function App() {
   const [safeAuthSignInResponse, setSafeAuthSignInResponse] = useState<SafeAuthSignInData | null>(
     null
   )
-  const [safeAuth, setSafeAuth] = useState<SafeAuthKit>()
+  const [safeAuth, setSafeAuth] = useState<SafeAuthKit<Web3AuthAdapter>>()
   const [provider, setProvider] = useState<SafeEventEmitterProvider | null>(null)
 
   useEffect(() => {
     ;(async () => {
-      setSafeAuth(
-        await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, {
+      const options: Web3AuthOptions = {
+        clientId: import.meta.env.VITE_WEB3AUTH_CLIENT_ID || '',
+        web3AuthNetwork: 'testnet',
+        chainConfig: {
+          chainNamespace: CHAIN_NAMESPACES.EIP155,
           chainId: '0x5',
-          txServiceUrl: 'https://safe-transaction-goerli.safe.global', // Optional. Only if want to retrieve related safes
-          authProviderConfig: {
-            rpcTarget: `https://goerli.infura.io/v3/${import.meta.env.VITE_INFURA_KEY}`,
-            clientId: import.meta.env.VITE_WEB3AUTH_CLIENT_ID || '',
-            network: 'testnet',
-            theme: 'dark',
-            modalConfig: {
-              [WALLET_ADAPTERS.TORUS_EVM]: {
-                label: 'metamask',
-                showOnModal: false
-              },
-              [WALLET_ADAPTERS.METAMASK]: {
-                label: 'metamask',
-                showOnDesktop: true,
-                showOnMobile: false
-              }
-            }
+          rpcTarget: `https://goerli.infura.io/v3/${import.meta.env.VITE_INFURA_KEY}`
+        },
+        uiConfig: {
+          theme: 'dark',
+          loginMethodsOrder: ['google', 'facebook']
+        }
+      }
+
+      const modalConfig = {
+        [WALLET_ADAPTERS.TORUS_EVM]: {
+          label: 'metamask',
+          showOnModal: false
+        },
+        [WALLET_ADAPTERS.METAMASK]: {
+          label: 'metamask',
+          showOnDesktop: true,
+          showOnMobile: false
+        }
+      }
+
+      const openloginAdapter = new OpenloginAdapter({
+        loginSettings: {
+          mfaLevel: 'none'
+        },
+        adapterSettings: {
+          uxMode: 'popup',
+          whiteLabel: {
+            name: 'Safe'
           }
+        }
+      })
+
+      const adapter = new Web3AuthAdapter(options, [openloginAdapter], modalConfig)
+
+      setSafeAuth(
+        await SafeAuthKit.init(adapter, {
+          txServiceUrl: 'https://safe-transaction-goerli.safe.global'
         })
       )
     })()
@@ -74,7 +98,7 @@ function App() {
               address={safeAuthSignInResponse.eoa}
               showCopyButton
               showPrefix
-              prefix={getPrefix(safeAuthSignInResponse.chainId)}
+              prefix={getPrefix('0x5')}
             />
           </Grid>
           <Grid item md={8} p={4}>

@@ -1,30 +1,36 @@
-import { CHAIN_NAMESPACES } from '@web3auth/base'
-import { Web3Auth } from '@web3auth/modal'
-import { OpenloginAdapter } from '@web3auth/openlogin-adapter'
+import { IAdapter } from '@web3auth/base'
+import { ModalConfig, Web3Auth, Web3AuthOptions } from '@web3auth/modal'
 import { ExternalProvider } from '@ethersproject/providers'
 
-import type { SafeAuthClient, Web3AuthProviderConfig } from '../../types'
+import type { SafeAuthAdapter } from '../../types'
 import { getErrorMessage } from '../../lib/errors'
+import { Web3AuthEvent, Web3AuthEventListener } from './types'
 
 /**
  * Web3AuthAdapter implements the SafeAuthClient interface for adapting the Web3Auth service provider
  * @class
  */
-export default class Web3AuthAdapter implements SafeAuthClient {
+export class Web3AuthAdapter implements SafeAuthAdapter<Web3AuthAdapter> {
   provider: ExternalProvider | null
-  private chainId: string
   private web3authInstance?: Web3Auth
-  private config: Web3AuthProviderConfig
+  #options: Web3AuthOptions
+  #adapters?: IAdapter<unknown>[]
+  #modalConfig?: Record<string, ModalConfig>
 
   /**
    *
    * @param chainId Chain Id
    * @param config Web3Auth configuration
    */
-  constructor(chainId: string, config: Web3AuthProviderConfig) {
-    this.config = config
-    this.chainId = chainId
+  constructor(
+    options: Web3AuthOptions,
+    adapters?: IAdapter<unknown>[],
+    modalConfig?: Record<string, ModalConfig>
+  ) {
     this.provider = null
+    this.#options = options
+    this.#adapters = adapters
+    this.#modalConfig = modalConfig
   }
 
   /**
@@ -33,36 +39,12 @@ export default class Web3AuthAdapter implements SafeAuthClient {
    */
   async init() {
     try {
-      this.web3authInstance = new Web3Auth({
-        clientId: this.config.clientId,
-        web3AuthNetwork: this.config.network,
-        chainConfig: {
-          chainNamespace: CHAIN_NAMESPACES.EIP155,
-          chainId: this.chainId,
-          rpcTarget: this.config.rpcTarget
-        },
-        uiConfig: {
-          theme: this.config.theme,
-          loginMethodsOrder: ['google', 'facebook']
-        }
-      })
+      this.web3authInstance = new Web3Auth(this.#options)
+      this.#adapters?.forEach((adapter) => this.web3authInstance?.configureAdapter(adapter))
 
-      const openloginAdapter = new OpenloginAdapter({
-        loginSettings: {
-          mfaLevel: 'none'
-        },
-        adapterSettings: {
-          uxMode: 'popup',
-          whiteLabel: {
-            name: 'Safe'
-          }
-        }
-      })
-
-      this.web3authInstance.configureAdapter(openloginAdapter)
       this.provider = this.web3authInstance.provider
 
-      await this.web3authInstance.initModal({ modalConfig: this.config.modalConfig })
+      await this.web3authInstance.initModal({ modalConfig: this.#modalConfig })
     } catch (e) {
       throw new Error(getErrorMessage(e))
     }
@@ -86,5 +68,13 @@ export default class Web3AuthAdapter implements SafeAuthClient {
 
     this.provider = null
     await this.web3authInstance.logout()
+  }
+
+  subscribe(event: Web3AuthEvent, handler: Web3AuthEventListener): void {
+    this.web3authInstance?.on(event, handler)
+  }
+
+  unsubscribe(event: Web3AuthEvent, handler: Web3AuthEventListener): void {
+    this.web3authInstance?.off(event, handler)
   }
 }

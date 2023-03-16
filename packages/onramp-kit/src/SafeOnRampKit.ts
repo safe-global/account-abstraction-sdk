@@ -64,7 +64,7 @@ export class SafeOnRampKit<TAdapter extends SafeOnRampAdapter<TAdapter>> {
   /**
    * Unsubscribe from provider events
    * @param event The specific event to unsubscribe from
-   * @param handler Tje handler to be removed from the event
+   * @param handler The handler to be removed from the event
    */
   unsubscribe(event: SafeOnRampEvent<TAdapter>, handler: SafeOnRampEventListener<TAdapter>) {
     this.#adapter.unsubscribe(event, handler)

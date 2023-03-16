@@ -1,4 +1,4 @@
-import { StripeAdapter } from 'packs/stripe/StripeAdapter'
+import { StripeAdapter } from './packs/stripe/StripeAdapter'
 import {
   StripeSession,
   StripeEvent,

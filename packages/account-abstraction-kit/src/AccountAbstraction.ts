@@ -118,7 +118,7 @@ class AccountAbstraction {
 
     const signedSafeTx = await safe.signTransaction(standardizedSafeTx)
 
-    const transactionData = await encodeExecTransaction(
+    const transactionData = encodeExecTransaction(
       this.#safeContract,
       signedSafeTx.data,
       signedSafeTx.encodedSignatures()

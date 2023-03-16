@@ -1,59 +1,72 @@
-import { StripeAdapter } from './packs/stripe/StripeAdapter'
-import type { SafeOnRampConfig, SafeOnRampClient, SafeOnRampOpenOptions } from './types'
-
-import { SafeOnRampProviderType } from './types/onRamp'
+import {
+  SafeOnRampAdapter,
+  SafeOnRampEvent,
+  SafeOnRampEventListener,
+  SafeOnRampOpenOptions,
+  SafeOnRampOpenResponse
+} from './types'
 
 /**
  * This class allows to initialize the Safe OnRamp Kit for convert fiat to crypto
  * @class SafeOnRampKit
  */
-export class SafeOnRampKit {
-  #client: SafeOnRampClient
+export class SafeOnRampKit<TAdapter extends SafeOnRampAdapter<TAdapter>> {
+  #adapter: TAdapter
 
   /**
    * Initialize the SafeOnRampKit
    * @constructor
-   * @param client - The client implementing the SafeOnRampClient interface
+   * @param adapter The adapter implementing the SafeOnRampClient interface for the specific provider
    */
-  constructor(client: SafeOnRampClient) {
-    this.#client = client
+  constructor(adapter: TAdapter) {
+    this.#adapter = adapter
   }
 
   /**
-   *
-   * @param providerType The provider service to use. Currently only Stripe is supported
-   * @param config The configuration object including the specific provider options
+   * This method initializes the SafeOnRampKit asynchronously. This is the place where we can put initialization magic
+   * @param adapter The adapter implementing the SafeOnRampClient interface for the specific provider
    * @returns A SafeOnRampKit instance
-   * @throws Error if the provider type is not supported
+   * @throws Error if the adapter is not defined
    */
-  static async init(providerType: SafeOnRampProviderType, config: SafeOnRampConfig) {
-    let client
-
-    switch (providerType) {
-      case SafeOnRampProviderType.Stripe:
-        client = new StripeAdapter(config.onRampProviderConfig)
-        break
-      default:
-        throw new Error('Provider type not supported')
+  static async init<T extends SafeOnRampAdapter<T>>(adapter: T): Promise<SafeOnRampKit<T>> {
+    if (!adapter) {
+      throw new Error('The adapter is not defined')
     }
 
-    await client.init()
-
-    return new SafeOnRampKit(client)
+    await adapter.init()
+    return new this(adapter)
   }
 
   /**
    * This method opens the onramp widget using the provided options
-   * @param options The options to open the onramp widget
+   * @param options The options to open the specific onramp widget. Should be different per provider
    */
-  async open(options: SafeOnRampOpenOptions): Promise<unknown> {
-    return await this.#client.open(options)
+  async open(options?: SafeOnRampOpenOptions<TAdapter>): Promise<SafeOnRampOpenResponse<TAdapter>> {
+    return await this.#adapter.open(options)
   }
 
   /**
-   * This method destroys the onramp widget
+   * This method cleanup the onramp widget
    */
   async close() {
-    await this.#client.close()
+    await this.#adapter.close()
+  }
+
+  /**
+   * Subscribe to provider events
+   * @param event The specific event to subscribe to
+   * @param handler The handler to be called when the event is triggered
+   */
+  subscribe(event: SafeOnRampEvent<TAdapter>, handler: SafeOnRampEventListener<TAdapter>) {
+    this.#adapter.subscribe(event, handler)
+  }
+
+  /**
+   * Unsubscribe from provider events
+   * @param event The specific event to unsubscribe from
+   * @param handler Tje handler to be removed from the event
+   */
+  unsubscribe(event: SafeOnRampEvent<TAdapter>, handler: SafeOnRampEventListener<TAdapter>) {
+    this.#adapter.unsubscribe(event, handler)
   }
 }

@@ -1,32 +1,30 @@
-import { loadStripeOnramp, StripeOnramp } from '@stripe/crypto'
-import {
-  SafeOnRampClient,
-  StripeSession,
-  SafeOnRampOpenOptions,
-  StripeProviderConfig,
-  SafeOnRampEventHandlers,
-  SafeOnRampEvent,
-  OnrampSessionUpdatedEvent
-} from '../../types'
-
+import { loadStripeOnramp, OnrampSession, OnrampUIEventMap, StripeOnramp } from '@stripe/crypto'
 import * as stripeApi from './stripeApi'
-
 import { getErrorMessage } from '../../lib/errors'
+
+import type {
+  StripeProviderConfig,
+  StripeEvent,
+  StripeEventListener,
+  StripeOpenOptions,
+  StripeSession
+} from './types'
+import type { SafeOnRampAdapter } from '../../types'
 
 /**
  * This class implements the SafeOnRampClient interface for the Stripe provider
  * @class StripeAdapter
  */
-export class StripeAdapter implements SafeOnRampClient {
+export class StripeAdapter implements SafeOnRampAdapter<StripeAdapter> {
+  #element?: string
   #stripeOnRamp?: StripeOnramp
-  #onRampSession?: StripeSession
+  #onRampSession?: OnrampSession
   #config: StripeProviderConfig
-  #currentSessionOptions?: SafeOnRampOpenOptions
 
   /**
    * Initialize the StripeAdapter
    * @constructor
-   * @param config The configuration object for the Stripe provider
+   * @param config The configuration object for the Stripe provider. Ideally we will put here things like api keys, secrets, urls, etc.
    */
   constructor(config: StripeProviderConfig) {
     this.#config = config
@@ -44,34 +42,45 @@ export class StripeAdapter implements SafeOnRampClient {
   }
 
   /**
-   * This method open the onramp widget with the provided options
+   * This method open the onramp widget with the provided Stripe options
    * @param options The options to open the onramp widget
    */
-  async open(options: SafeOnRampOpenOptions) {
+  async open({
+    element,
+    theme = 'light',
+    sessionId,
+    defaultOptions
+  }: StripeOpenOptions): Promise<StripeSession> {
     if (!this.#stripeOnRamp) throw new Error('StripeOnRamp is not initialized')
 
     try {
       let session
 
-      if (options.sessionId) {
-        session = await stripeApi.getSession(this.#config.onRampBackendUrl, options.sessionId)
+      if (sessionId) {
+        session = await stripeApi.getSession(this.#config.onRampBackendUrl, sessionId)
       } else {
-        session = await stripeApi.createSession(this.#config.onRampBackendUrl, {
-          walletAddress: options.walletAddress,
-          networks: options.networks
-        })
+        session = await stripeApi.createSession(this.#config.onRampBackendUrl, defaultOptions)
       }
 
       const onRampSession = await this.#stripeOnRamp.createSession({
-        clientSecret: session.client_secret
+        clientSecret: session.client_secret,
+        appearance: {
+          theme: theme
+        }
       })
 
       this.#onRampSession = onRampSession
-      this.#currentSessionOptions = options
+      this.#element = element
 
-      if (options.events) this.#bindEvents(options.events)
+      onRampSession.mount(element)
 
-      onRampSession.mount(options.element)
+      // TODO: Remove this check when not required
+      this.subscribe(
+        'onramp_session_updated',
+        (stripeEvent: OnrampUIEventMap['onramp_session_updated']) => {
+          this.checkAmount(stripeEvent)
+        }
+      )
 
       return session
     } catch (e) {
@@ -87,67 +96,33 @@ export class StripeAdapter implements SafeOnRampClient {
   }
 
   /**
-   * This method binds the event handlers to the onramp widget
-   * @param events The event handlers to bind to the onramp widget
+   * Subscribe to an event
+   * @param event The Stripe event to subscribe or '*' to subscribe to all events
+   * @param handler The callback to execute when the event is triggered
    */
-  #bindEvents(events: SafeOnRampEventHandlers) {
-    this.#onRampSession?.addEventListener('onramp_ui_loaded', () => {
-      events?.onLoaded?.()
-    })
-
-    this.#onRampSession?.addEventListener(
-      'onramp_session_updated',
-      (e: OnrampSessionUpdatedEvent) => {
-        const safeEvent = this.stripeEventToSafeEvent(e)
-
-        // TODO: Remove this check when not required
-        // This is only in order to preserve testnets liquidity pools during the hackaton
-        if (
-          e.payload.session.quote &&
-          Number(e.payload.session.quote.source_monetary_amount?.replace(',', '.')) > 10
-        ) {
-          document.querySelector(this.#currentSessionOptions?.element as string)?.remove()
-          throw new Error(
-            "The amount you are trying to use to complete your purchase can't be greater than 10 in order to preserve testnets liquidity pools"
-          )
-        }
-
-        if (e.payload.session.status === 'fulfillment_complete') {
-          events?.onPaymentSuccessful?.(safeEvent)
-        }
-
-        if (e.payload.session.status === 'fulfillment_processing') {
-          events?.onPaymentProcessing?.(safeEvent)
-        }
-
-        if (e.payload.session.status === 'rejected') {
-          events?.onPaymentError?.(safeEvent)
-        }
-      }
-    )
+  subscribe(event: StripeEvent, handler: StripeEventListener): void {
+    this.#onRampSession?.addEventListener(event as '*', handler)
   }
 
-  private stripeEventToSafeEvent(stripeEvent: OnrampSessionUpdatedEvent): SafeOnRampEvent {
-    const { session } = stripeEvent.payload
-    const { quote } = session
+  /**
+   * Unsubscribe from an event
+   * @param event The Stripe event to unsubscribe or '*' to unsubscribe from all events
+   * @param handler The callback to remove from the event
+   */
+  unsubscribe(event: StripeEvent, handler: StripeEventListener): void {
+    this.#onRampSession?.removeEventListener(event as '*', handler)
+  }
 
-    if (!quote) throw new Error("Couldn't find quote in the session")
-
-    return {
-      txId: quote.blockchain_tx_id,
-      walletAddress: session.wallet_address || '',
-      totalFee: quote.fees?.total_fee,
-      totalAmount: quote.total_amount,
-      destination: {
-        asset: quote.destination_currency?.asset_code,
-        amount: quote.destination_amount,
-        network: quote.destination_currency?.currency_network
-      },
-      source: {
-        asset: quote.source_currency?.asset_code,
-        amount: quote.source_amount,
-        network: quote.source_currency?.currency_network
-      }
+  // This is only in order to preserve testnets liquidity pools during the hackaton
+  private checkAmount(stripeEvent: any): void {
+    if (
+      stripeEvent.payload.session.quote &&
+      Number(stripeEvent.payload.session.quote.source_monetary_amount?.replace(',', '.')) > 10
+    ) {
+      document.querySelector(this.#element as string)?.remove()
+      throw new Error(
+        "The amount you are trying to use to complete your purchase can't be greater than 10 in order to preserve testnets liquidity pools"
+      )
     }
   }
 }

@@ -35,11 +35,11 @@
     "access": "public"
   },
   "dependencies": {
-    "@ethersproject/address": "^5.7.0",
-    "@stripe/crypto": "^0.0.2",
-    "@stripe/stripe-js": "^1.48.0"
+    "@ethersproject/address": "^5.7.0"
   },
   "devDependencies": {
+    "@stripe/crypto": "^0.0.2",
+    "@stripe/stripe-js": "^1.48.0",
     "events": "^3.3.0",
     "jest-environment-jsdom": "^29.4.3"
   },

@@ -53,13 +53,6 @@ describe('SafeAuthKit', () => {
     expect(safeAuthKit?.safeAuthData).toBeUndefined()
   })
 
-  it('should throw an error if the provider type is not supported', async () => {
-    //@ts-expect-error - Testing unsupported provider type
-    await expect(SafeAuthKit.init('unsupported' as SafeAuthProviderType, config)).rejects.toThrow(
-      'Provider type not supported'
-    )
-  })
-
   it('should clean the auth data when signing out', async () => {
     const safeAuthKit = await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, config)
 

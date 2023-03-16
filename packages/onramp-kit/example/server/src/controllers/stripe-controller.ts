@@ -4,10 +4,8 @@ import stripeService from '../services/stripe-service'
 const HTTP_ERROR_STATUS = 400
 
 async function getStripeClientSecret(request: RequestType, response: ResponseType) {
-  const { walletAddress, networks } = request.body
-
   try {
-    const stripeResponse = await stripeService.getStripeClientSecret(walletAddress, networks)
+    const stripeResponse = await stripeService.getStripeClientSecret(request.body)
 
     return response.send(stripeResponse)
   } catch (error: any) {

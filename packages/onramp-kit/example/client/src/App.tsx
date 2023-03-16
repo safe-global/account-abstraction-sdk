@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { isAddress } from '@ethersproject/address'
-import { SafeOnRampKit, SafeOnRampEvent, SafeOnRampProviderType } from '../../../src'
+import { SafeOnRampKit, StripeSession, StripeAdapter } from '../../../src'
 import { Grid, TextField, Button } from '@mui/material'
 
 import AppBar from './AppBar'
@@ -10,7 +10,7 @@ const isSessionValid = (sessionId: string) => sessionId.length === 28
 function App() {
   const [walletAddress, setWalletAddress] = useState<string>('')
   const [sessionId, setSessionId] = useState<string>('')
-  const [onRampClient, setOnRampClient] = useState<SafeOnRampKit>()
+  const [onRampClient, setOnRampClient] = useState<SafeOnRampKit<StripeAdapter>>()
   const stripeRootRef = useRef<HTMLDivElement>(null)
 
   const handleCreateSession = async () => {
@@ -21,31 +21,41 @@ function App() {
     }
 
     const sessionData = (await onRampClient?.open({
-      sessionId: sessionId,
-      walletAddress,
-      networks: ['ethereum', 'polygon'],
       element: '#stripe-root',
-      events: {
-        onLoaded: () => console.log('onLoaded()'),
-        onPaymentSuccessful: (eventData: SafeOnRampEvent) =>
-          console.log('onPaymentSuccessful(): ', eventData),
-        onPaymentProcessing: (eventData: SafeOnRampEvent) =>
-          console.log('onPaymentProcessing(): ', eventData),
-        onPaymentError: (eventData: SafeOnRampEvent) => console.log('onPaymentError(): ', eventData)
+      sessionId: sessionId,
+      theme: 'light',
+      defaultOptions: {
+        transaction_details: {
+          wallet_address: walletAddress,
+          supported_destination_networks: ['ethereum', 'polygon'],
+          supported_destination_currencies: ['usdc'],
+          lock_wallet_address: true
+        },
+        customer_information: {
+          email: 'john@doe.com'
+        }
       }
-    })) as any
+    })) as StripeSession
 
-    setWalletAddress(sessionData.transaction_details.wallet_address)
+    onRampClient?.subscribe('onramp_ui_loaded', () => {
+      console.log('UI loaded')
+    })
+
+    onRampClient?.subscribe('onramp_session_updated', (e) => {
+      console.log('Session Updated', e.payload)
+    })
+
+    setWalletAddress(sessionData?.transaction_details?.wallet_address || '')
   }
 
   useEffect(() => {
     ;(async () => {
-      const onRampClient = await SafeOnRampKit.init(SafeOnRampProviderType.Stripe, {
-        onRampProviderConfig: {
+      const onRampClient = await SafeOnRampKit.init(
+        new StripeAdapter({
           stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY,
           onRampBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL
-        }
-      })
+        })
+      )
 
       setOnRampClient(onRampClient)
     })()

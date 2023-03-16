@@ -1,12 +1,18 @@
 import EventEmitter from 'events'
-import { SafeOnRampOpenOptions, Session } from '../../types'
 import { StripeAdapter } from './StripeAdapter'
 import * as stripeApi from './stripeApi'
 
-const openOptions: SafeOnRampOpenOptions = {
+import type { SafeOnRampOpenOptions } from '../../types'
+import type { StripeSession } from './types'
+
+const openOptions: SafeOnRampOpenOptions<StripeAdapter> = {
   element: '#root',
-  walletAddress: '0x',
-  networks: ['ethereum']
+  defaultOptions: {
+    transaction_details: {
+      wallet_address: '0x',
+      supported_destination_networks: ['ethereum']
+    }
+  }
 }
 
 const config = {
@@ -14,7 +20,7 @@ const config = {
   onRampBackendUrl: 'https://onramp-backend-url'
 }
 
-const session: Session = {
+const session: StripeSession = {
   id: 'cos_1MhDe5KSn9ArdBimmQzf4vzc',
   object: 'crypto.onramp_session',
   client_secret: 'cos_1MhDe5KSn9ArdBimmQzf4vzc_secret_NaOoTfOKoDPCXfGVJz3KX15XO00H6ZNiTOm',
@@ -56,6 +62,10 @@ jest.mock('@stripe/crypto', () => {
 })
 
 describe('StripeAdapter', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
   it('should create a StripeAdapter instance', () => {
     const stripeAdapter = new StripeAdapter(config)
 
@@ -76,8 +86,10 @@ describe('StripeAdapter', () => {
     expect(mockMount).toHaveBeenCalledWith(openOptions.element)
     expect(returnedSession).toEqual(session)
     expect(createSessionSpy).toHaveBeenCalledWith('https://onramp-backend-url', {
-      walletAddress: '0x',
-      networks: ['ethereum']
+      transaction_details: {
+        wallet_address: '0x',
+        supported_destination_networks: ['ethereum']
+      }
     })
   })
 
@@ -111,9 +123,7 @@ describe('StripeAdapter', () => {
 
   it('should respond to events', async () => {
     const mockOnLoaded = jest.fn()
-    const mockOnPaymentSuccessful = jest.fn()
-    const mockOnPaymentProcessing = jest.fn()
-    const mockOnPaymentError = jest.fn()
+    const mockOnSessionUpdated = jest.fn()
 
     jest.spyOn(stripeApi, 'createSession').mockImplementationOnce(() => Promise.resolve(session))
 
@@ -122,16 +132,15 @@ describe('StripeAdapter', () => {
     await stripeAdapter.init()
 
     await stripeAdapter.open({
-      ...openOptions,
-      events: {
-        onLoaded: mockOnLoaded,
-        onPaymentSuccessful: mockOnPaymentSuccessful,
-        onPaymentProcessing: mockOnPaymentProcessing,
-        onPaymentError: mockOnPaymentError
-      }
+      ...openOptions
     })
 
-    expect(mockAddEventListener).toHaveBeenCalledTimes(2)
+    stripeAdapter.subscribe('onramp_ui_loaded', mockOnLoaded)
+    stripeAdapter.subscribe('onramp_session_updated', mockOnSessionUpdated)
+
+    // TODO: Change to 2 when the hack for not allowing more than 10$ is removed
+    // https://github.com/safe-global/account-abstraction-sdk/blob/7d61804147fabab63eef518425fcf66c3c536e86/packages/onramp-kit/src/packs/stripe/StripeAdapter.ts#L77
+    expect(mockAddEventListener).toHaveBeenCalledTimes(3)
     mockDispatch('onramp_ui_loaded', 'sessionData')
     expect(mockOnLoaded).toHaveBeenCalled()
 
@@ -140,18 +149,6 @@ describe('StripeAdapter', () => {
         session: { status: 'fulfillment_complete', quote: { source_monetary_amount: '10' } }
       }
     })
-    expect(mockOnPaymentSuccessful).toHaveBeenCalled()
-
-    mockDispatch('onramp_session_updated', {
-      payload: {
-        session: { status: 'fulfillment_processing', quote: { source_monetary_amount: '10' } }
-      }
-    })
-    expect(mockOnPaymentProcessing).toHaveBeenCalled()
-
-    mockDispatch('onramp_session_updated', {
-      payload: { session: { status: 'rejected', quote: { source_monetary_amount: '10' } } }
-    })
-    expect(mockOnPaymentError).toHaveBeenCalled()
+    expect(mockOnSessionUpdated).toHaveBeenCalled()
   })
 })

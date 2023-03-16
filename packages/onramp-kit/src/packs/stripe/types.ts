@@ -1,3 +1,5 @@
+import { OnrampUIEventListener, OnrampUIEventMap } from '@stripe/crypto'
+
 interface QuoteCurrency {
   id: string
   asset_code: string
@@ -44,11 +46,12 @@ interface TransactionDetails {
   source_monetary_amount?: string | null
   supported_destination_currencies?: string[]
   supported_destination_networks?: string[]
+  destination_exchange_amount?: string | null
   wallet_address?: string
   wallet_addresses?: any
 }
 
-export interface Session {
+export interface StripeSession {
   id: string
   object: string
   livemode: boolean
@@ -60,22 +63,57 @@ export interface Session {
   status: string
 }
 
-interface Payload {
-  session: Session
-}
-
-export interface OnrampSessionUpdatedEvent {
-  type: string
-  payload: Payload
-}
-
 export interface StripeProviderConfig {
   stripePublicKey: string
   onRampBackendUrl: string
 }
 
-export interface StripeSession {
-  mount: (element: string) => void
-  addEventListener: (event: string, callback: (e: any) => void) => void
-  removeEventListener: (event: string, callback: (e: any) => void) => void
+export type StripeTransactionOptions = Pick<
+  TransactionDetails,
+  | 'wallet_address'
+  | 'wallet_addresses'
+  | 'lock_wallet_address'
+  | 'source_currency'
+  | 'source_exchange_amount'
+  | 'destination_network'
+  | 'destination_currency'
+  | 'destination_exchange_amount'
+  | 'supported_destination_currencies'
+  | 'supported_destination_networks'
+>
+
+type StripeCustomerInformation = {
+  email?: string
+  first_name?: string
+  last_name?: string
+  dob?: {
+    year?: string
+    month?: string
+    day?: string
+  }
+  address?: {
+    country?: string
+    line1?: string
+    line2?: string
+    city?: string
+    state?: string
+    postal_code?: string
+  }
 }
+
+export type StripeDefaultOpenOptions = {
+  transaction_details?: StripeTransactionOptions
+  customer_information?: StripeCustomerInformation
+  customer_ip_address?: string
+  customer_wallet_address?: string
+}
+
+export type StripeOpenOptions = {
+  element: string
+  sessionId?: string
+  theme?: 'light' | 'dark'
+  defaultOptions: StripeDefaultOpenOptions
+}
+
+export type StripeEvent = '*' | keyof OnrampUIEventMap
+export type StripeEventListener = OnrampUIEventListener<any>

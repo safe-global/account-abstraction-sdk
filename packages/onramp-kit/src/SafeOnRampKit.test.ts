@@ -21,13 +21,16 @@ const config = {
 jest.mock('./packs/stripe/StripeAdapter')
 
 describe('SafeOnRampKit', () => {
+  let adapter: stripeAdapter.StripeAdapter
+
   beforeEach(() => {
     jest.clearAllMocks()
     jest.restoreAllMocks()
+
+    adapter = new stripeAdapter.StripeAdapter(config)
   })
 
   it('should create a SafeOnRampKit instance when using the init() method', async () => {
-    const adapter = new stripeAdapter.StripeAdapter(config)
     const safeOnRampKit = await SafeOnRampKit.init(adapter)
 
     expect(safeOnRampKit).toBeInstanceOf(SafeOnRampKit)

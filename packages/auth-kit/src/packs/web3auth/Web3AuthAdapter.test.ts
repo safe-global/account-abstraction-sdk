@@ -1,5 +1,6 @@
-import Web3AuthAdapter from './Web3AuthAdapter'
+import { Web3AuthAdapter } from './Web3AuthAdapter'
 import { generateTestingUtils } from 'eth-testing'
+import { CHAIN_NAMESPACES } from '@web3auth/base'
 
 const testingUtils = generateTestingUtils({ providerType: 'MetaMask' })
 const mockProvider = testingUtils.getProvider()
@@ -24,11 +25,14 @@ describe('Web3AuthAdapter', () => {
   let adapter: Web3AuthAdapter
 
   beforeAll(() => {
-    adapter = new Web3AuthAdapter('1', {
+    adapter = new Web3AuthAdapter({
       clientId: '123',
-      network: 'mainnet',
-      rpcTarget: 'https://mainnet.infura.io/v3/123',
-      theme: 'light'
+      web3AuthNetwork: 'mainnet',
+      chainConfig: {
+        chainNamespace: CHAIN_NAMESPACES.EIP155,
+        chainId: '0x5',
+        rpcTarget: `https://goerli.infura.io/v3/api-key`
+      }
     })
   })
 

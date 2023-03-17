@@ -2,16 +2,15 @@ import { BigNumber } from '@ethersproject/bignumber'
 import {
   CallWithSyncFeeRequest,
   GelatoRelay as GelatoNetworkRelay,
-  RelayRequestOptions,
   RelayResponse,
   SponsoredCallRequest,
   TransactionStatusResponse
 } from '@gelatonetwork/relay-sdk'
 import Safe from '@safe-global/safe-core-sdk'
 import { MetaTransactionData, SafeTransaction } from '@safe-global/safe-core-sdk-types'
-import { getEncodedSafeTx } from '../../utils'
 import { GELATO_FEE_COLLECTOR, GELATO_NATIVE_TOKEN_ADDRESS, ZERO_ADDRESS } from '../../constants'
 import { MetaTransactionOptions, RelayAdapter, RelayTransaction } from '../../types'
+import { getEncodedSafeTx } from '../../utils'
 
 export class GelatoRelayAdapter implements RelayAdapter {
   #gelatoRelay: GelatoNetworkRelay
@@ -72,13 +71,14 @@ export class GelatoRelayAdapter implements RelayAdapter {
     const encodedSafeTx = getEncodedSafeTx(safe, safeTx, signerAddress)
     const estimateGas = await safe.getEthAdapter().estimateGas({
       to: safe.getAddress(),
-      from: this.getFeeCollector(),
+      from: signerAddress,
       data: encodedSafeTx
     })
 
-    console.log(`estimateGas result: ${estimateGas}`)
+    // See: https://docs.gelato.network/developer-services/relay/quick-start/optional-parameters#optional-parameters
+    const premiumGasEstimation = BigNumber.from(estimateGas).add(150_000)
 
-    return BigNumber.from(estimateGas)
+    return premiumGasEstimation
   }
 
   async createRelayedTransaction(
@@ -107,7 +107,7 @@ export class GelatoRelayAdapter implements RelayAdapter {
     const syncTransaction = await safe.createTransaction({
       safeTransactionData: transactions,
       options: {
-        baseGas: estimatedFee.toNumber(),
+        baseGas: estimatedFee.toString(),
         gasPrice: 1,
         gasToken: gasToken ?? ZERO_ADDRESS,
         refundReceiver: this.getFeeCollector(),
@@ -144,7 +144,7 @@ export class GelatoRelayAdapter implements RelayAdapter {
     chainId: number,
     options: MetaTransactionOptions
   ): Promise<RelayResponse> {
-    const { gasLimit, gasToken } = options
+    const { gasToken } = options
     const feeToken = this._getFeeToken(gasToken)
     const request: CallWithSyncFeeRequest = {
       chainId,
@@ -153,10 +153,7 @@ export class GelatoRelayAdapter implements RelayAdapter {
       feeToken,
       isRelayContext: false
     }
-    const relayRequestOptions: RelayRequestOptions = {
-      gasLimit: gasLimit && gasLimit.toString()
-    }
-    const response = await this.#gelatoRelay.callWithSyncFee(request, relayRequestOptions)
+    const response = await this.#gelatoRelay.callWithSyncFee(request)
     return response
   }
 

@@ -31,7 +31,7 @@ export interface SafeTransactionData extends MetaTransactionData {
 // {
 
 export interface MetaTransactionOptions {
-  gasLimit: BigNumber
+  gasLimit?: BigNumber
   gasToken?: string
   isSponsored?: boolean
 }

@@ -4,7 +4,7 @@ import AccountAbstraction, {
   OperationType
 } from '@safe-global/account-abstraction-kit-poc'
 import { GelatoRelayAdapter } from '@safe-global/relay-kit'
-import { BigNumber, ethers } from 'ethers'
+import { ethers } from 'ethers'
 import { AccountAbstractionConfig } from './../../packages/account-abstraction-kit/src/types/index'
 
 // Fund the 1Balance account that will sponsor the transaction and get the API key:
@@ -16,6 +16,7 @@ import { AccountAbstractionConfig } from './../../packages/account-abstraction-k
 // Check the status of a transaction after it is executed:
 // https://goerli.etherscan.io/tx/<TRANSACTION_HASH>
 
+// safe = gor:0x707f64CbC5694D943fda62f8B36d76aCd0aF07DF
 const config = {
   SAFE_SIGNER_PRIVATE_KEY: '<SAFE_SIGNER_PRIVATE_KEY>',
   RPC_URL: 'https://goerli.infura.io/v3/<INFURA_API_KEY>',
@@ -23,16 +24,14 @@ const config = {
 }
 
 const mockOnRampConfig = {
-  ADDRESS: '0x4D39a545144D8e2F19E8009aB5F123FA1043cc98',
-  PRIVATE_KEY: '0x32ecaa3b2feb4051470c98b6d2f2da8861ae83b11ccc7123aee1c9efc4ef1933'
+  ADDRESS: '<ADDRESS>',
+  PRIVATE_KEY: '<PRIVATE_KEY>'
 }
 
 const txConfig = {
   TO: '<TO>',
   DATA: '<DATA>',
   VALUE: '<VALUE>',
-  // Options:
-  GAS_LIMIT: BigNumber.from('<GAS_LIMIT>')
 }
 
 async function main() {
@@ -87,7 +86,6 @@ async function main() {
     }
   ]
   const options: MetaTransactionOptions = {
-    gasLimit: txConfig.GAS_LIMIT,
     isSponsored: true
   }
 

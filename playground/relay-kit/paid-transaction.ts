@@ -5,7 +5,7 @@ import AccountAbstraction, {
   OperationType
 } from '@safe-global/account-abstraction-kit-poc'
 import { GelatoRelayAdapter } from '@safe-global/relay-kit'
-import { BigNumber, ethers } from 'ethers'
+import { ethers } from 'ethers'
 
 // Check the status of a transaction after it is relayed:
 // https://relay.gelato.digital/tasks/status/<TASK_ID>
@@ -28,7 +28,6 @@ const txConfig = {
   DATA: '<DATA>',
   VALUE: '<VALUE>',
   // Options:
-  GAS_LIMIT: BigNumber.from('<GAS_LIMIT>'),
   GAS_TOKEN: ethers.constants.AddressZero
 }
 
@@ -57,7 +56,7 @@ async function main() {
   console.log({ isSafeDeployed })
 
   // Fake on-ramp to transfer enough funds to the Safe address
-
+  /*
   const chainId = (await signer.provider.getNetwork()).chainId
   const relayFee = await relayAdapter.getEstimateFee(
     chainId,
@@ -83,7 +82,7 @@ async function main() {
     const safeBalanceAfter = await provider.getBalance(predictedSafeAddress)
     console.log({ safeBalance: ethers.utils.formatEther(safeBalanceAfter.toString()) })
   }
-
+  */
   // Relay the transaction
 
   const safeTransactions: MetaTransactionData[] = [
@@ -95,7 +94,6 @@ async function main() {
     }
   ]
   const options: MetaTransactionOptions = {
-    gasLimit: txConfig.GAS_LIMIT,
     gasToken: txConfig.GAS_TOKEN
   }
 

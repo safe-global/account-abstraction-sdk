@@ -4,7 +4,6 @@ import { Web3AuthEvent, Web3AuthEventListener } from './packs/web3auth/types'
 import { Web3AuthAdapter } from './packs/web3auth/Web3AuthAdapter'
 
 export interface SafeAuthSignInData {
-  chainId?: string
   eoa: string
   safes?: string[]
 }

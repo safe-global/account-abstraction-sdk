@@ -19,8 +19,9 @@ export class Web3AuthAdapter implements SafeAuthAdapter<Web3AuthAdapter> {
 
   /**
    *
-   * @param chainId Chain Id
-   * @param config Web3Auth configuration
+   * @param options Web3Auth options {@link https://web3auth.io/docs/sdk/web/modal/initialize#arguments}
+   * @param config Web3Auth adapters {@link https://web3auth.io/docs/sdk/web/modal/initialize#configuring-adapters}
+   * @param modalConfig The modal configuration {@link https://web3auth.io/docs/sdk/web/modal/whitelabel#whitelabeling-while-modal-initialization}
    */
   constructor(
     options: Web3AuthOptions,
@@ -31,15 +32,19 @@ export class Web3AuthAdapter implements SafeAuthAdapter<Web3AuthAdapter> {
     this.#options = options
     this.#adapters = adapters
     this.#modalConfig = modalConfig
+
+    this.web3authInstance = new Web3Auth(this.#options)
   }
 
   /**
-   * Initialize the Web3Auth service provider {@link https://web3auth.io/docs/sdk/web/modal/initialize}
+   * Initialize the Web3Auth service provider
+   * @throws Error if Web3Auth is not initialized
    * @throws Error if there was an error initializing Web3Auth
    */
   async init() {
+    if (!this.web3authInstance) throw new Error('Web3Auth is not initialized')
+
     try {
-      this.web3authInstance = new Web3Auth(this.#options)
       this.#adapters?.forEach((adapter) => this.web3authInstance?.configureAdapter(adapter))
 
       this.provider = this.web3authInstance.provider
@@ -70,10 +75,20 @@ export class Web3AuthAdapter implements SafeAuthAdapter<Web3AuthAdapter> {
     await this.web3authInstance.logout()
   }
 
+  /**
+   * Allow to subscribe to the Web3Auth events
+   * @param event The event you want to subscribe to (https://web3auth.io/docs/sdk/web/modal/initialize#subscribing-the-lifecycle-events)
+   * @param handler The event handler
+   */
   subscribe(event: Web3AuthEvent, handler: Web3AuthEventListener): void {
     this.web3authInstance?.on(event, handler)
   }
 
+  /**
+   * Allow to unsubscribe to the Web3Auth events
+   * @param event The event you want to unsubscribe to (https://web3auth.io/docs/sdk/web/modal/initialize#subscribing-the-lifecycle-events)
+   * @param handler The event handler
+   */
   unsubscribe(event: Web3AuthEvent, handler: Web3AuthEventListener): void {
     this.web3authInstance?.off(event, handler)
   }

@@ -9,6 +9,7 @@ import {
 } from '@gelatonetwork/relay-sdk'
 import Safe from '@safe-global/safe-core-sdk'
 import { MetaTransactionData, SafeTransaction } from '@safe-global/safe-core-sdk-types'
+import { getEncodedSafeTx } from '../../utils'
 import { GELATO_FEE_COLLECTOR, GELATO_NATIVE_TOKEN_ADDRESS, ZERO_ADDRESS } from '../../constants'
 import { MetaTransactionOptions, RelayAdapter, RelayTransaction } from '../../types'
 
@@ -45,11 +46,39 @@ export class GelatoRelayAdapter implements RelayAdapter {
   ): Promise<BigNumber> {
     const feeToken = this._getFeeToken(gasToken)
     const estimation = await this.#gelatoRelay.getEstimatedFee(chainId, feeToken, gasLimit, true)
+
     return estimation
   }
 
   async getTaskStatus(taskId: string): Promise<TransactionStatusResponse | undefined> {
-    return await this.#gelatoRelay.getTaskStatus(taskId)
+    return this.#gelatoRelay.getTaskStatus(taskId)
+  }
+
+  private async _estimateSafeTxGasLimit(safe: Safe, transactions: MetaTransactionData[]) {
+    const signerAddress = await safe.getEthAdapter().getSignerAddress()
+
+    if (!signerAddress) {
+      throw new Error('EthAdapter needs a signer configured')
+    }
+
+    const nonce = await this._getSafeNonce(safe)
+    const safeTx = await safe.createTransaction({
+      safeTransactionData: transactions,
+      options: {
+        nonce
+      }
+    })
+
+    const encodedSafeTx = getEncodedSafeTx(safe, safeTx, signerAddress)
+    const estimateGas = await safe.getEthAdapter().estimateGas({
+      to: safe.getAddress(),
+      from: this.getFeeCollector(),
+      data: encodedSafeTx
+    })
+
+    console.log(`estimateGas result: ${estimateGas}`)
+
+    return BigNumber.from(estimateGas)
   }
 
   async createRelayedTransaction(
@@ -58,21 +87,35 @@ export class GelatoRelayAdapter implements RelayAdapter {
     options: MetaTransactionOptions
   ): Promise<SafeTransaction> {
     const { gasLimit, gasToken, isSponsored } = options
-    const chainId = await safe.getChainId()
-    const estimation = await this.getEstimateFee(chainId, gasLimit, gasToken)
     const nonce = await this._getSafeNonce(safe)
 
-    const relayedSafeTransaction = await safe.createTransaction({
+    if (isSponsored) {
+      const sponsoredTransaction = await safe.createTransaction({
+        safeTransactionData: transactions,
+        options: {
+          nonce
+        }
+      })
+
+      return sponsoredTransaction
+    }
+
+    const chainId = await safe.getChainId()
+    const estimationGasLimit = gasLimit ?? (await this._estimateSafeTxGasLimit(safe, transactions))
+    const estimatedFee = await this.getEstimateFee(chainId, estimationGasLimit, gasToken)
+
+    const syncTransaction = await safe.createTransaction({
       safeTransactionData: transactions,
       options: {
-        baseGas: !isSponsored ? estimation.toNumber() : 0,
-        gasPrice: !isSponsored ? 1 : 0,
+        baseGas: estimatedFee.toNumber(),
+        gasPrice: 1,
         gasToken: gasToken ?? ZERO_ADDRESS,
-        refundReceiver: !isSponsored ? this.getFeeCollector() : ZERO_ADDRESS,
+        refundReceiver: this.getFeeCollector(),
         nonce
       }
     })
-    return relayedSafeTransaction
+
+    return syncTransaction
   }
 
   async sponsorTransaction(
@@ -83,12 +126,15 @@ export class GelatoRelayAdapter implements RelayAdapter {
     if (!this.#apiKey) {
       throw new Error('API key not defined')
     }
+
     const request: SponsoredCallRequest = {
       chainId,
       target,
       data: encodedTransaction
     }
+
     const response = await this.#gelatoRelay.sponsoredCall(request, this.#apiKey)
+
     return response
   }
 

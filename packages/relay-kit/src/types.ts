@@ -7,7 +7,7 @@ import { BigNumber } from 'ethers'
 // {
 
 export interface MetaTransactionOptions {
-  gasLimit: BigNumber
+  gasLimit?: BigNumber
   gasToken?: string
   isSponsored?: boolean
 }

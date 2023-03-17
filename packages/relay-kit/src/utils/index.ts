@@ -1,10 +1,18 @@
 import type Safe from '@safe-global/safe-core-sdk'
 import type { SafeTransaction } from '@safe-global/safe-core-sdk-types'
+import { generatePreValidatedSignature } from '@safe-global/safe-core-sdk/dist/src/utils/signatures'
 
 export const getEncodedSafeTx = (safeSDK: Safe, safeTx: SafeTransaction, from: string): string => {
   const EXEC_TX_METHOD = 'execTransaction'
 
-  return safeSDK
+  const owner = from.toLowerCase()
+  const needsOwnerSig = !safeTx.signatures.has(owner)
+  if (needsOwnerSig) {
+    const ownerSig = generatePreValidatedSignature(owner)
+    safeTx.addSignature(ownerSig)
+  }
+
+  const encodedTx = safeSDK
     .getContractManager()
     .safeContract.encode(EXEC_TX_METHOD, [
       safeTx.data.to,
@@ -16,16 +24,12 @@ export const getEncodedSafeTx = (safeSDK: Safe, safeTx: SafeTransaction, from: s
       safeTx.data.gasPrice,
       safeTx.data.gasToken,
       safeTx.data.refundReceiver,
-      generatePreValidatedSignature(from)
+      safeTx.encodedSignatures()
     ])
-}
 
-export function generatePreValidatedSignature(ownerAddress: string): string {
-  const signature =
-    '0x000000000000000000000000' +
-    ownerAddress.slice(2) +
-    '0000000000000000000000000000000000000000000000000000000000000000' +
-    '01'
+  if (needsOwnerSig) {
+    safeTx.signatures.delete(owner)
+  }
 
-  return signature
+  return encodedTx
 }

@@ -32,19 +32,16 @@ export class Web3AuthAdapter implements SafeAuthAdapter<Web3AuthAdapter> {
     this.#options = options
     this.#adapters = adapters
     this.#modalConfig = modalConfig
-
-    this.web3authInstance = new Web3Auth(this.#options)
   }
 
   /**
    * Initialize the Web3Auth service provider
-   * @throws Error if Web3Auth is not initialized
    * @throws Error if there was an error initializing Web3Auth
    */
   async init() {
-    if (!this.web3authInstance) throw new Error('Web3Auth is not initialized')
-
     try {
+      this.web3authInstance = new Web3Auth(this.#options)
+
       this.#adapters?.forEach((adapter) => this.web3authInstance?.configureAdapter(adapter))
 
       this.provider = this.web3authInstance.provider

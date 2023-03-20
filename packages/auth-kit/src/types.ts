@@ -1,42 +1,34 @@
 import { ExternalProvider } from '@ethersproject/providers'
-import { WALLET_ADAPTER_TYPE } from '@web3auth/base'
-import { ModalConfig } from '@web3auth/modal'
+
+import { Web3AuthEvent, Web3AuthEventListener } from './packs/web3auth/types'
+import { Web3AuthAdapter } from './packs/web3auth/Web3AuthAdapter'
 
 export interface SafeAuthSignInData {
-  chainId: string
   eoa: string
   safes?: string[]
 }
 
-export interface SafeAuthClient {
+export interface SafeAuthAdapter<TAdapter> {
   provider: ExternalProvider | null
   init(): Promise<void>
-  signIn(): Promise<void>
+  signIn(): Promise<SafeSignInResponse<TAdapter>>
   signOut(): Promise<void>
+  subscribe(event: SafeAuthEvent<TAdapter>, handler: SafeAuthEventListener<TAdapter>): void
+  unsubscribe(event: SafeAuthEvent<TAdapter>, handler: SafeAuthEventListener<TAdapter>): void
 }
 
-export enum SafeAuthProviderType {
-  Web3Auth
+export interface ISafeAuthKit<TAdapter> {
+  signIn(): Promise<SafeAuthSignInData>
+  signOut(): Promise<void>
+  getProvider(): ExternalProvider | null
+  subscribe(event: SafeAuthEvent<TAdapter>, listener: SafeAuthEventListener<TAdapter>): void
+  unsubscribe(event: SafeAuthEvent<TAdapter>, listener: SafeAuthEventListener<TAdapter>): void
 }
 
-export interface Web3AuthProviderConfig {
-  rpcTarget: string
-  clientId: string
-  network: 'mainnet' | 'aqua' | 'celeste' | 'cyan' | 'testnet'
-  theme: 'light' | 'dark' | 'auto'
-  appLogo?: string
-  modalConfig?: Record<WALLET_ADAPTER_TYPE, ModalConfig>
-}
+export type SafeAuthEvent<T> = T extends Web3AuthAdapter ? Web3AuthEvent : never
+export type SafeAuthEventListener<T> = T extends Web3AuthAdapter ? Web3AuthEventListener : never
+export type SafeSignInResponse<T> = T extends Web3AuthAdapter ? void : never
 
 export interface SafeAuthConfig {
-  chainId: string
   txServiceUrl?: string
-  authProviderConfig: Web3AuthProviderConfig
-}
-
-export type SafeAuthEventType = 'SIGNED_IN' | 'SIGNED_OUT'
-
-export const SafeAuthEvents: { [key: string]: SafeAuthEventType } = {
-  SIGNED_IN: 'SIGNED_IN',
-  SIGNED_OUT: 'SIGNED_OUT'
 }

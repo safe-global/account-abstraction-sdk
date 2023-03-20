@@ -21,20 +21,22 @@ const config = {
 jest.mock('./packs/stripe/StripeAdapter')
 
 describe('SafeOnRampKit', () => {
+  let adapter: stripeAdapter.StripeAdapter
+
   beforeEach(() => {
     jest.clearAllMocks()
     jest.restoreAllMocks()
+
+    adapter = new stripeAdapter.StripeAdapter(config)
   })
 
   it('should create a SafeOnRampKit instance when using the init() method', async () => {
-    const adapter = new stripeAdapter.StripeAdapter(config)
     const safeOnRampKit = await SafeOnRampKit.init(adapter)
 
     expect(safeOnRampKit).toBeInstanceOf(SafeOnRampKit)
   })
 
   it('should create a XXXAdapter instance using the provider config and call the init() method in the instance', async () => {
-    const adapter = new stripeAdapter.StripeAdapter(config)
     await SafeOnRampKit.init(adapter)
 
     expect(stripeAdapter.StripeAdapter).toHaveBeenCalledWith(expect.objectContaining(config))
@@ -42,7 +44,6 @@ describe('SafeOnRampKit', () => {
   })
 
   it('should call the open method in the XXXAdapter with the corresponding options', async () => {
-    const adapter = new stripeAdapter.StripeAdapter(config)
     const safeOnRampKit = await SafeOnRampKit.init(adapter)
 
     safeOnRampKit.open(openOptions)
@@ -53,7 +54,6 @@ describe('SafeOnRampKit', () => {
   })
 
   it('should call the close method in the XXXAdapter', async () => {
-    const adapter = new stripeAdapter.StripeAdapter(config)
     const safeOnRampKit = await SafeOnRampKit.init(adapter)
 
     safeOnRampKit.close()

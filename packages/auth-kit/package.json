@@ -46,8 +46,7 @@
     "@safe-global/safe-ethers-lib": "^1.9.1",
     "@safe-global/safe-service-client": "^1.5.1",
     "@walletconnect/client": "^1.8.0",
-    "ethers": "^5.7.2",
-    "events": "^3.3.0"
+    "ethers": "^5.7.2"
   },
   "peerDependencies": {
     "@web3auth/base": "^4.3.0",

@@ -1,26 +1,25 @@
 import { ethers } from 'ethers'
-import EventEmitter from 'events'
 import EthersAdapter from '@safe-global/safe-ethers-lib'
 import SafeServiceClient from '@safe-global/safe-service-client'
-
-import Web3AuthAdapter from './packs/web3auth/Web3AuthAdapter'
 import {
-  SafeAuthClient,
   SafeAuthConfig,
-  SafeAuthProviderType,
   SafeAuthSignInData,
-  SafeAuthEvents,
-  SafeAuthEventType
+  SafeAuthAdapter,
+  SafeAuthEvent,
+  SafeAuthEventListener,
+  ISafeAuthKit
 } from './types'
 import { getErrorMessage } from './lib/errors'
 
 /**
  * SafeAuthKit provides a simple interface for web2 logins
  */
-export class SafeAuthKit extends EventEmitter {
+export class SafeAuthKit<TAdapter extends SafeAuthAdapter<TAdapter>>
+  implements ISafeAuthKit<TAdapter>
+{
+  #adapter: TAdapter
+  #config: SafeAuthConfig | undefined
   safeAuthData?: SafeAuthSignInData
-  #client: SafeAuthClient
-  #config: SafeAuthConfig
 
   /**
    * Initialize the SafeAuthKit
@@ -28,10 +27,8 @@ export class SafeAuthKit extends EventEmitter {
    * @param client The client implementing the SafeAuthClient interface
    * @param config The configuration options
    */
-  constructor(client: SafeAuthClient, config: SafeAuthConfig) {
-    super()
-
-    this.#client = client
+  constructor(adapter: TAdapter, config?: SafeAuthConfig) {
+    this.#adapter = adapter
     this.#config = config
   }
 
@@ -42,23 +39,16 @@ export class SafeAuthKit extends EventEmitter {
    * @returns A SafeAuthKit instance
    * @throws Error if the provider type is not supported
    */
-  static async init(
-    providerType: SafeAuthProviderType,
-    config: SafeAuthConfig
-  ): Promise<SafeAuthKit | undefined> {
-    let client
-
-    switch (providerType) {
-      case SafeAuthProviderType.Web3Auth:
-        client = new Web3AuthAdapter(config.chainId, config.authProviderConfig)
-        break
-      default:
-        throw new Error('Provider type not supported')
+  static async init<T extends SafeAuthAdapter<T>>(
+    adapter: T,
+    config?: SafeAuthConfig
+  ): Promise<SafeAuthKit<T>> {
+    if (!adapter) {
+      throw new Error('The adapter is not defined')
     }
 
-    await client.init()
-
-    return new SafeAuthKit(client, config)
+    await adapter.init()
+    return new this(adapter, config)
   }
 
   /**
@@ -68,13 +58,13 @@ export class SafeAuthKit extends EventEmitter {
    * @throws Error if there was an error while trying to get the safes for the current user using the provided txServiceUrl
    */
   async signIn(): Promise<SafeAuthSignInData> {
-    await this.#client.signIn()
+    await this.#adapter.signIn()
 
-    if (!this.#client.provider) {
+    if (!this.#adapter.provider) {
       throw new Error('Provider is not defined')
     }
 
-    const ethersProvider = new ethers.providers.Web3Provider(this.#client.provider)
+    const ethersProvider = new ethers.providers.Web3Provider(this.#adapter.provider)
 
     const signer = ethersProvider.getSigner()
 
@@ -83,7 +73,7 @@ export class SafeAuthKit extends EventEmitter {
     let safes: string[] | undefined
 
     // Retrieve safes if txServiceUrl is provided
-    if (this.#config.txServiceUrl) {
+    if (this.#config?.txServiceUrl) {
       try {
         const safesByOwner = await this.#getSafeCoreClient().getSafesByOwner(address)
         safes = safesByOwner.safes
@@ -92,10 +82,7 @@ export class SafeAuthKit extends EventEmitter {
       }
     }
 
-    this.emit(SafeAuthEvents.SIGNED_IN)
-
     this.safeAuthData = {
-      chainId: this.#config.chainId,
       eoa: address,
       safes
     }
@@ -107,10 +94,9 @@ export class SafeAuthKit extends EventEmitter {
    * Sign out the user
    */
   async signOut(): Promise<void> {
-    await this.#client?.signOut()
+    await this.#adapter.signOut()
 
     this.safeAuthData = undefined
-    this.emit(SafeAuthEvents.SIGNED_OUT)
   }
 
   /**
@@ -118,9 +104,9 @@ export class SafeAuthKit extends EventEmitter {
    * @returns The Ethereum provider
    */
   getProvider() {
-    if (!this.#client) return null
+    if (!this.#adapter) return null
 
-    return this.#client?.provider
+    return this.#adapter?.provider
   }
 
   /**
@@ -128,8 +114,8 @@ export class SafeAuthKit extends EventEmitter {
    * @param eventName The event name to subscribe to. Choose from SafeAuthEvents type
    * @param listener The callback function to be called when the event is emitted
    */
-  subscribe(eventName: SafeAuthEventType, listener: (...args: any[]) => void) {
-    this.on(eventName.toString(), listener)
+  subscribe(event: SafeAuthEvent<TAdapter>, listener: SafeAuthEventListener<TAdapter>) {
+    this.#adapter.subscribe(event, listener)
   }
 
   /**
@@ -137,8 +123,8 @@ export class SafeAuthKit extends EventEmitter {
    * @param eventName The event name to unsubscribe from. Choose from SafeAuthEvents type
    * @param listener The callback function to unsubscribe
    */
-  unsubscribe(eventName: SafeAuthEventType, listener: (...args: any[]) => void) {
-    this.off(eventName.toString(), listener)
+  unsubscribe(event: SafeAuthEvent<TAdapter>, listener: SafeAuthEventListener<TAdapter>) {
+    this.#adapter.unsubscribe(event, listener)
   }
 
   /**
@@ -146,15 +132,15 @@ export class SafeAuthKit extends EventEmitter {
    * @returns A SafeServiceClient instance
    */
   #getSafeCoreClient(): SafeServiceClient {
-    if (!this.#client?.provider) {
+    if (!this.#adapter?.provider) {
       throw new Error('Provider is not defined')
     }
 
-    if (!this.#config.txServiceUrl) {
+    if (!this.#config?.txServiceUrl) {
       throw new Error('txServiceUrl is not defined')
     }
 
-    const provider = new ethers.providers.Web3Provider(this.#client?.provider)
+    const provider = new ethers.providers.Web3Provider(this.#adapter.provider)
     const safeOwner = provider.getSigner(0)
 
     const adapter = new EthersAdapter({

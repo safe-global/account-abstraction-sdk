@@ -1,4 +1,6 @@
-# Safe Account Abstraction SDK
+# [DEPRECATED] Safe Account Abstraction SDK
+
+ATTENTION: please find the current version of this code in [Safe Core SDK](https://github.com/safe-global/safe-core-sdk) repository
 
 [![GitHub](https://img.shields.io/github/license/safe-global/account-abstraction-sdk)](https://github.com/safe-global/account-abstraction-sdk/blob/main/LICENSE.md)
 
